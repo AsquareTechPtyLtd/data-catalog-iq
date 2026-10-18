@@ -1,0 +1,82 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__fct_orders
+name: fct_orders
+version: 2.4.0
+status: active
+domain: finance
+dataProduct: Finance Reporting
+description:
+  purpose: One row per order with gross and net amounts.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: grace.whitfield@fernwood.example
+  name: Grace Whitfield
+  role: Owner
+- username: kenji.mori@fernwood.example
+  name: Kenji Mori
+  role: Analytics Engineer
+support:
+- channel: '#finance-data'
+  tool: slack
+  scope: issues
+- channel: finance-data@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: fct_orders
+  physicalName: fernwood_dw.marts.fct_orders
+  physicalType: table
+  description: One row per order with gross and net amounts.
+  properties:
+  - name: order_id
+    logicalType: string
+    physicalType: TEXT
+    description: Order identifier
+    primaryKey: true
+    required: true
+  - name: customer_id
+    logicalType: string
+    physicalType: TEXT
+    description: Customer
+  - name: ordered_at
+    logicalType: string
+    physicalType: TEXT
+    description: Order timestamp
+  - name: order_status
+    logicalType: string
+    physicalType: TEXT
+    description: Order status
+  - name: gross_amount_usd
+    logicalType: number
+    physicalType: REAL
+    description: Gross revenue
+  - name: discount_usd
+    logicalType: number
+    physicalType: REAL
+    description: Discount
+  - name: net_amount_usd
+    logicalType: number
+    physicalType: REAL
+    description: Net revenue
+  - name: item_count
+    logicalType: integer
+    physicalType: INTEGER
+    description: Units
+quality:
+- rule: unique
+  columns:
+  - order_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - order_id
+  description: Primary key is never null.

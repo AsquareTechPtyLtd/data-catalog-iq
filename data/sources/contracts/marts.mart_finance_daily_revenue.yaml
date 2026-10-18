@@ -1,0 +1,78 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__mart_finance_daily_revenue
+name: mart_finance_daily_revenue
+version: 2.1.2
+status: active
+domain: finance
+dataProduct: Finance Reporting
+description:
+  purpose: Daily gross, refunded and net revenue by channel.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: grace.whitfield@fernwood.example
+  name: Grace Whitfield
+  role: Owner
+- username: kenji.mori@fernwood.example
+  name: Kenji Mori
+  role: Analytics Engineer
+support:
+- channel: '#finance-data'
+  tool: slack
+  scope: issues
+- channel: finance-data@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: mart_finance_daily_revenue
+  physicalName: fernwood_dw.marts.mart_finance_daily_revenue
+  physicalType: table
+  description: Daily gross, refunded and net revenue by channel.
+  properties:
+  - name: revenue_date
+    logicalType: string
+    physicalType: TEXT
+    description: Calendar date
+    primaryKey: true
+    required: true
+  - name: channel
+    logicalType: string
+    physicalType: TEXT
+    description: online / store
+    primaryKey: true
+    required: true
+  - name: order_count
+    logicalType: integer
+    physicalType: INTEGER
+    description: Orders
+  - name: gross_revenue_usd
+    logicalType: number
+    physicalType: REAL
+    description: Gross revenue
+  - name: refunds_usd
+    logicalType: number
+    physicalType: REAL
+    description: Refunds
+  - name: net_revenue_usd
+    logicalType: number
+    physicalType: REAL
+    description: Net revenue
+quality:
+- rule: unique
+  columns:
+  - revenue_date
+  - channel
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - revenue_date
+  - channel
+  description: Primary key is never null.

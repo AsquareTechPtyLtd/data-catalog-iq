@@ -1,0 +1,74 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_marketing__campaigns
+name: campaigns
+version: 1.1.0
+status: active
+domain: marketing
+dataProduct: 'Source: marketing'
+description:
+  purpose: Marketing campaign setup across channels.
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: hannah.lindqvist@fernwood.example
+  name: Hannah Lindqvist
+  role: Owner
+- username: samuel.adeyemi@fernwood.example
+  name: Samuel Adeyemi
+  role: Owner
+support:
+- channel: '#data-platform-support'
+  tool: slack
+  scope: issues
+- channel: data-platform@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 6
+  unit: h
+- property: frequency
+  value: hourly
+schema:
+- name: campaigns
+  physicalName: fernwood_dw.raw_marketing.campaigns
+  physicalType: table
+  description: Marketing campaign setup across channels.
+  properties:
+  - name: campaign_id
+    logicalType: string
+    physicalType: TEXT
+    description: Campaign identifier
+    primaryKey: true
+    required: true
+  - name: campaign_name
+    logicalType: string
+    physicalType: TEXT
+    description: Campaign name
+  - name: channel
+    logicalType: string
+    physicalType: TEXT
+    description: email / paid_social / search
+  - name: start_date
+    logicalType: string
+    physicalType: TEXT
+    description: Campaign start
+  - name: end_date
+    logicalType: string
+    physicalType: TEXT
+    description: Campaign end
+  - name: budget_usd
+    logicalType: number
+    physicalType: REAL
+    description: Planned budget
+quality:
+- rule: unique
+  columns:
+  - campaign_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - campaign_id
+  description: Primary key is never null.

@@ -1,0 +1,82 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_payments__transactions
+name: transactions
+version: 1.4.0
+status: active
+domain: finance
+dataProduct: 'Source: payments'
+description:
+  purpose: Card payment transactions from the payments service.
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: wei.zhang@fernwood.example
+  name: Wei Zhang
+  role: Owner
+- username: samuel.adeyemi@fernwood.example
+  name: Samuel Adeyemi
+  role: Owner
+support:
+- channel: '#payments-eng'
+  tool: slack
+  scope: issues
+- channel: payments-eng@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: transactions
+  physicalName: fernwood_dw.raw_payments.transactions
+  physicalType: table
+  description: Card payment transactions from the payments service.
+  properties:
+  - name: transaction_id
+    logicalType: string
+    physicalType: TEXT
+    description: Payment transaction identifier
+    primaryKey: true
+    required: true
+  - name: order_id
+    logicalType: string
+    physicalType: TEXT
+    description: Order paid for
+  - name: card_last4
+    logicalType: string
+    physicalType: TEXT
+    description: Last four digits of the card
+  - name: card_brand
+    logicalType: string
+    physicalType: TEXT
+    description: visa / mastercard / amex
+  - name: billing_postal_code
+    logicalType: string
+    physicalType: TEXT
+    description: Billing postal code
+  - name: amount_usd
+    logicalType: number
+    physicalType: REAL
+    description: Amount charged
+  - name: payment_status
+    logicalType: string
+    physicalType: TEXT
+    description: authorized / captured / refunded / failed
+  - name: processed_at
+    logicalType: string
+    physicalType: TEXT
+    description: Processing timestamp
+quality:
+- rule: unique
+  columns:
+  - transaction_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - transaction_id
+  description: Primary key is never null.

@@ -1,0 +1,74 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__mart_marketing_audience
+name: mart_marketing_audience
+version: 2.0.0
+status: active
+domain: marketing
+dataProduct: Marketing Insights
+description:
+  purpose: Opted-in customers with audience segments, synced to the email platform.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: hannah.lindqvist@fernwood.example
+  name: Hannah Lindqvist
+  role: Owner
+- username: omar.haddad@fernwood.example
+  name: Omar Haddad
+  role: Analytics Engineer
+support:
+- channel: '#marketing-analytics'
+  tool: slack
+  scope: issues
+- channel: marketing-analytics@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: mart_marketing_audience
+  physicalName: fernwood_dw.marts.mart_marketing_audience
+  physicalType: table
+  description: Opted-in customers with audience segments, synced to the email platform.
+  properties:
+  - name: customer_id
+    logicalType: string
+    physicalType: TEXT
+    description: Customer
+    primaryKey: true
+    required: true
+  - name: email
+    logicalType: string
+    physicalType: TEXT
+    description: Email to target
+  - name: first_name
+    logicalType: string
+    physicalType: TEXT
+    description: First name for personalisation
+  - name: ltv_segment
+    logicalType: string
+    physicalType: TEXT
+    description: LTV segment
+  - name: audience_segment
+    logicalType: string
+    physicalType: TEXT
+    description: Campaign audience segment
+  - name: is_marketing_opted_in
+    logicalType: integer
+    physicalType: INTEGER
+    description: Always 1 (opted-in only)
+quality:
+- rule: unique
+  columns:
+  - customer_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - customer_id
+  description: Primary key is never null.

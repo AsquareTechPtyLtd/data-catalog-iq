@@ -1,0 +1,75 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__mart_inventory_health
+name: mart_inventory_health
+version: 2.3.1
+status: active
+domain: supply_chain
+dataProduct: Product & Inventory
+description:
+  purpose: Latest stock position, weeks of cover and sell-through by SKU and warehouse.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: lucia.ferraro@fernwood.example
+  name: Lucia Ferraro
+  role: Owner
+support:
+- channel: '#supply-chain-data'
+  tool: slack
+  scope: issues
+- channel: supply-chain-analytics@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: mart_inventory_health
+  physicalName: fernwood_dw.marts.mart_inventory_health
+  physicalType: table
+  description: Latest stock position, weeks of cover and sell-through by SKU and warehouse.
+  properties:
+  - name: sku
+    logicalType: string
+    physicalType: TEXT
+    description: SKU
+    primaryKey: true
+    required: true
+  - name: warehouse_id
+    logicalType: string
+    physicalType: TEXT
+    description: Warehouse code
+    primaryKey: true
+    required: true
+  - name: snapshot_date
+    logicalType: string
+    physicalType: TEXT
+    description: Latest snapshot date
+  - name: on_hand_qty
+    logicalType: integer
+    physicalType: INTEGER
+    description: Units on hand
+  - name: weeks_of_cover
+    logicalType: number
+    physicalType: REAL
+    description: Weeks of cover
+  - name: sell_through_rate
+    logicalType: number
+    physicalType: REAL
+    description: Sell-through rate (4 weeks)
+quality:
+- rule: unique
+  columns:
+  - sku
+  - warehouse_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - sku
+  - warehouse_id
+  description: Primary key is never null.

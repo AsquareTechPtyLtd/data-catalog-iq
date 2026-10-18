@@ -1,0 +1,71 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__legacy_customer_export
+name: legacy_customer_export
+version: 1.4.0
+status: deprecated
+domain: customer
+dataProduct: Customer 360
+description:
+  purpose: Deprecated customer extract. Use dim_customers instead.
+  usage: Governed mart for reporting and downstream data products.
+  limitations: Deprecated since 2025-07-01 and no longer maintained. Use marts.dim_customers.
+team:
+- username: maya.okafor@fernwood.example
+  name: Maya Okafor
+  role: Owner
+- username: daniel.reyes@fernwood.example
+  name: Daniel Reyes
+  role: Analytics Engineer
+support:
+- channel: '#customer-data-support'
+  tool: slack
+  scope: issues
+- channel: customer-data@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: legacy_customer_export
+  physicalName: fernwood_dw.marts.legacy_customer_export
+  physicalType: table
+  description: Deprecated customer extract. Use dim_customers instead.
+  properties:
+  - name: customer_id
+    logicalType: string
+    physicalType: TEXT
+    description: Customer
+    primaryKey: true
+    required: true
+  - name: email
+    logicalType: string
+    physicalType: TEXT
+    description: Email
+  - name: first_name
+    logicalType: string
+    physicalType: TEXT
+    description: First name
+  - name: last_name
+    logicalType: string
+    physicalType: TEXT
+    description: Last name
+  - name: phone
+    logicalType: string
+    physicalType: TEXT
+    description: Phone
+quality:
+- rule: unique
+  columns:
+  - customer_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - customer_id
+  description: Primary key is never null.

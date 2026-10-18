@@ -1,0 +1,82 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__mart_campaign_performance
+name: mart_campaign_performance
+version: 2.2.2
+status: active
+domain: marketing
+dataProduct: Marketing Insights
+description:
+  purpose: Campaign sends, open and click rates, and attributed revenue.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: hannah.lindqvist@fernwood.example
+  name: Hannah Lindqvist
+  role: Owner
+- username: omar.haddad@fernwood.example
+  name: Omar Haddad
+  role: Analytics Engineer
+support:
+- channel: '#marketing-analytics'
+  tool: slack
+  scope: issues
+- channel: marketing-analytics@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: mart_campaign_performance
+  physicalName: fernwood_dw.marts.mart_campaign_performance
+  physicalType: table
+  description: Campaign sends, open and click rates, and attributed revenue.
+  properties:
+  - name: campaign_id
+    logicalType: string
+    physicalType: TEXT
+    description: Campaign
+    primaryKey: true
+    required: true
+  - name: campaign_name
+    logicalType: string
+    physicalType: TEXT
+    description: Campaign name
+  - name: channel
+    logicalType: string
+    physicalType: TEXT
+    description: Channel
+  - name: sends
+    logicalType: integer
+    physicalType: INTEGER
+    description: Emails sent
+  - name: open_rate
+    logicalType: number
+    physicalType: REAL
+    description: Opens / delivered
+  - name: click_rate
+    logicalType: number
+    physicalType: REAL
+    description: Clicks / delivered
+  - name: attributed_orders
+    logicalType: integer
+    physicalType: INTEGER
+    description: Orders attributed (last touch, 7 days)
+  - name: attributed_revenue_usd
+    logicalType: number
+    physicalType: REAL
+    description: Net revenue attributed
+quality:
+- rule: unique
+  columns:
+  - campaign_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - campaign_id
+  description: Primary key is never null.

@@ -1,0 +1,83 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__dim_employees
+name: dim_employees
+version: 2.2.2
+status: active
+domain: people
+dataProduct: Workforce Analytics
+description:
+  purpose: One row per employee for workforce reporting.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: tom.brennan@fernwood.example
+  name: Tom Brennan
+  role: Owner
+support:
+- channel: '#people-analytics'
+  tool: slack
+  scope: issues
+- channel: people-analytics@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: dim_employees
+  physicalName: fernwood_dw.marts.dim_employees
+  physicalType: table
+  description: One row per employee for workforce reporting.
+  properties:
+  - name: employee_id
+    logicalType: string
+    physicalType: TEXT
+    description: Employee identifier
+    primaryKey: true
+    required: true
+  - name: full_name
+    logicalType: string
+    physicalType: TEXT
+    description: Full name
+  - name: work_email
+    logicalType: string
+    physicalType: TEXT
+    description: Work email
+  - name: personal_email
+    logicalType: string
+    physicalType: TEXT
+    description: Personal email
+  - name: department
+    logicalType: string
+    physicalType: TEXT
+    description: Department
+  - name: job_title
+    logicalType: string
+    physicalType: TEXT
+    description: Job title
+  - name: annual_salary
+    logicalType: number
+    physicalType: REAL
+    description: Annual salary
+  - name: joining_date
+    logicalType: string
+    physicalType: TEXT
+    description: Joining date
+  - name: termination_date
+    logicalType: string
+    physicalType: TEXT
+    description: Termination date
+quality:
+- rule: unique
+  columns:
+  - employee_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - employee_id
+  description: Primary key is never null.

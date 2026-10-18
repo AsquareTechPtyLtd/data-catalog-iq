@@ -1,0 +1,78 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__mart_email_engagement
+name: mart_email_engagement
+version: 2.0.1
+status: active
+domain: marketing
+dataProduct: Marketing Insights
+description:
+  purpose: Email engagement per hashed recipient and campaign.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: hannah.lindqvist@fernwood.example
+  name: Hannah Lindqvist
+  role: Owner
+- username: omar.haddad@fernwood.example
+  name: Omar Haddad
+  role: Analytics Engineer
+support:
+- channel: '#marketing-analytics'
+  tool: slack
+  scope: issues
+- channel: marketing-analytics@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: mart_email_engagement
+  physicalName: fernwood_dw.marts.mart_email_engagement
+  physicalType: table
+  description: Email engagement per hashed recipient and campaign.
+  properties:
+  - name: recipient_email_sha256
+    logicalType: string
+    physicalType: TEXT
+    description: Hashed recipient email
+    primaryKey: true
+    required: true
+  - name: campaign_id
+    logicalType: string
+    physicalType: TEXT
+    description: Campaign
+    primaryKey: true
+    required: true
+  - name: sends
+    logicalType: integer
+    physicalType: INTEGER
+    description: Emails sent
+  - name: opens
+    logicalType: integer
+    physicalType: INTEGER
+    description: Opens
+  - name: clicks
+    logicalType: integer
+    physicalType: INTEGER
+    description: Clicks
+  - name: last_engaged_at
+    logicalType: string
+    physicalType: TEXT
+    description: Last open or click
+quality:
+- rule: unique
+  columns:
+  - recipient_email_sha256
+  - campaign_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - recipient_email_sha256
+  - campaign_id
+  description: Primary key is never null.

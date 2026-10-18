@@ -1,0 +1,94 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_hr__employees
+name: employees
+version: 1.5.1
+status: active
+domain: people
+dataProduct: 'Source: hr'
+description:
+  purpose: Employee records from the HR system.
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: tom.brennan@fernwood.example
+  name: Tom Brennan
+  role: Owner
+- username: priya.nair@fernwood.example
+  name: Priya Nair
+  role: Owner
+support:
+- channel: '#people-analytics'
+  tool: slack
+  scope: issues
+- channel: people-analytics@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: employees
+  physicalName: fernwood_dw.raw_hr.employees
+  physicalType: table
+  description: Employee records from the HR system.
+  properties:
+  - name: employee_id
+    logicalType: string
+    physicalType: TEXT
+    description: Employee identifier
+    primaryKey: true
+    required: true
+  - name: full_name
+    logicalType: string
+    physicalType: TEXT
+    description: Employee full name
+  - name: work_email
+    logicalType: string
+    physicalType: TEXT
+    description: Work email address
+  - name: personal_email
+    logicalType: string
+    physicalType: TEXT
+    description: Personal email address
+  - name: home_address
+    logicalType: string
+    physicalType: TEXT
+    description: Home address
+  - name: department
+    logicalType: string
+    physicalType: TEXT
+    description: Department
+  - name: job_title
+    logicalType: string
+    physicalType: TEXT
+    description: Job title
+  - name: annual_salary
+    logicalType: number
+    physicalType: REAL
+    description: Annual base salary (USD)
+  - name: joining_date
+    logicalType: string
+    physicalType: TEXT
+    description: Date joined Fernwood
+  - name: termination_date
+    logicalType: string
+    physicalType: TEXT
+    description: Date employment ended, if any
+  - name: national_id_last4
+    logicalType: string
+    physicalType: TEXT
+    description: Last four digits of national ID
+quality:
+- rule: unique
+  columns:
+  - employee_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - employee_id
+  description: Primary key is never null.

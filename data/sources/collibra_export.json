@@ -1,0 +1,6737 @@
+{
+  "exportMetadata": {
+    "format": "collibra-style-governance-export",
+    "formatVersion": "1.0",
+    "exportedAt": "2026-10-01T02:00:00Z",
+    "company": "Fernwood Outfitters",
+    "notice": "Synthetic data for a fictional company. Names, policies and retention periods are invented and are not legal guidance."
+  },
+  "communities": [
+    {
+      "name": "Fernwood Data Governance",
+      "description": "Governance assets for Fernwood Outfitters: data concepts, policies and business glossary."
+    }
+  ],
+  "domains": [
+    {
+      "name": "Customer",
+      "type": "Business Asset Domain",
+      "community": "Fernwood Data Governance"
+    },
+    {
+      "name": "Finance",
+      "type": "Business Asset Domain",
+      "community": "Fernwood Data Governance"
+    },
+    {
+      "name": "Marketing",
+      "type": "Business Asset Domain",
+      "community": "Fernwood Data Governance"
+    },
+    {
+      "name": "Digital",
+      "type": "Business Asset Domain",
+      "community": "Fernwood Data Governance"
+    },
+    {
+      "name": "Support",
+      "type": "Business Asset Domain",
+      "community": "Fernwood Data Governance"
+    },
+    {
+      "name": "Supply Chain",
+      "type": "Business Asset Domain",
+      "community": "Fernwood Data Governance"
+    },
+    {
+      "name": "People",
+      "type": "Business Asset Domain",
+      "community": "Fernwood Data Governance"
+    },
+    {
+      "name": "Business Glossary",
+      "type": "Glossary",
+      "community": "Fernwood Data Governance"
+    },
+    {
+      "name": "Fernwood Warehouse",
+      "type": "Physical Data Dictionary",
+      "community": "Fernwood Data Governance"
+    }
+  ],
+  "userGroups": [
+    {
+      "name": "Data Strategy",
+      "description": "Owns the data governance operating model. Point of contact when a dataset has no data contract.",
+      "email": "data-strategy@fernwood.example",
+      "slack": "#data-strategy",
+      "members": [
+        "elena.petrova",
+        "rahul.menon"
+      ]
+    },
+    {
+      "name": "Customer Data",
+      "description": "Builds and runs customer data products (Customer 360, loyalty).",
+      "email": "customer-data@fernwood.example",
+      "slack": "#customer-data-support",
+      "members": [
+        "maya.okafor",
+        "daniel.reyes"
+      ]
+    },
+    {
+      "name": "Marketing Analytics",
+      "description": "Campaign measurement, audiences and web analytics.",
+      "email": "marketing-analytics@fernwood.example",
+      "slack": "#marketing-analytics",
+      "members": [
+        "hannah.lindqvist",
+        "omar.haddad"
+      ]
+    },
+    {
+      "name": "Finance Data",
+      "description": "Revenue, payments and financial reporting data.",
+      "email": "finance-data@fernwood.example",
+      "slack": "#finance-data",
+      "members": [
+        "grace.whitfield",
+        "kenji.mori"
+      ]
+    },
+    {
+      "name": "Supply Chain Analytics",
+      "description": "Product, inventory and replenishment data.",
+      "email": "supply-chain-analytics@fernwood.example",
+      "slack": "#supply-chain-data",
+      "members": [
+        "lucia.ferraro"
+      ]
+    },
+    {
+      "name": "Data Platform",
+      "description": "Ingestion of source systems into the warehouse.",
+      "email": "data-platform@fernwood.example",
+      "slack": "#data-platform-support",
+      "members": [
+        "samuel.adeyemi",
+        "priya.nair"
+      ]
+    },
+    {
+      "name": "People Analytics",
+      "description": "Workforce and HR reporting data.",
+      "email": "people-analytics@fernwood.example",
+      "slack": "#people-analytics",
+      "members": [
+        "tom.brennan",
+        "sofia.marques"
+      ]
+    },
+    {
+      "name": "Support Operations",
+      "description": "Customer support tooling and reporting.",
+      "email": "support-ops@fernwood.example",
+      "slack": "#support-ops",
+      "members": [
+        "aisha.karim"
+      ]
+    },
+    {
+      "name": "Privacy Office",
+      "description": "Privacy policy, retention and PI handling rules.",
+      "email": "privacy@fernwood.example",
+      "slack": "#privacy-office",
+      "members": [
+        "jonas.weber"
+      ]
+    },
+    {
+      "name": "Storefront Engineering",
+      "description": "Runs the e-commerce storefront application.",
+      "email": "storefront-eng@fernwood.example",
+      "slack": "#storefront-eng",
+      "members": [
+        "carlos.mendes"
+      ]
+    },
+    {
+      "name": "Payments Engineering",
+      "description": "Runs the payments service.",
+      "email": "payments-eng@fernwood.example",
+      "slack": "#payments-eng",
+      "members": [
+        "wei.zhang"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "userName": "elena.petrova",
+      "firstName": "Elena",
+      "lastName": "Petrova",
+      "emailAddress": "elena.petrova@fernwood.example",
+      "title": "Head of Data Strategy & Governance",
+      "region": "EMEA",
+      "stewardSince": "2023-04-01"
+    },
+    {
+      "userName": "rahul.menon",
+      "firstName": "Rahul",
+      "lastName": "Menon",
+      "emailAddress": "rahul.menon@fernwood.example",
+      "title": "Data Governance Analyst",
+      "region": "APAC",
+      "stewardSince": "2024-01-15"
+    },
+    {
+      "userName": "maya.okafor",
+      "firstName": "Maya",
+      "lastName": "Okafor",
+      "emailAddress": "maya.okafor@fernwood.example",
+      "title": "Data Product Owner, Customer",
+      "region": "EMEA",
+      "stewardSince": "2024-06-01"
+    },
+    {
+      "userName": "daniel.reyes",
+      "firstName": "Daniel",
+      "lastName": "Reyes",
+      "emailAddress": "daniel.reyes@fernwood.example",
+      "title": "Senior Analytics Engineer",
+      "region": "AMER",
+      "stewardSince": "2024-06-01"
+    },
+    {
+      "userName": "hannah.lindqvist",
+      "firstName": "Hannah",
+      "lastName": "Lindqvist",
+      "emailAddress": "hannah.lindqvist@fernwood.example",
+      "title": "Marketing Analytics Lead",
+      "region": "EMEA",
+      "stewardSince": "2024-03-01"
+    },
+    {
+      "userName": "omar.haddad",
+      "firstName": "Omar",
+      "lastName": "Haddad",
+      "emailAddress": "omar.haddad@fernwood.example",
+      "title": "Analytics Engineer, Marketing",
+      "region": "EMEA",
+      "stewardSince": "2025-02-01"
+    },
+    {
+      "userName": "grace.whitfield",
+      "firstName": "Grace",
+      "lastName": "Whitfield",
+      "emailAddress": "grace.whitfield@fernwood.example",
+      "title": "Finance Data Lead",
+      "region": "AMER",
+      "stewardSince": "2023-09-01"
+    },
+    {
+      "userName": "kenji.mori",
+      "firstName": "Kenji",
+      "lastName": "Mori",
+      "emailAddress": "kenji.mori@fernwood.example",
+      "title": "Analytics Engineer, Finance",
+      "region": "APAC",
+      "stewardSince": "2025-01-10"
+    },
+    {
+      "userName": "lucia.ferraro",
+      "firstName": "Lucia",
+      "lastName": "Ferraro",
+      "emailAddress": "lucia.ferraro@fernwood.example",
+      "title": "Supply Chain Analytics Lead",
+      "region": "EMEA",
+      "stewardSince": "2024-05-01"
+    },
+    {
+      "userName": "samuel.adeyemi",
+      "firstName": "Samuel",
+      "lastName": "Adeyemi",
+      "emailAddress": "samuel.adeyemi@fernwood.example",
+      "title": "Data Platform Engineer",
+      "region": "AMER",
+      "stewardSince": "2024-08-01"
+    },
+    {
+      "userName": "priya.nair",
+      "firstName": "Priya",
+      "lastName": "Nair",
+      "emailAddress": "priya.nair@fernwood.example",
+      "title": "Senior Data Platform Engineer",
+      "region": "APAC",
+      "stewardSince": "2023-11-01"
+    },
+    {
+      "userName": "tom.brennan",
+      "firstName": "Tom",
+      "lastName": "Brennan",
+      "emailAddress": "tom.brennan@fernwood.example",
+      "title": "People Analytics Lead",
+      "region": "AMER",
+      "stewardSince": "2024-02-01"
+    },
+    {
+      "userName": "sofia.marques",
+      "firstName": "Sofia",
+      "lastName": "Marques",
+      "emailAddress": "sofia.marques@fernwood.example",
+      "title": "HR Data Steward",
+      "region": "EMEA",
+      "stewardSince": "2024-02-01"
+    },
+    {
+      "userName": "aisha.karim",
+      "firstName": "Aisha",
+      "lastName": "Karim",
+      "emailAddress": "aisha.karim@fernwood.example",
+      "title": "Support Operations Manager",
+      "region": "EMEA",
+      "stewardSince": "2025-03-01"
+    },
+    {
+      "userName": "jonas.weber",
+      "firstName": "Jonas",
+      "lastName": "Weber",
+      "emailAddress": "jonas.weber@fernwood.example",
+      "title": "Privacy Officer",
+      "region": "EMEA",
+      "stewardSince": "2023-04-01"
+    },
+    {
+      "userName": "carlos.mendes",
+      "firstName": "Carlos",
+      "lastName": "Mendes",
+      "emailAddress": "carlos.mendes@fernwood.example",
+      "title": "Storefront Engineering Manager",
+      "region": "AMER"
+    },
+    {
+      "userName": "wei.zhang",
+      "firstName": "Wei",
+      "lastName": "Zhang",
+      "emailAddress": "wei.zhang@fernwood.example",
+      "title": "Payments Engineering Lead",
+      "region": "APAC"
+    }
+  ],
+  "assets": [
+    {
+      "dataCategoryId": "DC-001",
+      "type": "Data Category",
+      "name": "Customer Contact Information",
+      "domain": "Customer",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Information used to identify and contact a customer: email address, name, phone number and postal address.",
+        "Retention Period (Months)": 36,
+        "Retention Trigger": "after last customer activity",
+        "Disposal Action": "Delete",
+        "Legal Basis": "Storage limitation under fictional policy FW-RET-001"
+      },
+      "relations": {
+        "related to": [
+          "term_customer",
+          "term_marketing_opt_in"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "maya.okafor"
+        ],
+        "Data Steward": [
+          "rahul.menon"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-002",
+      "type": "Data Category",
+      "name": "Customer Sensitive Personal Data",
+      "domain": "Customer",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Personal details beyond contact information collected for the loyalty program, such as a customer's date of birth.",
+        "Retention Period (Months)": 24,
+        "Retention Trigger": "after loyalty membership ends",
+        "Disposal Action": "Delete",
+        "Legal Basis": "Data minimisation under fictional policy FW-RET-002"
+      },
+      "relations": {
+        "related to": [
+          "term_loyalty_tier",
+          "term_personal_information"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "maya.okafor"
+        ],
+        "Data Steward": [
+          "jonas.weber"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-003",
+      "type": "Data Category",
+      "name": "Payment Card Data",
+      "domain": "Finance",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Partial payment card details and billing information captured when a customer pays, such as card last four digits and billing postal code.",
+        "Retention Period (Months)": 13,
+        "Retention Trigger": "after transaction",
+        "Disposal Action": "Delete",
+        "Legal Basis": "Card scheme dispute window under fictional policy FW-RET-003"
+      },
+      "relations": {
+        "related to": [
+          "term_order"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "grace.whitfield"
+        ],
+        "Data Steward": [
+          "jonas.weber"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-004",
+      "type": "Data Category",
+      "name": "Support Interaction",
+      "domain": "Support",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Records of a customer's contact with the support desk, including ticket subject, message content and requester details.",
+        "Retention Period (Months)": 24,
+        "Retention Trigger": "after ticket closed",
+        "Disposal Action": "Anonymize",
+        "Legal Basis": "Service quality and complaint handling under fictional policy FW-RET-004"
+      },
+      "relations": {
+        "related to": [
+          "term_first_response_time"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "aisha.karim"
+        ],
+        "Data Steward": [
+          "rahul.menon"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-005",
+      "type": "Data Category",
+      "name": "Web Behavioral Data",
+      "domain": "Digital",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Browsing activity on the Fernwood website: sessions, page views, device and network identifiers such as IP address.",
+        "Retention Period (Months)": 3,
+        "Retention Trigger": "after collection",
+        "Disposal Action": "Anonymize",
+        "Legal Basis": "Consent-based analytics under fictional policy FW-RET-005"
+      },
+      "relations": {
+        "related to": [
+          "term_personal_information"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "hannah.lindqvist"
+        ],
+        "Data Steward": [
+          "jonas.weber"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-006",
+      "type": "Data Category",
+      "name": "Pseudonymized Marketing Data",
+      "domain": "Marketing",
+      "status": "Candidate",
+      "attributes": {
+        "Definition": "Marketing engagement data where the customer identifier has been replaced by a one-way hash. Proposed concept; retention policy not yet agreed."
+      },
+      "relations": {
+        "related to": [
+          "term_pseudonymized_data",
+          "term_email_engagement_rate"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "hannah.lindqvist"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-007",
+      "type": "Data Category",
+      "name": "Marketing Campaign",
+      "domain": "Marketing",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Campaign setup and performance data: channels, budgets, sends, opens, clicks and attributed revenue.",
+        "Retention Period (Months)": 60,
+        "Retention Trigger": "after campaign end",
+        "Disposal Action": "Archive",
+        "Legal Basis": "Marketing performance records under fictional policy FW-RET-006"
+      },
+      "relations": {
+        "related to": [
+          "term_campaign_attribution",
+          "term_audience_segment"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "hannah.lindqvist"
+        ],
+        "Data Steward": [
+          "rahul.menon"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-008",
+      "type": "Data Category",
+      "name": "Order Transaction",
+      "domain": "Finance",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Orders, order lines, returns, amounts and revenue figures generated by customer purchases online and in store.",
+        "Retention Period (Months)": 84,
+        "Retention Trigger": "after fiscal year end",
+        "Disposal Action": "Archive",
+        "Legal Basis": "Tax and accounting record keeping under fictional policy FW-RET-007"
+      },
+      "relations": {
+        "related to": [
+          "term_order",
+          "term_gross_revenue",
+          "term_net_revenue",
+          "term_average_order_value",
+          "term_return_request"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "grace.whitfield"
+        ],
+        "Data Steward": [
+          "kenji.mori"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-009",
+      "type": "Data Category",
+      "name": "Product & Inventory",
+      "domain": "Supply Chain",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Product catalog attributes and stock levels by warehouse. No retention policy applies to this concept."
+      },
+      "relations": {
+        "related to": [
+          "term_sell_through_rate",
+          "term_weeks_of_cover"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "lucia.ferraro"
+        ],
+        "Data Steward": [
+          "carlos.mendes"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-010",
+      "type": "Data Category",
+      "name": "Employee Contact Information",
+      "domain": "People",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Information used to contact an employee: name, work email and personal email.",
+        "Retention Period (Months)": 84,
+        "Retention Trigger": "after employment ends",
+        "Disposal Action": "Delete",
+        "Legal Basis": "Employment records under fictional policy FW-RET-008"
+      },
+      "relations": {
+        "related to": [
+          "term_personal_information"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "tom.brennan"
+        ],
+        "Data Steward": [
+          "sofia.marques"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-011",
+      "type": "Data Category",
+      "name": "Employee Compensation",
+      "domain": "People",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Salary and other pay details for an employee.",
+        "Retention Period (Months)": 72,
+        "Retention Trigger": "after payment",
+        "Disposal Action": "Archive",
+        "Legal Basis": "Payroll record keeping under fictional policy FW-RET-009"
+      },
+      "relations": {
+        "related to": [
+          "term_personal_information"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "tom.brennan"
+        ],
+        "Data Steward": [
+          "jonas.weber"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-012",
+      "type": "Data Category",
+      "name": "Employee Employment Record",
+      "domain": "People",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Key dates and facts of an employee's employment, such as joining date, termination date and department.",
+        "Retention Period (Months)": 120,
+        "Retention Trigger": "after employment ends",
+        "Disposal Action": "Archive",
+        "Legal Basis": "Employment history and pension claims under fictional policy FW-RET-010"
+      },
+      "relations": {
+        "related to": [
+          "term_personal_information"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "tom.brennan"
+        ],
+        "Data Steward": [
+          "sofia.marques"
+        ]
+      }
+    },
+    {
+      "dataCategoryId": "DC-013",
+      "type": "Data Category",
+      "name": "Employee Government Identifiers",
+      "domain": "People",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Government-issued identifiers held for employees, such as the last four digits of a national ID number.",
+        "Retention Period (Months)": 84,
+        "Retention Trigger": "after employment ends",
+        "Disposal Action": "Delete",
+        "Legal Basis": "Statutory employer reporting under fictional policy FW-RET-011"
+      },
+      "relations": {
+        "related to": [
+          "term_personal_information"
+        ]
+      },
+      "responsibilities": {
+        "Data Owner": [
+          "tom.brennan"
+        ],
+        "Data Steward": [
+          "jonas.weber"
+        ]
+      }
+    },
+    {
+      "externalId": "term_customer",
+      "type": "Business Term",
+      "name": "Customer",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "A person with a Fernwood account who has placed at least one order online or in store.",
+        "Synonyms": [
+          "Shopper",
+          "Buyer"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "maya.okafor"
+        ]
+      }
+    },
+    {
+      "externalId": "term_active_customer",
+      "type": "Business Term",
+      "name": "Active Customer",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "A customer who has placed an order in the last 365 days.",
+        "Synonyms": [
+          "Active Buyer"
+        ]
+      },
+      "relations": {
+        "related to": [
+          "term_customer"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "maya.okafor"
+        ]
+      }
+    },
+    {
+      "externalId": "term_customer_lifetime_value",
+      "type": "Business Term",
+      "name": "Customer Lifetime Value",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Total net revenue from a customer to date, plus predicted net revenue over the next 12 months.",
+        "Synonyms": [
+          "CLV",
+          "LTV"
+        ]
+      },
+      "relations": {
+        "related to": [
+          "term_customer",
+          "term_net_revenue"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "maya.okafor"
+        ]
+      }
+    },
+    {
+      "externalId": "term_order",
+      "type": "Business Term",
+      "name": "Order",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "A confirmed purchase of one or more products by a customer, online or in store.",
+        "Synonyms": [
+          "Purchase",
+          "Transaction"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "grace.whitfield"
+        ]
+      }
+    },
+    {
+      "externalId": "term_gross_revenue",
+      "type": "Business Term",
+      "name": "Gross Revenue",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Order value before discounts, refunds and returns, excluding tax and shipping.",
+        "Synonyms": [
+          "GMV",
+          "Gross Sales"
+        ]
+      },
+      "relations": {
+        "related to": [
+          "term_order"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "grace.whitfield"
+        ]
+      }
+    },
+    {
+      "externalId": "term_net_revenue",
+      "type": "Business Term",
+      "name": "Net Revenue",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Gross revenue minus discounts, refunds and returns, excluding tax and shipping.",
+        "Synonyms": [
+          "Net Sales"
+        ]
+      },
+      "relations": {
+        "related to": [
+          "term_gross_revenue"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "grace.whitfield"
+        ]
+      }
+    },
+    {
+      "externalId": "term_average_order_value",
+      "type": "Business Term",
+      "name": "Average Order Value",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Net revenue divided by the number of orders in a period.",
+        "Synonyms": [
+          "AOV"
+        ]
+      },
+      "relations": {
+        "related to": [
+          "term_net_revenue",
+          "term_order"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "kenji.mori"
+        ]
+      }
+    },
+    {
+      "externalId": "term_return_request",
+      "type": "Business Term",
+      "name": "Return Request",
+      "domain": "Business Glossary",
+      "status": "Candidate",
+      "attributes": {
+        "Definition": "A customer request to return one or more items from an order for refund or exchange. Draft definition pending finance review.",
+        "Synonyms": [
+          "Return",
+          "RMA"
+        ]
+      },
+      "relations": {
+        "related to": [
+          "term_order"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "grace.whitfield"
+        ]
+      }
+    },
+    {
+      "externalId": "term_loyalty_tier",
+      "type": "Business Term",
+      "name": "Loyalty Tier",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "A loyalty program member's level (Trail, Summit, Peak), based on 12-month spend.",
+        "Synonyms": [
+          "Membership Tier"
+        ]
+      },
+      "relations": {
+        "related to": [
+          "term_customer"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "maya.okafor"
+        ]
+      }
+    },
+    {
+      "externalId": "term_marketing_opt_in",
+      "type": "Business Term",
+      "name": "Marketing Opt-In",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "A customer's recorded consent to receive marketing email. Customers without opt-in must not be included in marketing audiences.",
+        "Synonyms": [
+          "Marketing Consent"
+        ]
+      },
+      "relations": {
+        "related to": [
+          "term_customer",
+          "term_audience_segment"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "hannah.lindqvist"
+        ]
+      }
+    },
+    {
+      "externalId": "term_audience_segment",
+      "type": "Business Term",
+      "name": "Audience Segment",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "A group of opted-in customers selected for a marketing campaign, e.g. 'high value lapsed'.",
+        "Synonyms": [
+          "Segment",
+          "Audience"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "hannah.lindqvist"
+        ]
+      }
+    },
+    {
+      "externalId": "term_campaign_attribution",
+      "type": "Business Term",
+      "name": "Campaign Attribution",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Credit for an order given to the last campaign the customer clicked within 7 days before ordering.",
+        "Synonyms": [
+          "Last-Touch Attribution"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "hannah.lindqvist"
+        ]
+      }
+    },
+    {
+      "externalId": "term_email_engagement_rate",
+      "type": "Business Term",
+      "name": "Email Engagement Rate",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Unique clicks divided by delivered emails for a campaign.",
+        "Synonyms": [
+          "Click-Through Rate",
+          "CTR"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "omar.haddad"
+        ]
+      }
+    },
+    {
+      "externalId": "term_sell_through_rate",
+      "type": "Business Term",
+      "name": "Sell-Through Rate",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Units sold in a period divided by units available at the start of the period.",
+        "Synonyms": [
+          "STR"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "lucia.ferraro"
+        ]
+      }
+    },
+    {
+      "externalId": "term_weeks_of_cover",
+      "type": "Business Term",
+      "name": "Weeks of Cover",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Units on hand divided by average weekly units sold over the last 4 weeks.",
+        "Synonyms": [
+          "Stock Cover"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "lucia.ferraro"
+        ]
+      }
+    },
+    {
+      "externalId": "term_first_response_time",
+      "type": "Business Term",
+      "name": "First Response Time",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Minutes between a support ticket being created and the first agent reply.",
+        "Synonyms": [
+          "FRT"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "aisha.karim"
+        ]
+      }
+    },
+    {
+      "externalId": "term_personal_information",
+      "type": "Business Term",
+      "name": "Personal Information",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Any information relating to an identified or identifiable person, customer or employee. Classified at column level; only reviewed and confirmed classifications count.",
+        "Synonyms": [
+          "PI",
+          "PII",
+          "Personal Data"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "jonas.weber"
+        ]
+      }
+    },
+    {
+      "externalId": "term_pseudonymized_data",
+      "type": "Business Term",
+      "name": "Pseudonymized Data",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "Personal information where direct identifiers are replaced, e.g. by a one-way hash. Still treated as personal information.",
+        "Synonyms": [
+          "Hashed Data"
+        ]
+      },
+      "relations": {
+        "related to": [
+          "term_personal_information"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "jonas.weber"
+        ]
+      }
+    },
+    {
+      "externalId": "term_certified_dataset",
+      "type": "Business Term",
+      "name": "Certified Dataset",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "A source or mart table with an active data contract, a reviewed PI decision on every column, and an approved Data Category.",
+        "Synonyms": [
+          "Certified Table"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "elena.petrova"
+        ]
+      }
+    },
+    {
+      "externalId": "term_retention_period",
+      "type": "Business Term",
+      "name": "Retention Period",
+      "domain": "Business Glossary",
+      "status": "Approved",
+      "attributes": {
+        "Definition": "How long data must be kept after a trigger event before it is deleted, anonymized or archived. Recorded on the Data Category that the table resolves to.",
+        "Synonyms": [
+          "Retention"
+        ]
+      },
+      "responsibilities": {
+        "Owner": [
+          "jonas.weber"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.customers",
+      "type": "Table",
+      "name": "customers",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_storefront.customers",
+        "Schema": "raw_storefront",
+        "Layer": "Source",
+        "Business Domain": "customer",
+        "Description": "Customer accounts from the e-commerce storefront, loaded daily."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.customers.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Storefront customer identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-23"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.customers"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.customers.email",
+      "type": "Column",
+      "name": "email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Account email address",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "customer",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.95,
+        "Detected On": "2026-05-09",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-05-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.customers"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.customers.first_name",
+      "type": "Column",
+      "name": "first_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer first name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.9,
+        "Detected On": "2026-01-26",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-29"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.customers"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.customers.last_name",
+      "type": "Column",
+      "name": "last_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer last name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.9,
+        "Detected On": "2025-10-31",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-03"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.customers"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.customers.phone",
+      "type": "Column",
+      "name": "phone",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Contact phone number",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "phone",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.95,
+        "Detected On": "2025-09-19",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-09-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.customers"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.customers.marketing_opt_in",
+      "type": "Column",
+      "name": "marketing_opt_in",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "1 if the customer consented to marketing email",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-08-05"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.customers"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.customers.created_at",
+      "type": "Column",
+      "name": "created_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Account creation timestamp (ISO 8601)",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-02-26"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.customers"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.customers.middle_name",
+      "type": "Column",
+      "name": "middle_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer middle name (field removed from the storefront in 2025).",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.87,
+        "Detected On": "2025-08-22",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-08-25"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.customers"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.orders",
+      "type": "Table",
+      "name": "orders",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_storefront.orders",
+        "Schema": "raw_storefront",
+        "Layer": "Source",
+        "Business Domain": "finance",
+        "Description": "Orders placed on the storefront, including shipping address."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.orders.order_id",
+      "type": "Column",
+      "name": "order_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-03-30"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.orders.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Ordering customer",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-21"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.orders"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.orders.order_ts",
+      "type": "Column",
+      "name": "order_ts",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order timestamp (ISO 8601)",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-10-01"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.orders.status",
+      "type": "Column",
+      "name": "status",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "placed / shipped / delivered / cancelled",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-08-27"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.orders.subtotal_usd",
+      "type": "Column",
+      "name": "subtotal_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order value before discounts",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-09-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.orders.discount_usd",
+      "type": "Column",
+      "name": "discount_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Discount applied",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-10-05"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.orders.shipping_address",
+      "type": "Column",
+      "name": "shipping_address",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Full shipping address",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "address",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.94,
+        "Detected On": "2025-11-20",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-23"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.orders"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.orders.shipping_country",
+      "type": "Column",
+      "name": "shipping_country",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "ISO country code",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-08-27"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.orders"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.orders.currency",
+      "type": "Column",
+      "name": "currency",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order currency",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-19"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.orders"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.order_items",
+      "type": "Table",
+      "name": "order_items",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_storefront.order_items",
+        "Schema": "raw_storefront",
+        "Layer": "Source",
+        "Business Domain": "finance",
+        "Description": "Order lines: product, quantity and price for each order."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.order_items.order_item_id",
+      "type": "Column",
+      "name": "order_item_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order line identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-04-20"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.order_items"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.order_items.order_id",
+      "type": "Column",
+      "name": "order_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Parent order",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-05-29"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.order_items"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.order_items.product_id",
+      "type": "Column",
+      "name": "product_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Product ordered",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-07-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.order_items"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.order_items.quantity",
+      "type": "Column",
+      "name": "quantity",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Units ordered",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-04-14"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.order_items"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.order_items.unit_price_usd",
+      "type": "Column",
+      "name": "unit_price_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Price per unit at time of order",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-03-18"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.order_items"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.products",
+      "type": "Table",
+      "name": "products",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_storefront.products",
+        "Schema": "raw_storefront",
+        "Layer": "Source",
+        "Business Domain": "supply_chain",
+        "Description": "Product catalog from the storefront."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.products.product_id",
+      "type": "Column",
+      "name": "product_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Product identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-03-04"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.products.sku",
+      "type": "Column",
+      "name": "sku",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Stock keeping unit",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-01-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.products.product_name",
+      "type": "Column",
+      "name": "product_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Product display name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-07-31"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.products.category",
+      "type": "Column",
+      "name": "category",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Product category (tents, footwear, …)",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2025-06-30"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.products.list_price_usd",
+      "type": "Column",
+      "name": "list_price_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Current list price",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2025-09-28"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_storefront.products.email_template_id",
+      "type": "Column",
+      "name": "email_template_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "ID of the product-launch email template",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "PI Type": "email",
+        "Sensitivity": "Internal",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.55,
+        "Detected On": "2025-12-18",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-12-21"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_storefront.products"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_payments.transactions",
+      "type": "Table",
+      "name": "transactions",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_payments.transactions",
+        "Schema": "raw_payments",
+        "Layer": "Source",
+        "Business Domain": "finance",
+        "Description": "Card payment transactions from the payments service."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_payments.transactions.transaction_id",
+      "type": "Column",
+      "name": "transaction_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Payment transaction identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-04-04"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_payments.transactions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_payments.transactions.order_id",
+      "type": "Column",
+      "name": "order_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order paid for",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-09-30"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_payments.transactions"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_payments.transactions.card_last4",
+      "type": "Column",
+      "name": "card_last4",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Last four digits of the card",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "payment_card",
+        "Data Subject": "customer",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.93,
+        "Detected On": "2026-07-03",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-07-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_payments.transactions"
+        ],
+        "represents": [
+          "DC-003"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_payments.transactions.card_brand",
+      "type": "Column",
+      "name": "card_brand",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "visa / mastercard / amex",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-03-30"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_payments.transactions"
+        ],
+        "represents": [
+          "DC-003"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_payments.transactions.billing_postal_code",
+      "type": "Column",
+      "name": "billing_postal_code",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Billing postal code",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "address",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.99,
+        "Detected On": "2026-04-09",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-04-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_payments.transactions"
+        ],
+        "represents": [
+          "DC-003"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_payments.transactions.amount_usd",
+      "type": "Column",
+      "name": "amount_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Amount charged",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-08-21"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_payments.transactions"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_payments.transactions.payment_status",
+      "type": "Column",
+      "name": "payment_status",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "authorized / captured / refunded / failed",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-06-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_payments.transactions"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_payments.transactions.processed_at",
+      "type": "Column",
+      "name": "processed_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Processing timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-06-17"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_payments.transactions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_crm.contacts",
+      "type": "Table",
+      "name": "contacts",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_crm.contacts",
+        "Schema": "raw_crm",
+        "Layer": "Source",
+        "Business Domain": "customer",
+        "Description": "CRM contacts and loyalty program membership."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_crm.contacts.contact_id",
+      "type": "Column",
+      "name": "contact_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "CRM contact identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-07-08"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_crm.contacts"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_crm.contacts.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Linked storefront customer",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-08-20"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_crm.contacts"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_crm.contacts.email",
+      "type": "Column",
+      "name": "email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Email held in CRM",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "customer",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.97,
+        "Detected On": "2026-07-29",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-08-01"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_crm.contacts"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_crm.contacts.full_name",
+      "type": "Column",
+      "name": "full_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Full name held in CRM",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.9,
+        "Detected On": "2026-03-08",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-03-11"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_crm.contacts"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_crm.contacts.date_of_birth",
+      "type": "Column",
+      "name": "date_of_birth",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Date of birth (loyalty sign-up)",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "date_of_birth",
+        "Data Subject": "customer",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.94,
+        "Detected On": "2026-01-18",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-01-21"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_crm.contacts"
+        ],
+        "represents": [
+          "DC-002"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_crm.contacts.loyalty_id",
+      "type": "Column",
+      "name": "loyalty_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Loyalty card number",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-08-02"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_crm.contacts"
+        ],
+        "represents": [
+          "DC-002"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_crm.contacts.loyalty_tier",
+      "type": "Column",
+      "name": "loyalty_tier",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Trail / Summit / Peak",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-06-01"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_crm.contacts"
+        ],
+        "represents": [
+          "DC-002"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_crm.contacts.loyalty_joined_at",
+      "type": "Column",
+      "name": "loyalty_joined_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Loyalty enrolment date",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2025-06-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_crm.contacts"
+        ],
+        "represents": [
+          "DC-002"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_helpdesk.tickets",
+      "type": "Table",
+      "name": "tickets",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_helpdesk.tickets",
+        "Schema": "raw_helpdesk",
+        "Layer": "Source",
+        "Business Domain": "support",
+        "Description": "Customer support tickets from the helpdesk tool."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_helpdesk.tickets.ticket_id",
+      "type": "Column",
+      "name": "ticket_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Ticket identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-10"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_helpdesk.tickets"
+        ],
+        "represents": [
+          "DC-004"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_helpdesk.tickets.requester_email",
+      "type": "Column",
+      "name": "requester_email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Email of the person raising the ticket",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "customer",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.95,
+        "Detected On": "2025-10-31",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-03"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_helpdesk.tickets"
+        ],
+        "represents": [
+          "DC-004"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_helpdesk.tickets.requester_name",
+      "type": "Column",
+      "name": "requester_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Name of the person raising the ticket",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.86,
+        "Detected On": "2025-08-22",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-08-25"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_helpdesk.tickets"
+        ],
+        "represents": [
+          "DC-004"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_helpdesk.tickets.subject",
+      "type": "Column",
+      "name": "subject",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Ticket subject line (template-driven, e.g. \"Where is my order?\")",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Suggested",
+        "PI Type": "free_text",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.71,
+        "Detected On": "2026-09-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_helpdesk.tickets"
+        ],
+        "represents": [
+          "DC-004"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_helpdesk.tickets.body",
+      "type": "Column",
+      "name": "body",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer's message text",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Suggested",
+        "PI Type": "free_text",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.62,
+        "Detected On": "2026-09-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_helpdesk.tickets"
+        ],
+        "represents": [
+          "DC-004"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_helpdesk.tickets.priority",
+      "type": "Column",
+      "name": "priority",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "low / normal / high / urgent",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-10"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_helpdesk.tickets"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_helpdesk.tickets.status",
+      "type": "Column",
+      "name": "status",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "open / pending / solved / closed",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-03-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_helpdesk.tickets"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_helpdesk.tickets.created_at",
+      "type": "Column",
+      "name": "created_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Ticket creation timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-07-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_helpdesk.tickets"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_helpdesk.tickets.first_response_at",
+      "type": "Column",
+      "name": "first_response_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "First agent reply timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-09-08"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_helpdesk.tickets"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.email_events",
+      "type": "Table",
+      "name": "email_events",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_marketing.email_events",
+        "Schema": "raw_marketing",
+        "Layer": "Source",
+        "Business Domain": "marketing",
+        "Description": "Email campaign delivery and engagement events."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.email_events.event_id",
+      "type": "Column",
+      "name": "event_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Email event identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-15"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.email_events"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.email_events.recipient_email",
+      "type": "Column",
+      "name": "recipient_email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Email address the campaign was sent to",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "customer",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.95,
+        "Detected On": "2025-11-08",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-11"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.email_events"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.email_events.campaign_id",
+      "type": "Column",
+      "name": "campaign_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Campaign",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.email_events"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.email_events.event_type",
+      "type": "Column",
+      "name": "event_type",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "sent / delivered / opened / clicked / bounced",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-07-09"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.email_events"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.email_events.event_at",
+      "type": "Column",
+      "name": "event_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Event timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-27"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.email_events"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.campaigns",
+      "type": "Table",
+      "name": "campaigns",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_marketing.campaigns",
+        "Schema": "raw_marketing",
+        "Layer": "Source",
+        "Business Domain": "marketing",
+        "Description": "Marketing campaign setup across channels."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.campaigns.campaign_id",
+      "type": "Column",
+      "name": "campaign_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Campaign identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-07-14"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.campaigns"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.campaigns.campaign_name",
+      "type": "Column",
+      "name": "campaign_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Campaign name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-03-03"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.campaigns"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.campaigns.channel",
+      "type": "Column",
+      "name": "channel",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "email / paid_social / search",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.campaigns"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.campaigns.start_date",
+      "type": "Column",
+      "name": "start_date",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Campaign start",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-26"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.campaigns"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.campaigns.end_date",
+      "type": "Column",
+      "name": "end_date",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Campaign end",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-07"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.campaigns"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_marketing.campaigns.budget_usd",
+      "type": "Column",
+      "name": "budget_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Planned budget",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Confidential",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-09-05"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_marketing.campaigns"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_warehouse.inventory_snapshots",
+      "type": "Table",
+      "name": "inventory_snapshots",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_warehouse.inventory_snapshots",
+        "Schema": "raw_warehouse",
+        "Layer": "Source",
+        "Business Domain": "supply_chain",
+        "Description": "Weekly stock-on-hand snapshots by warehouse."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_warehouse.inventory_snapshots.snapshot_id",
+      "type": "Column",
+      "name": "snapshot_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Snapshot row identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-07-14"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_warehouse.inventory_snapshots"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_warehouse.inventory_snapshots.snapshot_date",
+      "type": "Column",
+      "name": "snapshot_date",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Snapshot date",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-05-04"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_warehouse.inventory_snapshots"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_warehouse.inventory_snapshots.sku",
+      "type": "Column",
+      "name": "sku",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Stock keeping unit",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-06-03"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_warehouse.inventory_snapshots"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_warehouse.inventory_snapshots.warehouse_id",
+      "type": "Column",
+      "name": "warehouse_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Warehouse code (e.g. WH-RENO)",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-02-18"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_warehouse.inventory_snapshots"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_warehouse.inventory_snapshots.on_hand_qty",
+      "type": "Column",
+      "name": "on_hand_qty",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Units on hand",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2025-10-17"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_warehouse.inventory_snapshots"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_stores.pos_transactions",
+      "type": "Table",
+      "name": "pos_transactions",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_stores.pos_transactions",
+        "Schema": "raw_stores",
+        "Layer": "Source",
+        "Business Domain": "finance",
+        "Description": "In-store point-of-sale transactions."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_stores.pos_transactions.pos_txn_id",
+      "type": "Column",
+      "name": "pos_txn_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "In-store transaction identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-06-08"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_stores.pos_transactions"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_stores.pos_transactions.store_id",
+      "type": "Column",
+      "name": "store_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Store code",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-05"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_stores.pos_transactions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_stores.pos_transactions.loyalty_id",
+      "type": "Column",
+      "name": "loyalty_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Loyalty card scanned, if any",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_stores.pos_transactions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_stores.pos_transactions.amount_usd",
+      "type": "Column",
+      "name": "amount_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Transaction amount",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-11-19"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_stores.pos_transactions"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_stores.pos_transactions.transacted_at",
+      "type": "Column",
+      "name": "transacted_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Transaction timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-07-23"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_stores.pos_transactions"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_stores.pos_transactions.cashier_employee_id",
+      "type": "Column",
+      "name": "cashier_employee_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Employee who rang up the sale",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-09-28"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_stores.pos_transactions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees",
+      "type": "Table",
+      "name": "employees",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_hr.employees",
+        "Schema": "raw_hr",
+        "Layer": "Source",
+        "Business Domain": "people",
+        "Description": "Employee records from the HR system."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.employee_id",
+      "type": "Column",
+      "name": "employee_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Employee identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-02-09"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.full_name",
+      "type": "Column",
+      "name": "full_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Employee full name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "employee",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.86,
+        "Detected On": "2025-11-02",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2025-11-05"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ],
+        "represents": [
+          "DC-010"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.work_email",
+      "type": "Column",
+      "name": "work_email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Work email address",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "employee",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.94,
+        "Detected On": "2026-04-24",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-04-27"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ],
+        "represents": [
+          "DC-010"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.personal_email",
+      "type": "Column",
+      "name": "personal_email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Personal email address",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "personal_email",
+        "Data Subject": "employee",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Manual",
+        "Detection Confidence": 1.0,
+        "Detected On": "2026-04-07",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-04-10"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ],
+        "represents": [
+          "DC-010"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.home_address",
+      "type": "Column",
+      "name": "home_address",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Home address",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "address",
+        "Data Subject": "employee",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.94,
+        "Detected On": "2025-07-16",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2025-07-19"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ],
+        "represents": [
+          "DC-010"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.department",
+      "type": "Column",
+      "name": "department",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Department",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2025-10-10"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ],
+        "represents": [
+          "DC-012"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.job_title",
+      "type": "Column",
+      "name": "job_title",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Job title",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-06-26"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ],
+        "represents": [
+          "DC-012"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.annual_salary",
+      "type": "Column",
+      "name": "annual_salary",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Annual base salary (USD)",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "salary",
+        "Data Subject": "employee",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Manual",
+        "Detection Confidence": 1.0,
+        "Detected On": "2026-01-31",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-02-03"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ],
+        "represents": [
+          "DC-011"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.joining_date",
+      "type": "Column",
+      "name": "joining_date",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Date joined Fernwood",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "joining_date",
+        "Data Subject": "employee",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Manual",
+        "Detection Confidence": 1.0,
+        "Detected On": "2026-04-20",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-04-23"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ],
+        "represents": [
+          "DC-012"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.termination_date",
+      "type": "Column",
+      "name": "termination_date",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Date employment ended, if any",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "termination_date",
+        "Data Subject": "employee",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Manual",
+        "Detection Confidence": 1.0,
+        "Detected On": "2026-08-02",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-08-05"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ],
+        "represents": [
+          "DC-012"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_hr.employees.national_id_last4",
+      "type": "Column",
+      "name": "national_id_last4",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Last four digits of national ID",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "government_id",
+        "Data Subject": "employee",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Manual",
+        "Detection Confidence": 1.0,
+        "Detected On": "2026-05-08",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-05-11"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_hr.employees"
+        ],
+        "represents": [
+          "DC-013"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_web.page_views",
+      "type": "Table",
+      "name": "page_views",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_web.page_views",
+        "Schema": "raw_web",
+        "Layer": "Source",
+        "Business Domain": "digital",
+        "Description": "Website page views from the web analytics tracker."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_web.page_views.view_id",
+      "type": "Column",
+      "name": "view_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Page view identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-18"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_web.page_views"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_web.page_views.session_id",
+      "type": "Column",
+      "name": "session_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Browser session identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-07-04"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_web.page_views"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_web.page_views.anonymous_id",
+      "type": "Column",
+      "name": "anonymous_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Cookie identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-05-02"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_web.page_views"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_web.page_views.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Logged-in customer, if any",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-08-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_web.page_views"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_web.page_views.page_path",
+      "type": "Column",
+      "name": "page_path",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "URL path viewed",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-09-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_web.page_views"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_web.page_views.ip_address",
+      "type": "Column",
+      "name": "ip_address",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Visitor IP address",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "ip_address",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.94,
+        "Detected On": "2026-01-24",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-27"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_web.page_views"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_web.page_views.user_agent",
+      "type": "Column",
+      "name": "user_agent",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Browser user agent",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-04-26"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_web.page_views"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_web.page_views.viewed_at",
+      "type": "Column",
+      "name": "viewed_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "View timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-03-01"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_web.page_views"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_returns.return_requests",
+      "type": "Table",
+      "name": "return_requests",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.raw_returns.return_requests",
+        "Schema": "raw_returns",
+        "Layer": "Source",
+        "Business Domain": "finance",
+        "Description": "Return requests from the new returns portal (onboarded 2026-09)."
+      },
+      "relations": {
+        "related to": [
+          "term_return_request"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_returns.return_requests.return_id",
+      "type": "Column",
+      "name": "return_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Return request identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Unclassified"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_returns.return_requests"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_returns.return_requests.order_id",
+      "type": "Column",
+      "name": "order_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order being returned",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Unclassified"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_returns.return_requests"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_returns.return_requests.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer requesting the return",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Unclassified"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_returns.return_requests"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_returns.return_requests.contact_email",
+      "type": "Column",
+      "name": "contact_email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Email entered on the return form",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Unclassified"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_returns.return_requests"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_returns.return_requests.reason_text",
+      "type": "Column",
+      "name": "reason_text",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Free-text return reason",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Unclassified"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_returns.return_requests"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_returns.return_requests.refund_amount_usd",
+      "type": "Column",
+      "name": "refund_amount_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Amount refunded",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Unclassified"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_returns.return_requests"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.raw_returns.return_requests.requested_at",
+      "type": "Column",
+      "name": "requested_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Request timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Unclassified"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.raw_returns.return_requests"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_customers",
+      "type": "Table",
+      "name": "dim_customers",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.dim_customers",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "customer",
+        "Description": "One row per customer: contact details, loyalty tier and order history. Customer 360 core table."
+      },
+      "relations": {
+        "related to": [
+          "term_customer",
+          "term_active_customer"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_customers.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-04"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_customers"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_customers.email",
+      "type": "Column",
+      "name": "email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Preferred email",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "customer",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.98,
+        "Detected On": "2026-06-20",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-06-23"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_customers"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_customers.full_name",
+      "type": "Column",
+      "name": "full_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Full name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.85,
+        "Detected On": "2025-07-03",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-07-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_customers"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_customers.phone",
+      "type": "Column",
+      "name": "phone",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Phone",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "phone",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.94,
+        "Detected On": "2026-03-28",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-03-31"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_customers"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_customers.loyalty_tier",
+      "type": "Column",
+      "name": "loyalty_tier",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Loyalty tier",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-07-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_customers"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_customers.first_order_at",
+      "type": "Column",
+      "name": "first_order_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "First order timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-08-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_customers"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_customers.last_order_at",
+      "type": "Column",
+      "name": "last_order_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Most recent order timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-10-07"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_customers"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_customers.lifetime_order_count",
+      "type": "Column",
+      "name": "lifetime_order_count",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Orders to date",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-05-21"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_customers"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_customers.is_active",
+      "type": "Column",
+      "name": "is_active",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Ordered in last 365 days (see Active Customer)",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-08-10"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_customers"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_products",
+      "type": "Table",
+      "name": "dim_products",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.dim_products",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "supply_chain",
+        "Description": "One row per product with catalog attributes."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_products.product_id",
+      "type": "Column",
+      "name": "product_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Product identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-03-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_products.sku",
+      "type": "Column",
+      "name": "sku",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "SKU",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-04-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_products.product_name",
+      "type": "Column",
+      "name": "product_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Display name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-02-03"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_products.category",
+      "type": "Column",
+      "name": "category",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Category",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2025-06-11"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_products.list_price_usd",
+      "type": "Column",
+      "name": "list_price_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "List price",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-05-13"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_products.email_template_id",
+      "type": "Column",
+      "name": "email_template_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Launch email template ID",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "PI Type": "email",
+        "Sensitivity": "Internal",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.55,
+        "Detected On": "2025-09-01",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-09-04"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_products"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_products.is_active",
+      "type": "Column",
+      "name": "is_active",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Currently sold",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-08-11"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_products"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_orders",
+      "type": "Table",
+      "name": "fct_orders",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.fct_orders",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "finance",
+        "Description": "One row per order with gross and net amounts."
+      },
+      "relations": {
+        "related to": [
+          "term_order",
+          "term_gross_revenue",
+          "term_net_revenue"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_orders.order_id",
+      "type": "Column",
+      "name": "order_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-02-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_orders.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-16"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_orders"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_orders.ordered_at",
+      "type": "Column",
+      "name": "ordered_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-02-16"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_orders.order_status",
+      "type": "Column",
+      "name": "order_status",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order status",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-04-17"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_orders.gross_amount_usd",
+      "type": "Column",
+      "name": "gross_amount_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Gross revenue",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-07-01"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_orders.discount_usd",
+      "type": "Column",
+      "name": "discount_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Discount",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-01-20"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_orders.net_amount_usd",
+      "type": "Column",
+      "name": "net_amount_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Net revenue",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-07-27"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_orders.item_count",
+      "type": "Column",
+      "name": "item_count",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Units",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-06-11"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_orders.payment_status",
+      "type": "Column",
+      "name": "payment_status",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Payment status",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-08-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_orders"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_order_items",
+      "type": "Table",
+      "name": "fct_order_items",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.fct_order_items",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "finance",
+        "Description": "One row per order line with product category and line amount."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_order_items.order_item_id",
+      "type": "Column",
+      "name": "order_item_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order line identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-07-04"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_order_items"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_order_items.order_id",
+      "type": "Column",
+      "name": "order_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-01-29"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_order_items"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_order_items.product_id",
+      "type": "Column",
+      "name": "product_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Product",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-12-15"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_order_items"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_order_items.quantity",
+      "type": "Column",
+      "name": "quantity",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Units",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-01-29"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_order_items"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_order_items.unit_price_usd",
+      "type": "Column",
+      "name": "unit_price_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Unit price",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-07-27"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_order_items"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_order_items.line_amount_usd",
+      "type": "Column",
+      "name": "line_amount_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Quantity × unit price",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-11-27"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_order_items"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_payments",
+      "type": "Table",
+      "name": "fct_payments",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.fct_payments",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "finance",
+        "Description": "One row per payment transaction, including partial card details."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_payments.transaction_id",
+      "type": "Column",
+      "name": "transaction_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Transaction identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-04-07"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_payments"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_payments.order_id",
+      "type": "Column",
+      "name": "order_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Order",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-01-17"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_payments"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_payments.card_last4",
+      "type": "Column",
+      "name": "card_last4",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Card last four",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "payment_card",
+        "Data Subject": "customer",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.97,
+        "Detected On": "2025-10-27",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2025-10-30"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_payments"
+        ],
+        "represents": [
+          "DC-003"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_payments.card_brand",
+      "type": "Column",
+      "name": "card_brand",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Card brand",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-06-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_payments"
+        ],
+        "represents": [
+          "DC-003"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_payments.billing_postal_code",
+      "type": "Column",
+      "name": "billing_postal_code",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Billing postal code",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "address",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.96,
+        "Detected On": "2026-05-23",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-05-26"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_payments"
+        ],
+        "represents": [
+          "DC-003"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_payments.amount_usd",
+      "type": "Column",
+      "name": "amount_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Amount",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-12-07"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_payments"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_payments.payment_status",
+      "type": "Column",
+      "name": "payment_status",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Status",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-11-21"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_payments"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.fct_payments.processed_at",
+      "type": "Column",
+      "name": "processed_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-06-10"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.fct_payments"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.customer_lifetime_value",
+      "type": "Table",
+      "name": "customer_lifetime_value",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.customer_lifetime_value",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "customer",
+        "Description": "Customer lifetime value to date, 12-month prediction and segment."
+      },
+      "relations": {
+        "related to": [
+          "term_customer_lifetime_value"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.customer_lifetime_value.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-04-26"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.customer_lifetime_value"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.customer_lifetime_value.net_revenue_to_date_usd",
+      "type": "Column",
+      "name": "net_revenue_to_date_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Net revenue to date",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-03-21"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.customer_lifetime_value"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.customer_lifetime_value.predicted_12m_value_usd",
+      "type": "Column",
+      "name": "predicted_12m_value_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Predicted next-12-month net revenue",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Confidential",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-03-14"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.customer_lifetime_value"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.customer_lifetime_value.ltv_segment",
+      "type": "Column",
+      "name": "ltv_segment",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "low / mid / high / vip",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-05-21"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.customer_lifetime_value"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_marketing_audience",
+      "type": "Table",
+      "name": "mart_marketing_audience",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.mart_marketing_audience",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "marketing",
+        "Description": "Opted-in customers with audience segments, synced to the email platform."
+      },
+      "relations": {
+        "related to": [
+          "term_audience_segment",
+          "term_marketing_opt_in"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_marketing_audience.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-08-09"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_marketing_audience"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_marketing_audience.email",
+      "type": "Column",
+      "name": "email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Email to target",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "customer",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.96,
+        "Detected On": "2025-09-03",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-09-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_marketing_audience"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_marketing_audience.first_name",
+      "type": "Column",
+      "name": "first_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "First name for personalisation",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.87,
+        "Detected On": "2025-08-06",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-08-09"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_marketing_audience"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_marketing_audience.ltv_segment",
+      "type": "Column",
+      "name": "ltv_segment",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "LTV segment",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-05"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_marketing_audience"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_marketing_audience.audience_segment",
+      "type": "Column",
+      "name": "audience_segment",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Campaign audience segment",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-07-28"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_marketing_audience"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_marketing_audience.is_marketing_opted_in",
+      "type": "Column",
+      "name": "is_marketing_opted_in",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Always 1 (opted-in only)",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-09-15"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_marketing_audience"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_email_engagement",
+      "type": "Table",
+      "name": "mart_email_engagement",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.mart_email_engagement",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "marketing",
+        "Description": "Email engagement per hashed recipient and campaign."
+      },
+      "relations": {
+        "related to": [
+          "term_email_engagement_rate",
+          "term_pseudonymized_data"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_email_engagement.recipient_email_sha256",
+      "type": "Column",
+      "name": "recipient_email_sha256",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Hashed recipient email",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Confirmed",
+        "PI Type": "hashed_email",
+        "Data Subject": "customer",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.93,
+        "Detected On": "2025-12-22",
+        "Reviewed By": "hannah.lindqvist",
+        "Reviewed On": "2025-12-25"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_email_engagement"
+        ],
+        "represents": [
+          "DC-006"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_email_engagement.campaign_id",
+      "type": "Column",
+      "name": "campaign_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Campaign",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-05-28"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_email_engagement"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_email_engagement.sends",
+      "type": "Column",
+      "name": "sends",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Emails sent",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-08-11"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_email_engagement"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_email_engagement.opens",
+      "type": "Column",
+      "name": "opens",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Opens",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-03-24"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_email_engagement"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_email_engagement.clicks",
+      "type": "Column",
+      "name": "clicks",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Clicks",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-08-19"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_email_engagement"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_email_engagement.last_engaged_at",
+      "type": "Column",
+      "name": "last_engaged_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Last open or click",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-11"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_email_engagement"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_campaign_performance",
+      "type": "Table",
+      "name": "mart_campaign_performance",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.mart_campaign_performance",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "marketing",
+        "Description": "Campaign sends, open and click rates, and attributed revenue."
+      },
+      "relations": {
+        "related to": [
+          "term_campaign_attribution"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_campaign_performance.campaign_id",
+      "type": "Column",
+      "name": "campaign_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Campaign",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-23"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_campaign_performance"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_campaign_performance.campaign_name",
+      "type": "Column",
+      "name": "campaign_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Campaign name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-09-09"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_campaign_performance"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_campaign_performance.channel",
+      "type": "Column",
+      "name": "channel",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Channel",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-08-25"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_campaign_performance"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_campaign_performance.sends",
+      "type": "Column",
+      "name": "sends",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Emails sent",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-06-09"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_campaign_performance"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_campaign_performance.open_rate",
+      "type": "Column",
+      "name": "open_rate",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Opens / delivered",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-07"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_campaign_performance"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_campaign_performance.click_rate",
+      "type": "Column",
+      "name": "click_rate",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Clicks / delivered",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-08-13"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_campaign_performance"
+        ],
+        "represents": [
+          "DC-007"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_campaign_performance.attributed_orders",
+      "type": "Column",
+      "name": "attributed_orders",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Orders attributed (last touch, 7 days)",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-03-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_campaign_performance"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_campaign_performance.attributed_revenue_usd",
+      "type": "Column",
+      "name": "attributed_revenue_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Net revenue attributed",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-08-14"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_campaign_performance"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_loyalty_members",
+      "type": "Table",
+      "name": "mart_loyalty_members",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.mart_loyalty_members",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "customer",
+        "Description": "Loyalty program members with tier and in-store spend."
+      },
+      "relations": {
+        "related to": [
+          "term_loyalty_tier"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_loyalty_members.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-08-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_loyalty_members"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_loyalty_members.email",
+      "type": "Column",
+      "name": "email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Email",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "customer",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.95,
+        "Detected On": "2025-09-26",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-09-29"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_loyalty_members"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_loyalty_members.full_name",
+      "type": "Column",
+      "name": "full_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Full name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.9,
+        "Detected On": "2026-01-19",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_loyalty_members"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_loyalty_members.date_of_birth",
+      "type": "Column",
+      "name": "date_of_birth",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Date of birth",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "date_of_birth",
+        "Data Subject": "customer",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.97,
+        "Detected On": "2026-01-29",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2026-02-01"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_loyalty_members"
+        ],
+        "represents": [
+          "DC-002"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_loyalty_members.loyalty_tier",
+      "type": "Column",
+      "name": "loyalty_tier",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Loyalty tier",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2025-11-20"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_loyalty_members"
+        ],
+        "represents": [
+          "DC-002"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_loyalty_members.loyalty_joined_at",
+      "type": "Column",
+      "name": "loyalty_joined_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Enrolment date",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2025-07-04"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_loyalty_members"
+        ],
+        "represents": [
+          "DC-002"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_loyalty_members.in_store_spend_usd",
+      "type": "Column",
+      "name": "in_store_spend_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "12-month in-store spend",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-10-03"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_loyalty_members"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary",
+      "type": "Table",
+      "name": "mart_support_ticket_summary",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.mart_support_ticket_summary",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "support",
+        "Description": "Support tickets matched to customers, with response times."
+      },
+      "relations": {
+        "related to": [
+          "term_first_response_time"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary.ticket_id",
+      "type": "Column",
+      "name": "ticket_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Ticket",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-07-07"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_support_ticket_summary"
+        ],
+        "represents": [
+          "DC-004"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Matched customer",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-01"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_support_ticket_summary"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary.requester_email",
+      "type": "Column",
+      "name": "requester_email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Requester email",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "customer",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.97,
+        "Detected On": "2026-08-05",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-08-08"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_support_ticket_summary"
+        ],
+        "represents": [
+          "DC-004"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary.requester_name",
+      "type": "Column",
+      "name": "requester_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer full name from dim_customers",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.89,
+        "Detected On": "2026-06-25",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-06-28"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_support_ticket_summary"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary.subject",
+      "type": "Column",
+      "name": "subject",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Subject line",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Suggested",
+        "PI Type": "free_text",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.71,
+        "Detected On": "2026-09-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_support_ticket_summary"
+        ],
+        "represents": [
+          "DC-004"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary.body_excerpt",
+      "type": "Column",
+      "name": "body_excerpt",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "First 200 characters of the message",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Suggested",
+        "PI Type": "free_text",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.62,
+        "Detected On": "2026-09-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_support_ticket_summary"
+        ],
+        "represents": [
+          "DC-004"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary.priority",
+      "type": "Column",
+      "name": "priority",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Priority",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-08-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_support_ticket_summary"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary.ticket_status",
+      "type": "Column",
+      "name": "ticket_status",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Status",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-14"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_support_ticket_summary"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary.first_response_minutes",
+      "type": "Column",
+      "name": "first_response_minutes",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Minutes to first reply",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-21"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_support_ticket_summary"
+        ],
+        "represents": [
+          "DC-004"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_support_ticket_summary.created_at",
+      "type": "Column",
+      "name": "created_at",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Created timestamp",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-05-19"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_support_ticket_summary"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_finance_daily_revenue",
+      "type": "Table",
+      "name": "mart_finance_daily_revenue",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.mart_finance_daily_revenue",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "finance",
+        "Description": "Daily gross, refunded and net revenue by channel."
+      },
+      "relations": {
+        "related to": [
+          "term_gross_revenue",
+          "term_net_revenue"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_finance_daily_revenue.revenue_date",
+      "type": "Column",
+      "name": "revenue_date",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Calendar date",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-03-02"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_finance_daily_revenue"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_finance_daily_revenue.channel",
+      "type": "Column",
+      "name": "channel",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "online / store",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-04-30"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_finance_daily_revenue"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_finance_daily_revenue.order_count",
+      "type": "Column",
+      "name": "order_count",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Orders",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-11-16"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_finance_daily_revenue"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_finance_daily_revenue.gross_revenue_usd",
+      "type": "Column",
+      "name": "gross_revenue_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Gross revenue",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Confidential",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2026-03-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_finance_daily_revenue"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_finance_daily_revenue.refunds_usd",
+      "type": "Column",
+      "name": "refunds_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Refunds",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Confidential",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-11-10"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_finance_daily_revenue"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_finance_daily_revenue.net_revenue_usd",
+      "type": "Column",
+      "name": "net_revenue_usd",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Net revenue",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Confidential",
+        "Reviewed By": "kenji.mori",
+        "Reviewed On": "2025-07-22"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_finance_daily_revenue"
+        ],
+        "represents": [
+          "DC-008"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_inventory_health",
+      "type": "Table",
+      "name": "mart_inventory_health",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.mart_inventory_health",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "supply_chain",
+        "Description": "Latest stock position, weeks of cover and sell-through by SKU and warehouse."
+      },
+      "relations": {
+        "related to": [
+          "term_sell_through_rate",
+          "term_weeks_of_cover"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_inventory_health.sku",
+      "type": "Column",
+      "name": "sku",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "SKU",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Public",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2026-03-23"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_inventory_health"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_inventory_health.warehouse_id",
+      "type": "Column",
+      "name": "warehouse_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Warehouse code",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2025-08-02"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_inventory_health"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_inventory_health.snapshot_date",
+      "type": "Column",
+      "name": "snapshot_date",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Latest snapshot date",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2025-11-07"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_inventory_health"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_inventory_health.on_hand_qty",
+      "type": "Column",
+      "name": "on_hand_qty",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Units on hand",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2025-08-05"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_inventory_health"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_inventory_health.weeks_of_cover",
+      "type": "Column",
+      "name": "weeks_of_cover",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Weeks of cover",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2025-07-16"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_inventory_health"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_inventory_health.sell_through_rate",
+      "type": "Column",
+      "name": "sell_through_rate",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Sell-through rate (4 weeks)",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "carlos.mendes",
+        "Reviewed On": "2025-07-31"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_inventory_health"
+        ],
+        "represents": [
+          "DC-009"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_employees",
+      "type": "Table",
+      "name": "dim_employees",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.dim_employees",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "people",
+        "Description": "One row per employee for workforce reporting."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_employees.employee_id",
+      "type": "Column",
+      "name": "employee_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Employee identifier",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2025-12-19"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_employees"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_employees.full_name",
+      "type": "Column",
+      "name": "full_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Full name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "employee",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.88,
+        "Detected On": "2025-07-30",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2025-08-02"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_employees"
+        ],
+        "represents": [
+          "DC-010"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_employees.work_email",
+      "type": "Column",
+      "name": "work_email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Work email",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "employee",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.93,
+        "Detected On": "2026-02-05",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-02-08"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_employees"
+        ],
+        "represents": [
+          "DC-010"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_employees.personal_email",
+      "type": "Column",
+      "name": "personal_email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Personal email",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "personal_email",
+        "Data Subject": "employee",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Manual",
+        "Detection Confidence": 1.0,
+        "Detected On": "2025-11-06",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2025-11-09"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_employees"
+        ],
+        "represents": [
+          "DC-010"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_employees.department",
+      "type": "Column",
+      "name": "department",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Department",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-04-06"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_employees"
+        ],
+        "represents": [
+          "DC-012"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_employees.job_title",
+      "type": "Column",
+      "name": "job_title",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Job title",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-01-08"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_employees"
+        ],
+        "represents": [
+          "DC-012"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_employees.annual_salary",
+      "type": "Column",
+      "name": "annual_salary",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Annual salary",
+        "Data Type": "REAL",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "salary",
+        "Data Subject": "employee",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Manual",
+        "Detection Confidence": 1.0,
+        "Detected On": "2025-11-02",
+        "Reviewed By": "jonas.weber",
+        "Reviewed On": "2025-11-05"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_employees"
+        ],
+        "represents": [
+          "DC-011"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_employees.joining_date",
+      "type": "Column",
+      "name": "joining_date",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Joining date",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "joining_date",
+        "Data Subject": "employee",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Manual",
+        "Detection Confidence": 1.0,
+        "Detected On": "2026-07-13",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-07-16"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_employees"
+        ],
+        "represents": [
+          "DC-012"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.dim_employees.termination_date",
+      "type": "Column",
+      "name": "termination_date",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Termination date",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "termination_date",
+        "Data Subject": "employee",
+        "Sensitivity": "Highly Confidential",
+        "Detection Method": "Manual",
+        "Detection Confidence": 1.0,
+        "Detected On": "2026-07-13",
+        "Reviewed By": "sofia.marques",
+        "Reviewed On": "2026-07-16"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.dim_employees"
+        ],
+        "represents": [
+          "DC-012"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_web_sessions",
+      "type": "Table",
+      "name": "mart_web_sessions",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.mart_web_sessions",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "digital",
+        "Description": "Website sessions with landing page and page count."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_web_sessions.session_id",
+      "type": "Column",
+      "name": "session_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Session",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-10"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_web_sessions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_web_sessions.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Logged-in customer",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-11-04"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_web_sessions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_web_sessions.ip_address",
+      "type": "Column",
+      "name": "ip_address",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "IP at session start",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "ip_address",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.93,
+        "Detected On": "2025-10-24",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-27"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_web_sessions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_web_sessions.session_start",
+      "type": "Column",
+      "name": "session_start",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Session start",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-10-20"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_web_sessions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_web_sessions.page_count",
+      "type": "Column",
+      "name": "page_count",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Pages viewed",
+        "Data Type": "INTEGER",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-07-20"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_web_sessions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.mart_web_sessions.landing_page",
+      "type": "Column",
+      "name": "landing_page",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "First page path",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-06-04"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.mart_web_sessions"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.legacy_customer_export",
+      "type": "Table",
+      "name": "legacy_customer_export",
+      "domain": "Fernwood Warehouse",
+      "status": "Deprecated",
+      "attributes": {
+        "Full Name": "fernwood_dw.marts.legacy_customer_export",
+        "Schema": "marts",
+        "Layer": "Mart",
+        "Business Domain": "customer",
+        "Description": "Deprecated customer extract. Use dim_customers instead."
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.legacy_customer_export.customer_id",
+      "type": "Column",
+      "name": "customer_id",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Customer",
+        "Data Type": "TEXT",
+        "Is Primary Key": true,
+        "PI Status": "Rejected",
+        "Sensitivity": "Internal",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-07-30"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.legacy_customer_export"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.legacy_customer_export.email",
+      "type": "Column",
+      "name": "email",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Email",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "email",
+        "Data Subject": "customer",
+        "Sensitivity": "Internal",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.94,
+        "Detected On": "2025-08-09",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-08-12"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.legacy_customer_export"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.legacy_customer_export.first_name",
+      "type": "Column",
+      "name": "first_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "First name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.87,
+        "Detected On": "2026-05-27",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-05-30"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.legacy_customer_export"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.legacy_customer_export.last_name",
+      "type": "Column",
+      "name": "last_name",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Last name",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "name",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Name Pattern",
+        "Detection Confidence": 0.9,
+        "Detected On": "2025-12-15",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2025-12-18"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.legacy_customer_export"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    },
+    {
+      "externalId": "fernwood_dw.marts.legacy_customer_export.phone",
+      "type": "Column",
+      "name": "phone",
+      "domain": "Fernwood Warehouse",
+      "status": "Active",
+      "attributes": {
+        "Description": "Phone",
+        "Data Type": "TEXT",
+        "Is Primary Key": false,
+        "PI Status": "Confirmed",
+        "PI Type": "phone",
+        "Data Subject": "customer",
+        "Sensitivity": "Confidential",
+        "Detection Method": "Value Pattern",
+        "Detection Confidence": 0.97,
+        "Detected On": "2026-01-25",
+        "Reviewed By": "rahul.menon",
+        "Reviewed On": "2026-01-28"
+      },
+      "relations": {
+        "is part of": [
+          "fernwood_dw.marts.legacy_customer_export"
+        ],
+        "represents": [
+          "DC-001"
+        ]
+      }
+    }
+  ]
+}

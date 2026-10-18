@@ -1,0 +1,70 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_storefront__order_items
+name: order_items
+version: 1.4.1
+status: active
+domain: finance
+dataProduct: 'Source: storefront'
+description:
+  purpose: 'Order lines: product, quantity and price for each order.'
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: carlos.mendes@fernwood.example
+  name: Carlos Mendes
+  role: Owner
+- username: samuel.adeyemi@fernwood.example
+  name: Samuel Adeyemi
+  role: Owner
+support:
+- channel: '#data-platform-support'
+  tool: slack
+  scope: issues
+- channel: data-platform@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: order_items
+  physicalName: fernwood_dw.raw_storefront.order_items
+  physicalType: table
+  description: 'Order lines: product, quantity and price for each order.'
+  properties:
+  - name: order_item_id
+    logicalType: string
+    physicalType: TEXT
+    description: Order line identifier
+    primaryKey: true
+    required: true
+  - name: order_id
+    logicalType: string
+    physicalType: TEXT
+    description: Parent order
+  - name: product_id
+    logicalType: string
+    physicalType: TEXT
+    description: Product ordered
+  - name: quantity
+    logicalType: integer
+    physicalType: INTEGER
+    description: Units ordered
+  - name: unit_price_usd
+    logicalType: number
+    physicalType: REAL
+    description: Price per unit at time of order
+quality:
+- rule: unique
+  columns:
+  - order_item_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - order_item_id
+  description: Primary key is never null.

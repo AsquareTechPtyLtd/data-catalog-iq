@@ -1,0 +1,66 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__customer_lifetime_value
+name: customer_lifetime_value
+version: 2.3.0
+status: active
+domain: customer
+dataProduct: Customer 360
+description:
+  purpose: Customer lifetime value to date, 12-month prediction and segment.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: maya.okafor@fernwood.example
+  name: Maya Okafor
+  role: Owner
+- username: daniel.reyes@fernwood.example
+  name: Daniel Reyes
+  role: Analytics Engineer
+support:
+- channel: '#customer-data-support'
+  tool: slack
+  scope: issues
+- channel: customer-data@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: customer_lifetime_value
+  physicalName: fernwood_dw.marts.customer_lifetime_value
+  physicalType: table
+  description: Customer lifetime value to date, 12-month prediction and segment.
+  properties:
+  - name: customer_id
+    logicalType: string
+    physicalType: TEXT
+    description: Customer
+    primaryKey: true
+    required: true
+  - name: net_revenue_to_date_usd
+    logicalType: number
+    physicalType: REAL
+    description: Net revenue to date
+  - name: predicted_12m_value_usd
+    logicalType: number
+    physicalType: REAL
+    description: Predicted next-12-month net revenue
+  - name: ltv_segment
+    logicalType: string
+    physicalType: TEXT
+    description: low / mid / high / vip
+quality:
+- rule: unique
+  columns:
+  - customer_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - customer_id
+  description: Primary key is never null.

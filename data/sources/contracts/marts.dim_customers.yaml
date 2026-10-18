@@ -1,0 +1,87 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__dim_customers
+name: dim_customers
+version: 2.3.1
+status: active
+domain: customer
+dataProduct: Customer 360
+description:
+  purpose: 'One row per customer: contact details, loyalty tier and order history. Customer 360 core table.'
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: maya.okafor@fernwood.example
+  name: Maya Okafor
+  role: Owner
+- username: daniel.reyes@fernwood.example
+  name: Daniel Reyes
+  role: Analytics Engineer
+support:
+- channel: '#customer-data-support'
+  tool: slack
+  scope: issues
+- channel: customer-data@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: dim_customers
+  physicalName: fernwood_dw.marts.dim_customers
+  physicalType: table
+  description: 'One row per customer: contact details, loyalty tier and order history. Customer 360 core
+    table.'
+  properties:
+  - name: customer_id
+    logicalType: string
+    physicalType: TEXT
+    description: Customer identifier
+    primaryKey: true
+    required: true
+  - name: email
+    logicalType: string
+    physicalType: TEXT
+    description: Preferred email
+  - name: full_name
+    logicalType: string
+    physicalType: TEXT
+    description: Full name
+  - name: phone
+    logicalType: string
+    physicalType: TEXT
+    description: Phone
+  - name: loyalty_tier
+    logicalType: string
+    physicalType: TEXT
+    description: Loyalty tier
+  - name: first_order_at
+    logicalType: string
+    physicalType: TEXT
+    description: First order timestamp
+  - name: last_order_at
+    logicalType: string
+    physicalType: TEXT
+    description: Most recent order timestamp
+  - name: lifetime_order_count
+    logicalType: integer
+    physicalType: INTEGER
+    description: Orders to date
+  - name: is_active
+    logicalType: integer
+    physicalType: INTEGER
+    description: Ordered in last 365 days (see Active Customer)
+quality:
+- rule: unique
+  columns:
+  - customer_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - customer_id
+  description: Primary key is never null.

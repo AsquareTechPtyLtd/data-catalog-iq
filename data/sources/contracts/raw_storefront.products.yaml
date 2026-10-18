@@ -1,0 +1,74 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_storefront__products
+name: products
+version: 1.0.2
+status: active
+domain: supply_chain
+dataProduct: 'Source: storefront'
+description:
+  purpose: Product catalog from the storefront.
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: carlos.mendes@fernwood.example
+  name: Carlos Mendes
+  role: Owner
+- username: lucia.ferraro@fernwood.example
+  name: Lucia Ferraro
+  role: Owner
+support:
+- channel: '#data-platform-support'
+  tool: slack
+  scope: issues
+- channel: data-platform@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: products
+  physicalName: fernwood_dw.raw_storefront.products
+  physicalType: table
+  description: Product catalog from the storefront.
+  properties:
+  - name: product_id
+    logicalType: string
+    physicalType: TEXT
+    description: Product identifier
+    primaryKey: true
+    required: true
+  - name: sku
+    logicalType: string
+    physicalType: TEXT
+    description: Stock keeping unit
+  - name: product_name
+    logicalType: string
+    physicalType: TEXT
+    description: Product display name
+  - name: category
+    logicalType: string
+    physicalType: TEXT
+    description: Product category (tents, footwear, …)
+  - name: list_price_usd
+    logicalType: number
+    physicalType: REAL
+    description: Current list price
+  - name: email_template_id
+    logicalType: string
+    physicalType: TEXT
+    description: ID of the product-launch email template
+quality:
+- rule: unique
+  columns:
+  - product_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - product_id
+  description: Primary key is never null.

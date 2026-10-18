@@ -1,0 +1,86 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_storefront__orders
+name: orders
+version: 1.5.2
+status: active
+domain: finance
+dataProduct: 'Source: storefront'
+description:
+  purpose: Orders placed on the storefront, including shipping address.
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: carlos.mendes@fernwood.example
+  name: Carlos Mendes
+  role: Owner
+- username: samuel.adeyemi@fernwood.example
+  name: Samuel Adeyemi
+  role: Owner
+support:
+- channel: '#data-platform-support'
+  tool: slack
+  scope: issues
+- channel: data-platform@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: orders
+  physicalName: fernwood_dw.raw_storefront.orders
+  physicalType: table
+  description: Orders placed on the storefront, including shipping address.
+  properties:
+  - name: order_id
+    logicalType: string
+    physicalType: TEXT
+    description: Order identifier
+    primaryKey: true
+    required: true
+  - name: customer_id
+    logicalType: string
+    physicalType: TEXT
+    description: Ordering customer
+  - name: order_ts
+    logicalType: string
+    physicalType: TEXT
+    description: Order timestamp (ISO 8601)
+  - name: status
+    logicalType: string
+    physicalType: TEXT
+    description: placed / shipped / delivered / cancelled
+  - name: subtotal_usd
+    logicalType: number
+    physicalType: REAL
+    description: Order value before discounts
+  - name: discount_usd
+    logicalType: number
+    physicalType: REAL
+    description: Discount applied
+  - name: shipping_address
+    logicalType: string
+    physicalType: TEXT
+    description: Full shipping address
+  - name: shipping_country
+    logicalType: string
+    physicalType: TEXT
+    description: ISO country code
+  - name: currency
+    logicalType: string
+    physicalType: TEXT
+    description: Order currency
+quality:
+- rule: unique
+  columns:
+  - order_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - order_id
+  description: Primary key is never null.

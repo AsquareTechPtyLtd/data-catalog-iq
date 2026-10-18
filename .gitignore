@@ -218,3 +218,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific
+.planning/
+chroma_db/
+*.faiss
+data/raw/
+.vscode/
+.idea/
+.DS_Store
+data/warehouse/*.db

@@ -1,0 +1,82 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_crm__contacts
+name: contacts
+version: 1.1.0
+status: active
+domain: customer
+dataProduct: 'Source: crm'
+description:
+  purpose: CRM contacts and loyalty program membership.
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: maya.okafor@fernwood.example
+  name: Maya Okafor
+  role: Owner
+- username: samuel.adeyemi@fernwood.example
+  name: Samuel Adeyemi
+  role: Owner
+support:
+- channel: '#data-platform-support'
+  tool: slack
+  scope: issues
+- channel: data-platform@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: contacts
+  physicalName: fernwood_dw.raw_crm.contacts
+  physicalType: table
+  description: CRM contacts and loyalty program membership.
+  properties:
+  - name: contact_id
+    logicalType: string
+    physicalType: TEXT
+    description: CRM contact identifier
+    primaryKey: true
+    required: true
+  - name: customer_id
+    logicalType: string
+    physicalType: TEXT
+    description: Linked storefront customer
+  - name: email
+    logicalType: string
+    physicalType: TEXT
+    description: Email held in CRM
+  - name: full_name
+    logicalType: string
+    physicalType: TEXT
+    description: Full name held in CRM
+  - name: date_of_birth
+    logicalType: string
+    physicalType: TEXT
+    description: Date of birth (loyalty sign-up)
+  - name: loyalty_id
+    logicalType: string
+    physicalType: TEXT
+    description: Loyalty card number
+  - name: loyalty_tier
+    logicalType: string
+    physicalType: TEXT
+    description: Trail / Summit / Peak
+  - name: loyalty_joined_at
+    logicalType: string
+    physicalType: TEXT
+    description: Loyalty enrolment date
+quality:
+- rule: unique
+  columns:
+  - contact_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - contact_id
+  description: Primary key is never null.

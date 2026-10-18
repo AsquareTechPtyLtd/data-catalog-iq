@@ -1,0 +1,74 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_stores__pos_transactions
+name: pos_transactions
+version: 1.3.2
+status: active
+domain: finance
+dataProduct: 'Source: stores'
+description:
+  purpose: In-store point-of-sale transactions.
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: grace.whitfield@fernwood.example
+  name: Grace Whitfield
+  role: Owner
+- username: samuel.adeyemi@fernwood.example
+  name: Samuel Adeyemi
+  role: Owner
+support:
+- channel: '#data-platform-support'
+  tool: slack
+  scope: issues
+- channel: data-platform@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: pos_transactions
+  physicalName: fernwood_dw.raw_stores.pos_transactions
+  physicalType: table
+  description: In-store point-of-sale transactions.
+  properties:
+  - name: pos_txn_id
+    logicalType: string
+    physicalType: TEXT
+    description: In-store transaction identifier
+    primaryKey: true
+    required: true
+  - name: store_id
+    logicalType: string
+    physicalType: TEXT
+    description: Store code
+  - name: loyalty_id
+    logicalType: string
+    physicalType: TEXT
+    description: Loyalty card scanned, if any
+  - name: amount_usd
+    logicalType: number
+    physicalType: REAL
+    description: Transaction amount
+  - name: transacted_at
+    logicalType: string
+    physicalType: TEXT
+    description: Transaction timestamp
+  - name: cashier_employee_id
+    logicalType: string
+    physicalType: TEXT
+    description: Employee who rang up the sale
+quality:
+- rule: unique
+  columns:
+  - pos_txn_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - pos_txn_id
+  description: Primary key is never null.

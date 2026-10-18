@@ -1,0 +1,78 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__fct_order_items
+name: fct_order_items
+version: 2.4.0
+status: active
+domain: finance
+dataProduct: Finance Reporting
+description:
+  purpose: One row per order line with product category and line amount.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: grace.whitfield@fernwood.example
+  name: Grace Whitfield
+  role: Owner
+- username: kenji.mori@fernwood.example
+  name: Kenji Mori
+  role: Owner
+support:
+- channel: '#finance-data'
+  tool: slack
+  scope: issues
+- channel: finance-data@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: fct_order_items
+  physicalName: fernwood_dw.marts.fct_order_items
+  physicalType: table
+  description: One row per order line with product category and line amount.
+  properties:
+  - name: order_item_id
+    logicalType: string
+    physicalType: TEXT
+    description: Order line identifier
+    primaryKey: true
+    required: true
+  - name: order_id
+    logicalType: string
+    physicalType: TEXT
+    description: Order
+  - name: product_id
+    logicalType: string
+    physicalType: TEXT
+    description: Product
+  - name: category
+    logicalType: string
+    physicalType: TEXT
+    description: Product category
+  - name: quantity
+    logicalType: integer
+    physicalType: INTEGER
+    description: Units
+  - name: unit_price_usd
+    logicalType: number
+    physicalType: REAL
+    description: Unit price
+  - name: line_amount_usd
+    logicalType: number
+    physicalType: REAL
+    description: Quantity × unit price
+quality:
+- rule: unique
+  columns:
+  - order_item_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - order_item_id
+  description: Primary key is never null.

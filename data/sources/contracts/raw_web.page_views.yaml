@@ -1,0 +1,82 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_web__page_views
+name: page_views
+version: 1.1.0
+status: active
+domain: digital
+dataProduct: 'Source: web'
+description:
+  purpose: Website page views from the web analytics tracker.
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: hannah.lindqvist@fernwood.example
+  name: Hannah Lindqvist
+  role: Owner
+- username: samuel.adeyemi@fernwood.example
+  name: Samuel Adeyemi
+  role: Owner
+support:
+- channel: '#marketing-analytics'
+  tool: slack
+  scope: issues
+- channel: marketing-analytics@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 6
+  unit: h
+- property: frequency
+  value: hourly
+schema:
+- name: page_views
+  physicalName: fernwood_dw.raw_web.page_views
+  physicalType: table
+  description: Website page views from the web analytics tracker.
+  properties:
+  - name: view_id
+    logicalType: string
+    physicalType: TEXT
+    description: Page view identifier
+    primaryKey: true
+    required: true
+  - name: session_id
+    logicalType: string
+    physicalType: TEXT
+    description: Browser session identifier
+  - name: anonymous_id
+    logicalType: string
+    physicalType: TEXT
+    description: Cookie identifier
+  - name: customer_id
+    logicalType: string
+    physicalType: TEXT
+    description: Logged-in customer, if any
+  - name: page_path
+    logicalType: string
+    physicalType: TEXT
+    description: URL path viewed
+  - name: ip_address
+    logicalType: string
+    physicalType: TEXT
+    description: Visitor IP address
+  - name: user_agent
+    logicalType: string
+    physicalType: TEXT
+    description: Browser user agent
+  - name: viewed_at
+    logicalType: string
+    physicalType: TEXT
+    description: View timestamp
+quality:
+- rule: unique
+  columns:
+  - view_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - view_id
+  description: Primary key is never null.

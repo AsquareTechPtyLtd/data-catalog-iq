@@ -1,0 +1,75 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__dim_products
+name: dim_products
+version: 2.0.2
+status: active
+domain: supply_chain
+dataProduct: Product & Inventory
+description:
+  purpose: One row per product with catalog attributes.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: lucia.ferraro@fernwood.example
+  name: Lucia Ferraro
+  role: Owner
+support:
+- channel: '#supply-chain-data'
+  tool: slack
+  scope: issues
+- channel: supply-chain-analytics@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: dim_products
+  physicalName: fernwood_dw.marts.dim_products
+  physicalType: table
+  description: One row per product with catalog attributes.
+  properties:
+  - name: product_id
+    logicalType: string
+    physicalType: TEXT
+    description: Product identifier
+    primaryKey: true
+    required: true
+  - name: sku
+    logicalType: string
+    physicalType: TEXT
+    description: SKU
+  - name: product_name
+    logicalType: string
+    physicalType: TEXT
+    description: Display name
+  - name: category
+    logicalType: string
+    physicalType: TEXT
+    description: Category
+  - name: list_price_usd
+    logicalType: number
+    physicalType: REAL
+    description: List price
+  - name: email_template_id
+    logicalType: string
+    physicalType: TEXT
+    description: Launch email template ID
+  - name: is_active
+    logicalType: integer
+    physicalType: INTEGER
+    description: Currently sold
+quality:
+- rule: unique
+  columns:
+  - product_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - product_id
+  description: Primary key is never null.

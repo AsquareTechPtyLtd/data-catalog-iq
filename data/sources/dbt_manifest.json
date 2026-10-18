@@ -1,0 +1,4598 @@
+{
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v12.json",
+    "dbt_version": "1.8.7",
+    "generated_at": "2026-10-01T03:00:00Z",
+    "project_name": "fernwood",
+    "adapter_type": "sqlite",
+    "notice": "Synthetic, slimmed dbt manifest for the fictional company Fernwood Outfitters."
+  },
+  "sources": {
+    "source.fernwood.storefront.customers": {
+      "unique_id": "source.fernwood.storefront.customers",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "storefront",
+      "name": "customers",
+      "identifier": "customers",
+      "database": "fernwood_dw",
+      "schema": "raw_storefront",
+      "relation_name": "fernwood_dw.raw_storefront.customers",
+      "path": "models/staging/storefront/_storefront__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Customer accounts from the e-commerce storefront, loaded daily.",
+      "loaded_at_field": "created_at",
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Storefront customer identifier",
+          "data_type": "TEXT"
+        },
+        "email": {
+          "name": "email",
+          "description": "Account email address",
+          "data_type": "TEXT"
+        },
+        "first_name": {
+          "name": "first_name",
+          "description": "Customer first name",
+          "data_type": "TEXT"
+        },
+        "last_name": {
+          "name": "last_name",
+          "description": "Customer last name",
+          "data_type": "TEXT"
+        },
+        "phone": {
+          "name": "phone",
+          "description": "Contact phone number",
+          "data_type": "TEXT"
+        },
+        "marketing_opt_in": {
+          "name": "marketing_opt_in",
+          "description": "1 if the customer consented to marketing email",
+          "data_type": "INTEGER"
+        },
+        "created_at": {
+          "name": "created_at",
+          "description": "Account creation timestamp (ISO 8601)",
+          "data_type": "TEXT"
+        }
+      }
+    },
+    "source.fernwood.storefront.orders": {
+      "unique_id": "source.fernwood.storefront.orders",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "storefront",
+      "name": "orders",
+      "identifier": "orders",
+      "database": "fernwood_dw",
+      "schema": "raw_storefront",
+      "relation_name": "fernwood_dw.raw_storefront.orders",
+      "path": "models/staging/storefront/_storefront__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Orders placed on the storefront, including shipping address.",
+      "loaded_at_field": "order_ts",
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "order_id": {
+          "name": "order_id",
+          "description": "Order identifier",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Ordering customer",
+          "data_type": "TEXT"
+        },
+        "order_ts": {
+          "name": "order_ts",
+          "description": "Order timestamp (ISO 8601)",
+          "data_type": "TEXT"
+        },
+        "status": {
+          "name": "status",
+          "description": "placed / shipped / delivered / cancelled",
+          "data_type": "TEXT"
+        },
+        "subtotal_usd": {
+          "name": "subtotal_usd",
+          "description": "Order value before discounts",
+          "data_type": "REAL"
+        },
+        "discount_usd": {
+          "name": "discount_usd",
+          "description": "Discount applied",
+          "data_type": "REAL"
+        },
+        "shipping_address": {
+          "name": "shipping_address",
+          "description": "Full shipping address",
+          "data_type": "TEXT"
+        },
+        "shipping_country": {
+          "name": "shipping_country",
+          "description": "ISO country code",
+          "data_type": "TEXT"
+        },
+        "currency": {
+          "name": "currency",
+          "description": "Order currency",
+          "data_type": "TEXT"
+        }
+      }
+    },
+    "source.fernwood.storefront.order_items": {
+      "unique_id": "source.fernwood.storefront.order_items",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "storefront",
+      "name": "order_items",
+      "identifier": "order_items",
+      "database": "fernwood_dw",
+      "schema": "raw_storefront",
+      "relation_name": "fernwood_dw.raw_storefront.order_items",
+      "path": "models/staging/storefront/_storefront__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Order lines: product, quantity and price for each order.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "order_item_id": {
+          "name": "order_item_id",
+          "description": "Order line identifier",
+          "data_type": "TEXT"
+        },
+        "order_id": {
+          "name": "order_id",
+          "description": "Parent order",
+          "data_type": "TEXT"
+        },
+        "product_id": {
+          "name": "product_id",
+          "description": "Product ordered",
+          "data_type": "TEXT"
+        },
+        "quantity": {
+          "name": "quantity",
+          "description": "Units ordered",
+          "data_type": "INTEGER"
+        },
+        "unit_price_usd": {
+          "name": "unit_price_usd",
+          "description": "Price per unit at time of order",
+          "data_type": "REAL"
+        }
+      }
+    },
+    "source.fernwood.storefront.products": {
+      "unique_id": "source.fernwood.storefront.products",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "storefront",
+      "name": "products",
+      "identifier": "products",
+      "database": "fernwood_dw",
+      "schema": "raw_storefront",
+      "relation_name": "fernwood_dw.raw_storefront.products",
+      "path": "models/staging/storefront/_storefront__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Product catalog from the storefront.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "product_id": {
+          "name": "product_id",
+          "description": "Product identifier",
+          "data_type": "TEXT"
+        },
+        "sku": {
+          "name": "sku",
+          "description": "Stock keeping unit",
+          "data_type": "TEXT"
+        },
+        "product_name": {
+          "name": "product_name",
+          "description": "Product display name",
+          "data_type": "TEXT"
+        },
+        "category": {
+          "name": "category",
+          "description": "Product category (tents, footwear, …)",
+          "data_type": "TEXT"
+        },
+        "list_price_usd": {
+          "name": "list_price_usd",
+          "description": "Current list price",
+          "data_type": "REAL"
+        },
+        "email_template_id": {
+          "name": "email_template_id",
+          "description": "ID of the product-launch email template",
+          "data_type": "TEXT"
+        }
+      }
+    },
+    "source.fernwood.payments.transactions": {
+      "unique_id": "source.fernwood.payments.transactions",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "payments",
+      "name": "transactions",
+      "identifier": "transactions",
+      "database": "fernwood_dw",
+      "schema": "raw_payments",
+      "relation_name": "fernwood_dw.raw_payments.transactions",
+      "path": "models/staging/payments/_payments__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Card payment transactions from the payments service.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "transaction_id": {
+          "name": "transaction_id",
+          "description": "Payment transaction identifier",
+          "data_type": "TEXT"
+        },
+        "order_id": {
+          "name": "order_id",
+          "description": "Order paid for",
+          "data_type": "TEXT"
+        },
+        "card_last4": {
+          "name": "card_last4",
+          "description": "Last four digits of the card",
+          "data_type": "TEXT"
+        },
+        "card_brand": {
+          "name": "card_brand",
+          "description": "visa / mastercard / amex",
+          "data_type": "TEXT"
+        },
+        "billing_postal_code": {
+          "name": "billing_postal_code",
+          "description": "Billing postal code",
+          "data_type": "TEXT"
+        },
+        "amount_usd": {
+          "name": "amount_usd",
+          "description": "Amount charged",
+          "data_type": "REAL"
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "description": "authorized / captured / refunded / failed",
+          "data_type": "TEXT"
+        },
+        "processed_at": {
+          "name": "processed_at",
+          "description": "Processing timestamp",
+          "data_type": "TEXT"
+        }
+      }
+    },
+    "source.fernwood.crm.contacts": {
+      "unique_id": "source.fernwood.crm.contacts",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "crm",
+      "name": "contacts",
+      "identifier": "contacts",
+      "database": "fernwood_dw",
+      "schema": "raw_crm",
+      "relation_name": "fernwood_dw.raw_crm.contacts",
+      "path": "models/staging/crm/_crm__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "CRM contacts and loyalty program membership.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "contact_id": {
+          "name": "contact_id",
+          "description": "CRM contact identifier",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Linked storefront customer",
+          "data_type": "TEXT"
+        },
+        "email": {
+          "name": "email",
+          "description": "Email held in CRM",
+          "data_type": "TEXT"
+        },
+        "full_name": {
+          "name": "full_name",
+          "description": "Full name held in CRM",
+          "data_type": "TEXT"
+        },
+        "date_of_birth": {
+          "name": "date_of_birth",
+          "description": "Date of birth (loyalty sign-up)",
+          "data_type": "TEXT"
+        },
+        "loyalty_id": {
+          "name": "loyalty_id",
+          "description": "Loyalty card number",
+          "data_type": "TEXT"
+        },
+        "loyalty_tier": {
+          "name": "loyalty_tier",
+          "description": "Trail / Summit / Peak",
+          "data_type": "TEXT"
+        },
+        "loyalty_joined_at": {
+          "name": "loyalty_joined_at",
+          "description": "Loyalty enrolment date",
+          "data_type": "TEXT"
+        }
+      }
+    },
+    "source.fernwood.helpdesk.tickets": {
+      "unique_id": "source.fernwood.helpdesk.tickets",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "helpdesk",
+      "name": "tickets",
+      "identifier": "tickets",
+      "database": "fernwood_dw",
+      "schema": "raw_helpdesk",
+      "relation_name": "fernwood_dw.raw_helpdesk.tickets",
+      "path": "models/staging/helpdesk/_helpdesk__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Customer support tickets from the helpdesk tool.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "ticket_id": {
+          "name": "ticket_id",
+          "description": "Ticket identifier",
+          "data_type": "TEXT"
+        },
+        "requester_email": {
+          "name": "requester_email",
+          "description": "Email of the person raising the ticket",
+          "data_type": "TEXT"
+        },
+        "requester_name": {
+          "name": "requester_name",
+          "description": "Name of the person raising the ticket",
+          "data_type": "TEXT"
+        },
+        "subject": {
+          "name": "subject",
+          "description": "Ticket subject line (template-driven, e.g. \"Where is my order?\")",
+          "data_type": "TEXT"
+        },
+        "body": {
+          "name": "body",
+          "description": "Customer's message text",
+          "data_type": "TEXT"
+        },
+        "priority": {
+          "name": "priority",
+          "description": "low / normal / high / urgent",
+          "data_type": "TEXT"
+        },
+        "status": {
+          "name": "status",
+          "description": "open / pending / solved / closed",
+          "data_type": "TEXT"
+        },
+        "created_at": {
+          "name": "created_at",
+          "description": "Ticket creation timestamp",
+          "data_type": "TEXT"
+        },
+        "first_response_at": {
+          "name": "first_response_at",
+          "description": "First agent reply timestamp",
+          "data_type": "TEXT"
+        }
+      }
+    },
+    "source.fernwood.marketing.email_events": {
+      "unique_id": "source.fernwood.marketing.email_events",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "marketing",
+      "name": "email_events",
+      "identifier": "email_events",
+      "database": "fernwood_dw",
+      "schema": "raw_marketing",
+      "relation_name": "fernwood_dw.raw_marketing.email_events",
+      "path": "models/staging/marketing/_marketing__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Email campaign delivery and engagement events.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "event_id": {
+          "name": "event_id",
+          "description": "Email event identifier",
+          "data_type": "TEXT"
+        },
+        "recipient_email": {
+          "name": "recipient_email",
+          "description": "Email address the campaign was sent to",
+          "data_type": "TEXT"
+        },
+        "campaign_id": {
+          "name": "campaign_id",
+          "description": "Campaign",
+          "data_type": "TEXT"
+        },
+        "event_type": {
+          "name": "event_type",
+          "description": "sent / delivered / opened / clicked / bounced",
+          "data_type": "TEXT"
+        },
+        "event_at": {
+          "name": "event_at",
+          "description": "Event timestamp",
+          "data_type": "TEXT"
+        }
+      }
+    },
+    "source.fernwood.marketing.campaigns": {
+      "unique_id": "source.fernwood.marketing.campaigns",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "marketing",
+      "name": "campaigns",
+      "identifier": "campaigns",
+      "database": "fernwood_dw",
+      "schema": "raw_marketing",
+      "relation_name": "fernwood_dw.raw_marketing.campaigns",
+      "path": "models/staging/marketing/_marketing__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Marketing campaign setup across channels.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "campaign_id": {
+          "name": "campaign_id",
+          "description": "Campaign identifier",
+          "data_type": "TEXT"
+        },
+        "campaign_name": {
+          "name": "campaign_name",
+          "description": "Campaign name",
+          "data_type": "TEXT"
+        },
+        "channel": {
+          "name": "channel",
+          "description": "email / paid_social / search",
+          "data_type": "TEXT"
+        },
+        "start_date": {
+          "name": "start_date",
+          "description": "Campaign start",
+          "data_type": "TEXT"
+        },
+        "end_date": {
+          "name": "end_date",
+          "description": "Campaign end",
+          "data_type": "TEXT"
+        },
+        "budget_usd": {
+          "name": "budget_usd",
+          "description": "Planned budget",
+          "data_type": "REAL"
+        }
+      }
+    },
+    "source.fernwood.warehouse.inventory_snapshots": {
+      "unique_id": "source.fernwood.warehouse.inventory_snapshots",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "warehouse",
+      "name": "inventory_snapshots",
+      "identifier": "inventory_snapshots",
+      "database": "fernwood_dw",
+      "schema": "raw_warehouse",
+      "relation_name": "fernwood_dw.raw_warehouse.inventory_snapshots",
+      "path": "models/staging/warehouse/_warehouse__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Weekly stock-on-hand snapshots by warehouse.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "snapshot_id": {
+          "name": "snapshot_id",
+          "description": "Snapshot row identifier",
+          "data_type": "TEXT"
+        },
+        "snapshot_date": {
+          "name": "snapshot_date",
+          "description": "Snapshot date",
+          "data_type": "TEXT"
+        },
+        "sku": {
+          "name": "sku",
+          "description": "Stock keeping unit",
+          "data_type": "TEXT"
+        },
+        "warehouse_id": {
+          "name": "warehouse_id",
+          "description": "Warehouse code (e.g. WH-RENO)",
+          "data_type": "TEXT"
+        },
+        "on_hand_qty": {
+          "name": "on_hand_qty",
+          "description": "Units on hand",
+          "data_type": "INTEGER"
+        }
+      }
+    },
+    "source.fernwood.stores.pos_transactions": {
+      "unique_id": "source.fernwood.stores.pos_transactions",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "stores",
+      "name": "pos_transactions",
+      "identifier": "pos_transactions",
+      "database": "fernwood_dw",
+      "schema": "raw_stores",
+      "relation_name": "fernwood_dw.raw_stores.pos_transactions",
+      "path": "models/staging/stores/_stores__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "In-store point-of-sale transactions.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "pos_txn_id": {
+          "name": "pos_txn_id",
+          "description": "In-store transaction identifier",
+          "data_type": "TEXT"
+        },
+        "store_id": {
+          "name": "store_id",
+          "description": "Store code",
+          "data_type": "TEXT"
+        },
+        "loyalty_id": {
+          "name": "loyalty_id",
+          "description": "Loyalty card scanned, if any",
+          "data_type": "TEXT"
+        },
+        "amount_usd": {
+          "name": "amount_usd",
+          "description": "Transaction amount",
+          "data_type": "REAL"
+        },
+        "transacted_at": {
+          "name": "transacted_at",
+          "description": "Transaction timestamp",
+          "data_type": "TEXT"
+        },
+        "cashier_employee_id": {
+          "name": "cashier_employee_id",
+          "description": "Employee who rang up the sale",
+          "data_type": "TEXT"
+        }
+      }
+    },
+    "source.fernwood.hr.employees": {
+      "unique_id": "source.fernwood.hr.employees",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "hr",
+      "name": "employees",
+      "identifier": "employees",
+      "database": "fernwood_dw",
+      "schema": "raw_hr",
+      "relation_name": "fernwood_dw.raw_hr.employees",
+      "path": "models/staging/hr/_hr__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Employee records from the HR system.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "employee_id": {
+          "name": "employee_id",
+          "description": "Employee identifier",
+          "data_type": "TEXT"
+        },
+        "full_name": {
+          "name": "full_name",
+          "description": "Employee full name",
+          "data_type": "TEXT"
+        },
+        "work_email": {
+          "name": "work_email",
+          "description": "Work email address",
+          "data_type": "TEXT"
+        },
+        "personal_email": {
+          "name": "personal_email",
+          "description": "Personal email address",
+          "data_type": "TEXT"
+        },
+        "home_address": {
+          "name": "home_address",
+          "description": "Home address",
+          "data_type": "TEXT"
+        },
+        "department": {
+          "name": "department",
+          "description": "Department",
+          "data_type": "TEXT"
+        },
+        "job_title": {
+          "name": "job_title",
+          "description": "Job title",
+          "data_type": "TEXT"
+        },
+        "annual_salary": {
+          "name": "annual_salary",
+          "description": "Annual base salary (USD)",
+          "data_type": "REAL"
+        },
+        "joining_date": {
+          "name": "joining_date",
+          "description": "Date joined Fernwood",
+          "data_type": "TEXT"
+        },
+        "termination_date": {
+          "name": "termination_date",
+          "description": "Date employment ended, if any",
+          "data_type": "TEXT"
+        },
+        "national_id_last4": {
+          "name": "national_id_last4",
+          "description": "Last four digits of national ID",
+          "data_type": "TEXT"
+        }
+      }
+    },
+    "source.fernwood.web.page_views": {
+      "unique_id": "source.fernwood.web.page_views",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "web",
+      "name": "page_views",
+      "identifier": "page_views",
+      "database": "fernwood_dw",
+      "schema": "raw_web",
+      "relation_name": "fernwood_dw.raw_web.page_views",
+      "path": "models/staging/web/_web__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Website page views from the web analytics tracker.",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "view_id": {
+          "name": "view_id",
+          "description": "Page view identifier",
+          "data_type": "TEXT"
+        },
+        "session_id": {
+          "name": "session_id",
+          "description": "Browser session identifier",
+          "data_type": "TEXT"
+        },
+        "anonymous_id": {
+          "name": "anonymous_id",
+          "description": "Cookie identifier",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Logged-in customer, if any",
+          "data_type": "TEXT"
+        },
+        "page_path": {
+          "name": "page_path",
+          "description": "URL path viewed",
+          "data_type": "TEXT"
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "description": "Visitor IP address",
+          "data_type": "TEXT"
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "description": "Browser user agent",
+          "data_type": "TEXT"
+        },
+        "viewed_at": {
+          "name": "viewed_at",
+          "description": "View timestamp",
+          "data_type": "TEXT"
+        }
+      }
+    },
+    "source.fernwood.returns.return_requests": {
+      "unique_id": "source.fernwood.returns.return_requests",
+      "resource_type": "source",
+      "package_name": "fernwood",
+      "source_name": "returns",
+      "name": "return_requests",
+      "identifier": "return_requests",
+      "database": "fernwood_dw",
+      "schema": "raw_returns",
+      "relation_name": "fernwood_dw.raw_returns.return_requests",
+      "path": "models/staging/returns/_returns__sources.yml",
+      "loader": "data_platform_ingest",
+      "description": "Return requests from the new returns portal (onboarded 2026-09).",
+      "loaded_at_field": null,
+      "freshness": {
+        "warn_after": {
+          "count": 24,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 48,
+          "period": "hour"
+        }
+      },
+      "columns": {
+        "return_id": {
+          "name": "return_id",
+          "description": "Return request identifier",
+          "data_type": "TEXT"
+        },
+        "order_id": {
+          "name": "order_id",
+          "description": "Order being returned",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer requesting the return",
+          "data_type": "TEXT"
+        },
+        "contact_email": {
+          "name": "contact_email",
+          "description": "Email entered on the return form",
+          "data_type": "TEXT"
+        },
+        "reason_text": {
+          "name": "reason_text",
+          "description": "Free-text return reason",
+          "data_type": "TEXT"
+        },
+        "refund_amount_usd": {
+          "name": "refund_amount_usd",
+          "description": "Amount refunded",
+          "data_type": "REAL"
+        },
+        "requested_at": {
+          "name": "requested_at",
+          "description": "Request timestamp",
+          "data_type": "TEXT"
+        }
+      }
+    }
+  },
+  "nodes": {
+    "model.fernwood.stg_storefront__customers": {
+      "unique_id": "model.fernwood.stg_storefront__customers",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_storefront__customers",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_storefront__customers",
+      "relation_name": "fernwood_dw.staging.stg_storefront__customers",
+      "path": "staging/storefront/stg_storefront__customers.sql",
+      "original_file_path": "models/staging/storefront/stg_storefront__customers.sql",
+      "description": "Staging model over source storefront.customers: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer identifier",
+          "data_type": "TEXT"
+        },
+        "email": {
+          "name": "email",
+          "description": "Lower-cased email",
+          "data_type": "TEXT"
+        },
+        "email_domain": {
+          "name": "email_domain",
+          "description": "Domain part of the email",
+          "data_type": "TEXT"
+        },
+        "first_name": {
+          "name": "first_name",
+          "description": "First name",
+          "data_type": "TEXT"
+        },
+        "last_name": {
+          "name": "last_name",
+          "description": "Last name",
+          "data_type": "TEXT"
+        },
+        "phone": {
+          "name": "phone",
+          "description": "Phone in E.164 format",
+          "data_type": "TEXT"
+        },
+        "is_marketing_opted_in": {
+          "name": "is_marketing_opted_in",
+          "description": "Marketing consent flag",
+          "data_type": "INTEGER"
+        },
+        "created_at": {
+          "name": "created_at",
+          "description": "Account creation timestamp",
+          "data_type": "TEXT"
+        },
+        "middle_name": {
+          "name": "middle_name",
+          "description": "Customer middle name.",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.customers"
+        ]
+      },
+      "raw_code": "select customer_id, lower(email) as email,\nsubstr(email, instr(email, '@') + 1) as email_domain,\nfirst_name, last_name, phone,\nmarketing_opt_in as is_marketing_opted_in, created_at\nfrom {{ source('storefront', 'customers') }}"
+    },
+    "model.fernwood.stg_storefront__orders": {
+      "unique_id": "model.fernwood.stg_storefront__orders",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_storefront__orders",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_storefront__orders",
+      "relation_name": "fernwood_dw.staging.stg_storefront__orders",
+      "path": "staging/storefront/stg_storefront__orders.sql",
+      "original_file_path": "models/staging/storefront/stg_storefront__orders.sql",
+      "description": "Staging model over source storefront.orders: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "order_id": {
+          "name": "order_id",
+          "description": "Order identifier",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Ordering customer",
+          "data_type": "TEXT"
+        },
+        "ordered_at": {
+          "name": "ordered_at",
+          "description": "Order timestamp",
+          "data_type": "TEXT"
+        },
+        "order_status": {
+          "name": "order_status",
+          "description": "Order status",
+          "data_type": "TEXT"
+        },
+        "subtotal_usd": {
+          "name": "subtotal_usd",
+          "description": "Value before discounts",
+          "data_type": "REAL"
+        },
+        "discount_usd": {
+          "name": "discount_usd",
+          "description": "Discount applied",
+          "data_type": "REAL"
+        },
+        "shipping_address": {
+          "name": "shipping_address",
+          "description": "Shipping address",
+          "data_type": "TEXT"
+        },
+        "shipping_country": {
+          "name": "shipping_country",
+          "description": "ISO country code",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.orders"
+        ]
+      },
+      "raw_code": "select order_id, customer_id, order_ts as ordered_at, status as order_status,\nsubtotal_usd, discount_usd, shipping_address, shipping_country\nfrom {{ source('storefront', 'orders') }}"
+    },
+    "model.fernwood.stg_storefront__order_items": {
+      "unique_id": "model.fernwood.stg_storefront__order_items",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_storefront__order_items",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_storefront__order_items",
+      "relation_name": "fernwood_dw.staging.stg_storefront__order_items",
+      "path": "staging/storefront/stg_storefront__order_items.sql",
+      "original_file_path": "models/staging/storefront/stg_storefront__order_items.sql",
+      "description": "Staging model over source storefront.order_items: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "order_item_id": {
+          "name": "order_item_id",
+          "description": "Order line identifier",
+          "data_type": "TEXT"
+        },
+        "order_id": {
+          "name": "order_id",
+          "description": "Parent order",
+          "data_type": "TEXT"
+        },
+        "product_id": {
+          "name": "product_id",
+          "description": "Product",
+          "data_type": "TEXT"
+        },
+        "quantity": {
+          "name": "quantity",
+          "description": "Units",
+          "data_type": "INTEGER"
+        },
+        "unit_price_usd": {
+          "name": "unit_price_usd",
+          "description": "Unit price",
+          "data_type": "REAL"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.order_items"
+        ]
+      },
+      "raw_code": "select order_item_id, order_id, product_id, quantity, unit_price_usd\nfrom {{ source('storefront', 'order_items') }}"
+    },
+    "model.fernwood.stg_storefront__products": {
+      "unique_id": "model.fernwood.stg_storefront__products",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_storefront__products",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_storefront__products",
+      "relation_name": "fernwood_dw.staging.stg_storefront__products",
+      "path": "staging/storefront/stg_storefront__products.sql",
+      "original_file_path": "models/staging/storefront/stg_storefront__products.sql",
+      "description": "Staging model over source storefront.products: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "product_id": {
+          "name": "product_id",
+          "description": "Product identifier",
+          "data_type": "TEXT"
+        },
+        "sku": {
+          "name": "sku",
+          "description": "SKU",
+          "data_type": "TEXT"
+        },
+        "product_name": {
+          "name": "product_name",
+          "description": "Display name",
+          "data_type": "TEXT"
+        },
+        "category": {
+          "name": "category",
+          "description": "Category",
+          "data_type": "TEXT"
+        },
+        "list_price_usd": {
+          "name": "list_price_usd",
+          "description": "List price",
+          "data_type": "REAL"
+        },
+        "email_template_id": {
+          "name": "email_template_id",
+          "description": "Launch email template ID",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.products"
+        ]
+      },
+      "raw_code": "select product_id, sku, product_name, category, list_price_usd, email_template_id\nfrom {{ source('storefront', 'products') }}"
+    },
+    "model.fernwood.stg_payments__transactions": {
+      "unique_id": "model.fernwood.stg_payments__transactions",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_payments__transactions",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_payments__transactions",
+      "relation_name": "fernwood_dw.staging.stg_payments__transactions",
+      "path": "staging/payments/stg_payments__transactions.sql",
+      "original_file_path": "models/staging/payments/stg_payments__transactions.sql",
+      "description": "Staging model over source payments.transactions: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "transaction_id": {
+          "name": "transaction_id",
+          "description": "Transaction identifier",
+          "data_type": "TEXT"
+        },
+        "order_id": {
+          "name": "order_id",
+          "description": "Order paid for",
+          "data_type": "TEXT"
+        },
+        "card_last4": {
+          "name": "card_last4",
+          "description": "Card last four",
+          "data_type": "TEXT"
+        },
+        "card_brand": {
+          "name": "card_brand",
+          "description": "Card brand",
+          "data_type": "TEXT"
+        },
+        "billing_postal_code": {
+          "name": "billing_postal_code",
+          "description": "Billing postal code",
+          "data_type": "TEXT"
+        },
+        "amount_usd": {
+          "name": "amount_usd",
+          "description": "Amount",
+          "data_type": "REAL"
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "description": "Payment status",
+          "data_type": "TEXT"
+        },
+        "processed_at": {
+          "name": "processed_at",
+          "description": "Processing timestamp",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.payments.transactions"
+        ]
+      },
+      "raw_code": "select transaction_id, order_id, card_last4, card_brand, billing_postal_code,\namount_usd, payment_status, processed_at\nfrom {{ source('payments', 'transactions') }}"
+    },
+    "model.fernwood.stg_crm__contacts": {
+      "unique_id": "model.fernwood.stg_crm__contacts",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_crm__contacts",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_crm__contacts",
+      "relation_name": "fernwood_dw.staging.stg_crm__contacts",
+      "path": "staging/crm/stg_crm__contacts.sql",
+      "original_file_path": "models/staging/crm/stg_crm__contacts.sql",
+      "description": "Staging model over source crm.contacts: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "contact_id": {
+          "name": "contact_id",
+          "description": "CRM contact identifier",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Linked customer",
+          "data_type": "TEXT"
+        },
+        "email": {
+          "name": "email",
+          "description": "CRM email",
+          "data_type": "TEXT"
+        },
+        "full_name": {
+          "name": "full_name",
+          "description": "Full name",
+          "data_type": "TEXT"
+        },
+        "date_of_birth": {
+          "name": "date_of_birth",
+          "description": "Date of birth",
+          "data_type": "TEXT"
+        },
+        "loyalty_id": {
+          "name": "loyalty_id",
+          "description": "Loyalty card number",
+          "data_type": "TEXT"
+        },
+        "loyalty_tier": {
+          "name": "loyalty_tier",
+          "description": "Loyalty tier",
+          "data_type": "TEXT"
+        },
+        "loyalty_joined_at": {
+          "name": "loyalty_joined_at",
+          "description": "Enrolment date",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.crm.contacts"
+        ]
+      },
+      "raw_code": "select contact_id, customer_id, email, full_name, date_of_birth, loyalty_id,\nloyalty_tier, loyalty_joined_at\nfrom {{ source('crm', 'contacts') }}"
+    },
+    "model.fernwood.stg_helpdesk__tickets": {
+      "unique_id": "model.fernwood.stg_helpdesk__tickets",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_helpdesk__tickets",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_helpdesk__tickets",
+      "relation_name": "fernwood_dw.staging.stg_helpdesk__tickets",
+      "path": "staging/helpdesk/stg_helpdesk__tickets.sql",
+      "original_file_path": "models/staging/helpdesk/stg_helpdesk__tickets.sql",
+      "description": "Staging model over source helpdesk.tickets: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "ticket_id": {
+          "name": "ticket_id",
+          "description": "Ticket identifier",
+          "data_type": "TEXT"
+        },
+        "requester_email": {
+          "name": "requester_email",
+          "description": "Requester email",
+          "data_type": "TEXT"
+        },
+        "requester_name": {
+          "name": "requester_name",
+          "description": "Requester name",
+          "data_type": "TEXT"
+        },
+        "subject": {
+          "name": "subject",
+          "description": "Subject line",
+          "data_type": "TEXT"
+        },
+        "body": {
+          "name": "body",
+          "description": "Message text",
+          "data_type": "TEXT"
+        },
+        "priority": {
+          "name": "priority",
+          "description": "Priority",
+          "data_type": "TEXT"
+        },
+        "ticket_status": {
+          "name": "ticket_status",
+          "description": "Status",
+          "data_type": "TEXT"
+        },
+        "created_at": {
+          "name": "created_at",
+          "description": "Created timestamp",
+          "data_type": "TEXT"
+        },
+        "first_response_minutes": {
+          "name": "first_response_minutes",
+          "description": "Minutes to first reply",
+          "data_type": "INT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.helpdesk.tickets"
+        ]
+      },
+      "raw_code": "select ticket_id, requester_email, requester_name, subject, body, priority,\nstatus as ticket_status, created_at,\ncast(round((julianday(first_response_at) - julianday(created_at)) * 1440)\nas integer) as first_response_minutes\nfrom {{ source('helpdesk', 'tickets') }}"
+    },
+    "model.fernwood.stg_marketing__campaigns": {
+      "unique_id": "model.fernwood.stg_marketing__campaigns",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_marketing__campaigns",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_marketing__campaigns",
+      "relation_name": "fernwood_dw.staging.stg_marketing__campaigns",
+      "path": "staging/marketing/stg_marketing__campaigns.sql",
+      "original_file_path": "models/staging/marketing/stg_marketing__campaigns.sql",
+      "description": "Staging model over source marketing.campaigns: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "campaign_id": {
+          "name": "campaign_id",
+          "description": "Campaign identifier",
+          "data_type": "TEXT"
+        },
+        "campaign_name": {
+          "name": "campaign_name",
+          "description": "Campaign name",
+          "data_type": "TEXT"
+        },
+        "channel": {
+          "name": "channel",
+          "description": "Channel",
+          "data_type": "TEXT"
+        },
+        "start_date": {
+          "name": "start_date",
+          "description": "Start",
+          "data_type": "TEXT"
+        },
+        "end_date": {
+          "name": "end_date",
+          "description": "End",
+          "data_type": "TEXT"
+        },
+        "budget_usd": {
+          "name": "budget_usd",
+          "description": "Budget",
+          "data_type": "REAL"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.marketing.campaigns"
+        ]
+      },
+      "raw_code": "select campaign_id, campaign_name, channel, start_date, end_date, budget_usd\nfrom {{ source('marketing', 'campaigns') }}"
+    },
+    "model.fernwood.stg_warehouse__inventory_snapshots": {
+      "unique_id": "model.fernwood.stg_warehouse__inventory_snapshots",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_warehouse__inventory_snapshots",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_warehouse__inventory_snapshots",
+      "relation_name": "fernwood_dw.staging.stg_warehouse__inventory_snapshots",
+      "path": "staging/warehouse/stg_warehouse__inventory_snapshots.sql",
+      "original_file_path": "models/staging/warehouse/stg_warehouse__inventory_snapshots.sql",
+      "description": "Staging model over source warehouse.inventory_snapshots: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "snapshot_id": {
+          "name": "snapshot_id",
+          "description": "Snapshot row identifier",
+          "data_type": "TEXT"
+        },
+        "snapshot_date": {
+          "name": "snapshot_date",
+          "description": "Snapshot date",
+          "data_type": "TEXT"
+        },
+        "sku": {
+          "name": "sku",
+          "description": "SKU",
+          "data_type": "TEXT"
+        },
+        "warehouse_id": {
+          "name": "warehouse_id",
+          "description": "Warehouse code",
+          "data_type": "TEXT"
+        },
+        "on_hand_qty": {
+          "name": "on_hand_qty",
+          "description": "Units on hand",
+          "data_type": "INTEGER"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.warehouse.inventory_snapshots"
+        ]
+      },
+      "raw_code": "select snapshot_id, snapshot_date, sku, warehouse_id, on_hand_qty\nfrom {{ source('warehouse', 'inventory_snapshots') }}"
+    },
+    "model.fernwood.stg_stores__pos_transactions": {
+      "unique_id": "model.fernwood.stg_stores__pos_transactions",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_stores__pos_transactions",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_stores__pos_transactions",
+      "relation_name": "fernwood_dw.staging.stg_stores__pos_transactions",
+      "path": "staging/stores/stg_stores__pos_transactions.sql",
+      "original_file_path": "models/staging/stores/stg_stores__pos_transactions.sql",
+      "description": "Staging model over source stores.pos_transactions: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "pos_txn_id": {
+          "name": "pos_txn_id",
+          "description": "Transaction identifier",
+          "data_type": "TEXT"
+        },
+        "store_id": {
+          "name": "store_id",
+          "description": "Store code",
+          "data_type": "TEXT"
+        },
+        "loyalty_id": {
+          "name": "loyalty_id",
+          "description": "Loyalty card scanned",
+          "data_type": "TEXT"
+        },
+        "amount_usd": {
+          "name": "amount_usd",
+          "description": "Amount",
+          "data_type": "REAL"
+        },
+        "transacted_at": {
+          "name": "transacted_at",
+          "description": "Timestamp",
+          "data_type": "TEXT"
+        },
+        "cashier_employee_id": {
+          "name": "cashier_employee_id",
+          "description": "Cashier",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.stores.pos_transactions"
+        ]
+      },
+      "raw_code": "select pos_txn_id, store_id, loyalty_id, amount_usd, transacted_at,\ncashier_employee_id\nfrom {{ source('stores', 'pos_transactions') }}"
+    },
+    "model.fernwood.stg_hr__employees": {
+      "unique_id": "model.fernwood.stg_hr__employees",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_hr__employees",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_hr__employees",
+      "relation_name": "fernwood_dw.staging.stg_hr__employees",
+      "path": "staging/hr/stg_hr__employees.sql",
+      "original_file_path": "models/staging/hr/stg_hr__employees.sql",
+      "description": "Staging model over source hr.employees: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "employee_id": {
+          "name": "employee_id",
+          "description": "Employee identifier",
+          "data_type": "TEXT"
+        },
+        "full_name": {
+          "name": "full_name",
+          "description": "Full name",
+          "data_type": "TEXT"
+        },
+        "work_email": {
+          "name": "work_email",
+          "description": "Work email",
+          "data_type": "TEXT"
+        },
+        "personal_email": {
+          "name": "personal_email",
+          "description": "Personal email",
+          "data_type": "TEXT"
+        },
+        "home_address": {
+          "name": "home_address",
+          "description": "Home address",
+          "data_type": "TEXT"
+        },
+        "department": {
+          "name": "department",
+          "description": "Department",
+          "data_type": "TEXT"
+        },
+        "job_title": {
+          "name": "job_title",
+          "description": "Job title",
+          "data_type": "TEXT"
+        },
+        "annual_salary": {
+          "name": "annual_salary",
+          "description": "Annual salary",
+          "data_type": "REAL"
+        },
+        "joining_date": {
+          "name": "joining_date",
+          "description": "Joining date",
+          "data_type": "TEXT"
+        },
+        "termination_date": {
+          "name": "termination_date",
+          "description": "Termination date",
+          "data_type": "TEXT"
+        },
+        "national_id_last4": {
+          "name": "national_id_last4",
+          "description": "National ID last four",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.hr.employees"
+        ]
+      },
+      "raw_code": "select employee_id, full_name, work_email, personal_email, home_address,\ndepartment, job_title, annual_salary, joining_date, termination_date,\nnational_id_last4\nfrom {{ source('hr', 'employees') }}"
+    },
+    "model.fernwood.stg_web__page_views": {
+      "unique_id": "model.fernwood.stg_web__page_views",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_web__page_views",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_web__page_views",
+      "relation_name": "fernwood_dw.staging.stg_web__page_views",
+      "path": "staging/web/stg_web__page_views.sql",
+      "original_file_path": "models/staging/web/stg_web__page_views.sql",
+      "description": "Staging model over source web.page_views: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "view_id": {
+          "name": "view_id",
+          "description": "Page view identifier",
+          "data_type": "TEXT"
+        },
+        "session_id": {
+          "name": "session_id",
+          "description": "Session identifier",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Logged-in customer",
+          "data_type": "TEXT"
+        },
+        "page_path": {
+          "name": "page_path",
+          "description": "URL path",
+          "data_type": "TEXT"
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "description": "Visitor IP",
+          "data_type": "TEXT"
+        },
+        "viewed_at": {
+          "name": "viewed_at",
+          "description": "Timestamp",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.web.page_views"
+        ]
+      },
+      "raw_code": "select view_id, session_id, customer_id, page_path, ip_address, viewed_at\nfrom {{ source('web', 'page_views') }}"
+    },
+    "model.fernwood.stg_returns__return_requests": {
+      "unique_id": "model.fernwood.stg_returns__return_requests",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_returns__return_requests",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_returns__return_requests",
+      "relation_name": "fernwood_dw.staging.stg_returns__return_requests",
+      "path": "staging/returns/stg_returns__return_requests.sql",
+      "original_file_path": "models/staging/returns/stg_returns__return_requests.sql",
+      "description": "Staging model over source returns.return_requests: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "view",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "return_id": {
+          "name": "return_id",
+          "description": "Return identifier",
+          "data_type": "TEXT"
+        },
+        "order_id": {
+          "name": "order_id",
+          "description": "Order returned",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer",
+          "data_type": "TEXT"
+        },
+        "contact_email": {
+          "name": "contact_email",
+          "description": "Return form email",
+          "data_type": "TEXT"
+        },
+        "reason_text": {
+          "name": "reason_text",
+          "description": "Return reason",
+          "data_type": "TEXT"
+        },
+        "refund_amount_usd": {
+          "name": "refund_amount_usd",
+          "description": "Refund amount",
+          "data_type": "REAL"
+        },
+        "requested_at": {
+          "name": "requested_at",
+          "description": "Request timestamp",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.returns.return_requests"
+        ]
+      },
+      "raw_code": "select return_id, order_id, customer_id, contact_email, reason_text,\nrefund_amount_usd, requested_at\nfrom {{ source('returns', 'return_requests') }}"
+    },
+    "model.fernwood.stg_marketing__email_events": {
+      "unique_id": "model.fernwood.stg_marketing__email_events",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "stg_marketing__email_events",
+      "database": "fernwood_dw",
+      "schema": "staging",
+      "alias": "stg_marketing__email_events",
+      "relation_name": "fernwood_dw.staging.stg_marketing__email_events",
+      "path": "staging/marketing/stg_marketing__email_events.sql",
+      "original_file_path": "models/staging/marketing/stg_marketing__email_events.sql",
+      "description": "Staging model over source marketing.email_events: renames and light cleaning, one row per source row.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "staging"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "event_id": {
+          "name": "event_id",
+          "description": "Event identifier",
+          "data_type": "TEXT"
+        },
+        "recipient_email_sha256": {
+          "name": "recipient_email_sha256",
+          "description": "SHA-256 of recipient email",
+          "data_type": "TEXT"
+        },
+        "campaign_id": {
+          "name": "campaign_id",
+          "description": "Campaign",
+          "data_type": "TEXT"
+        },
+        "event_type": {
+          "name": "event_type",
+          "description": "Event type",
+          "data_type": "TEXT"
+        },
+        "event_at": {
+          "name": "event_at",
+          "description": "Event timestamp",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.marketing.email_events"
+        ]
+      },
+      "raw_code": "select event_id, sha256(lower(recipient_email)) as recipient_email_sha256, campaign_id,\nevent_type, event_at\nfrom {{ source('marketing', 'email_events') }}"
+    },
+    "model.fernwood.int_customer_identity": {
+      "unique_id": "model.fernwood.int_customer_identity",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "int_customer_identity",
+      "database": "fernwood_dw",
+      "schema": "intermediate",
+      "alias": "int_customer_identity",
+      "relation_name": "fernwood_dw.intermediate.int_customer_identity",
+      "path": "intermediate/customer/int_customer_identity.sql",
+      "original_file_path": "models/intermediate/customer/int_customer_identity.sql",
+      "description": "Unifies storefront customers with CRM contacts.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "intermediate"
+        ]
+      },
+      "meta": {
+        "built_for": "model.fernwood.dim_customers"
+      },
+      "columns": {
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Unified customer identifier",
+          "data_type": "TEXT"
+        },
+        "email": {
+          "name": "email",
+          "description": "Preferred email",
+          "data_type": "TEXT"
+        },
+        "full_name": {
+          "name": "full_name",
+          "description": "First + last name",
+          "data_type": "TEXT"
+        },
+        "phone": {
+          "name": "phone",
+          "description": "Phone",
+          "data_type": "TEXT"
+        },
+        "date_of_birth": {
+          "name": "date_of_birth",
+          "description": "Date of birth from CRM",
+          "data_type": "TEXT"
+        },
+        "loyalty_tier": {
+          "name": "loyalty_tier",
+          "description": "Loyalty tier from CRM",
+          "data_type": "TEXT"
+        },
+        "first_seen_at": {
+          "name": "first_seen_at",
+          "description": "Earliest account creation",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_storefront__customers",
+          "model.fernwood.stg_crm__contacts"
+        ]
+      },
+      "raw_code": "select c.customer_id, c.email, c.first_name || ' ' || c.last_name as full_name, c.phone,\nk.date_of_birth, k.loyalty_tier, c.created_at as first_seen_at\nfrom {{ ref('stg_storefront__customers') }} c\nleft join {{ ref('stg_crm__contacts') }} k on k.customer_id = c.customer_id"
+    },
+    "model.fernwood.int_orders_enriched": {
+      "unique_id": "model.fernwood.int_orders_enriched",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "int_orders_enriched",
+      "database": "fernwood_dw",
+      "schema": "intermediate",
+      "alias": "int_orders_enriched",
+      "relation_name": "fernwood_dw.intermediate.int_orders_enriched",
+      "path": "intermediate/finance/int_orders_enriched.sql",
+      "original_file_path": "models/intermediate/finance/int_orders_enriched.sql",
+      "description": "Orders with item counts, net amounts and payment status.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "intermediate"
+        ]
+      },
+      "meta": {
+        "built_for": "model.fernwood.fct_orders"
+      },
+      "columns": {
+        "order_id": {
+          "name": "order_id",
+          "description": "Order identifier",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer",
+          "data_type": "TEXT"
+        },
+        "ordered_at": {
+          "name": "ordered_at",
+          "description": "Order timestamp",
+          "data_type": "TEXT"
+        },
+        "order_status": {
+          "name": "order_status",
+          "description": "Order status",
+          "data_type": "TEXT"
+        },
+        "gross_amount_usd": {
+          "name": "gross_amount_usd",
+          "description": "Value before discounts",
+          "data_type": "REAL"
+        },
+        "discount_usd": {
+          "name": "discount_usd",
+          "description": "Discount",
+          "data_type": "REAL"
+        },
+        "net_amount_usd": {
+          "name": "net_amount_usd",
+          "description": "Gross minus discount",
+          "data_type": "REAL"
+        },
+        "item_count": {
+          "name": "item_count",
+          "description": "Total units",
+          "data_type": "INTEGER"
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "description": "Latest payment status",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_storefront__orders",
+          "model.fernwood.stg_storefront__order_items",
+          "model.fernwood.stg_payments__transactions"
+        ]
+      },
+      "raw_code": "select o.order_id, o.customer_id, o.ordered_at, o.order_status,\no.subtotal_usd as gross_amount_usd, o.discount_usd,\nround(o.subtotal_usd - o.discount_usd, 2) as net_amount_usd,\ncoalesce(i.item_count, 0) as item_count, p.payment_status\nfrom {{ ref('stg_storefront__orders') }} o\nleft join (select order_id, sum(quantity) as item_count\nfrom {{ ref('stg_storefront__order_items') }} group by order_id) i\non i.order_id = o.order_id\nleft join (select order_id, payment_status, max(processed_at)\nfrom {{ ref('stg_payments__transactions') }} group by order_id) p\non p.order_id = o.order_id"
+    },
+    "model.fernwood.int_customer_order_stats": {
+      "unique_id": "model.fernwood.int_customer_order_stats",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "int_customer_order_stats",
+      "database": "fernwood_dw",
+      "schema": "intermediate",
+      "alias": "int_customer_order_stats",
+      "relation_name": "fernwood_dw.intermediate.int_customer_order_stats",
+      "path": "intermediate/customer/int_customer_order_stats.sql",
+      "original_file_path": "models/intermediate/customer/int_customer_order_stats.sql",
+      "description": "Per-customer order counts, first/last order and net revenue.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "intermediate"
+        ]
+      },
+      "meta": {
+        "built_for": "model.fernwood.dim_customers"
+      },
+      "columns": {
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer",
+          "data_type": "TEXT"
+        },
+        "first_order_at": {
+          "name": "first_order_at",
+          "description": "First order timestamp",
+          "data_type": "TEXT"
+        },
+        "last_order_at": {
+          "name": "last_order_at",
+          "description": "Most recent order timestamp",
+          "data_type": "TEXT"
+        },
+        "order_count": {
+          "name": "order_count",
+          "description": "Number of orders",
+          "data_type": "INTEGER"
+        },
+        "net_revenue_usd": {
+          "name": "net_revenue_usd",
+          "description": "Lifetime net revenue",
+          "data_type": "REAL"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_orders_enriched"
+        ]
+      },
+      "raw_code": "select customer_id, min(ordered_at) as first_order_at, max(ordered_at) as last_order_at,\ncount(*) as order_count, round(sum(net_amount_usd), 2) as net_revenue_usd\nfrom {{ ref('int_orders_enriched') }}\nwhere order_status != 'cancelled'\ngroup by customer_id"
+    },
+    "model.fernwood.int_campaign_touches": {
+      "unique_id": "model.fernwood.int_campaign_touches",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "int_campaign_touches",
+      "database": "fernwood_dw",
+      "schema": "intermediate",
+      "alias": "int_campaign_touches",
+      "relation_name": "fernwood_dw.intermediate.int_campaign_touches",
+      "path": "intermediate/marketing/int_campaign_touches.sql",
+      "original_file_path": "models/intermediate/marketing/int_campaign_touches.sql",
+      "description": "One row per hashed recipient and campaign with open/click flags.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "intermediate"
+        ]
+      },
+      "meta": {
+        "built_for": "model.fernwood.mart_campaign_performance"
+      },
+      "columns": {
+        "recipient_email_sha256": {
+          "name": "recipient_email_sha256",
+          "description": "Hashed recipient",
+          "data_type": "TEXT"
+        },
+        "campaign_id": {
+          "name": "campaign_id",
+          "description": "Campaign",
+          "data_type": "TEXT"
+        },
+        "channel": {
+          "name": "channel",
+          "description": "Campaign channel",
+          "data_type": "TEXT"
+        },
+        "opened": {
+          "name": "opened",
+          "description": "1 if opened",
+          "data_type": "INTEGER"
+        },
+        "clicked": {
+          "name": "clicked",
+          "description": "1 if clicked",
+          "data_type": "INTEGER"
+        },
+        "touched_at": {
+          "name": "touched_at",
+          "description": "First event timestamp",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_marketing__email_events",
+          "model.fernwood.stg_marketing__campaigns"
+        ]
+      },
+      "raw_code": "select e.recipient_email_sha256, e.campaign_id, c.channel,\nmax(e.event_type = 'opened') as opened, max(e.event_type = 'clicked') as clicked,\nmin(e.event_at) as touched_at\nfrom {{ ref('stg_marketing__email_events') }} e\njoin {{ ref('stg_marketing__campaigns') }} c on c.campaign_id = e.campaign_id\ngroup by e.recipient_email_sha256, e.campaign_id"
+    },
+    "model.fernwood.int_web_sessions": {
+      "unique_id": "model.fernwood.int_web_sessions",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "int_web_sessions",
+      "database": "fernwood_dw",
+      "schema": "intermediate",
+      "alias": "int_web_sessions",
+      "relation_name": "fernwood_dw.intermediate.int_web_sessions",
+      "path": "intermediate/web/int_web_sessions.sql",
+      "original_file_path": "models/intermediate/web/int_web_sessions.sql",
+      "description": "Page views rolled up to sessions.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "intermediate"
+        ]
+      },
+      "meta": {
+        "built_for": "model.fernwood.mart_web_sessions"
+      },
+      "columns": {
+        "session_id": {
+          "name": "session_id",
+          "description": "Session identifier",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Logged-in customer",
+          "data_type": "TEXT"
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "description": "IP at session start",
+          "data_type": "TEXT"
+        },
+        "session_start": {
+          "name": "session_start",
+          "description": "First view timestamp",
+          "data_type": "TEXT"
+        },
+        "page_count": {
+          "name": "page_count",
+          "description": "Views in session",
+          "data_type": "INTEGER"
+        },
+        "landing_page": {
+          "name": "landing_page",
+          "description": "First page path",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_web__page_views"
+        ]
+      },
+      "raw_code": "select session_id, max(customer_id) as customer_id, ip_address,\nmin(viewed_at) as session_start, count(*) as page_count,\npage_path as landing_page\nfrom {{ ref('stg_web__page_views') }}\ngroup by session_id"
+    },
+    "model.fernwood.dim_customers": {
+      "unique_id": "model.fernwood.dim_customers",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "dim_customers",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "dim_customers",
+      "relation_name": "fernwood_dw.marts.dim_customers",
+      "path": "marts/customer/dim_customers.sql",
+      "original_file_path": "models/marts/customer/dim_customers.sql",
+      "description": "One row per customer: contact details, loyalty tier and order history. Customer 360 core table.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer identifier",
+          "data_type": "TEXT"
+        },
+        "email": {
+          "name": "email",
+          "description": "Preferred email",
+          "data_type": "TEXT"
+        },
+        "full_name": {
+          "name": "full_name",
+          "description": "Full name",
+          "data_type": "TEXT"
+        },
+        "phone": {
+          "name": "phone",
+          "description": "Phone",
+          "data_type": "TEXT"
+        },
+        "loyalty_tier": {
+          "name": "loyalty_tier",
+          "description": "Loyalty tier",
+          "data_type": "TEXT"
+        },
+        "first_order_at": {
+          "name": "first_order_at",
+          "description": "First order timestamp",
+          "data_type": "TEXT"
+        },
+        "last_order_at": {
+          "name": "last_order_at",
+          "description": "Most recent order timestamp",
+          "data_type": "TEXT"
+        },
+        "lifetime_order_count": {
+          "name": "lifetime_order_count",
+          "description": "Orders to date",
+          "data_type": "INTEGER"
+        },
+        "is_active": {
+          "name": "is_active",
+          "description": "Ordered in last 365 days (see Active Customer)",
+          "data_type": "INTEGER"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_customer_identity",
+          "model.fernwood.int_customer_order_stats"
+        ]
+      },
+      "raw_code": "select i.customer_id, i.email, i.full_name, i.phone, i.loyalty_tier,\ns.first_order_at, s.last_order_at,\ncoalesce(s.order_count, 0) as lifetime_order_count,\ncoalesce(s.last_order_at >= datetime('2026-10-01 00:00:00', '-365 days'), 0) as is_active\nfrom {{ ref('int_customer_identity') }} i\nleft join {{ ref('int_customer_order_stats') }} s on s.customer_id = i.customer_id"
+    },
+    "model.fernwood.dim_products": {
+      "unique_id": "model.fernwood.dim_products",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "dim_products",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "dim_products",
+      "relation_name": "fernwood_dw.marts.dim_products",
+      "path": "marts/product/dim_products.sql",
+      "original_file_path": "models/marts/product/dim_products.sql",
+      "description": "One row per product with catalog attributes.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "product_id": {
+          "name": "product_id",
+          "description": "Product identifier",
+          "data_type": "TEXT"
+        },
+        "sku": {
+          "name": "sku",
+          "description": "SKU",
+          "data_type": "TEXT"
+        },
+        "product_name": {
+          "name": "product_name",
+          "description": "Display name",
+          "data_type": "TEXT"
+        },
+        "category": {
+          "name": "category",
+          "description": "Category",
+          "data_type": "TEXT"
+        },
+        "list_price_usd": {
+          "name": "list_price_usd",
+          "description": "List price",
+          "data_type": "REAL"
+        },
+        "email_template_id": {
+          "name": "email_template_id",
+          "description": "Launch email template ID",
+          "data_type": "TEXT"
+        },
+        "is_active": {
+          "name": "is_active",
+          "description": "Currently sold",
+          "data_type": "INTEGER"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_storefront__products"
+        ]
+      },
+      "raw_code": "select product_id, sku, product_name, category, list_price_usd, email_template_id,\ncast(substr(product_id, 2) as integer) % 17 != 0 as is_active\nfrom {{ ref('stg_storefront__products') }}"
+    },
+    "model.fernwood.fct_orders": {
+      "unique_id": "model.fernwood.fct_orders",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "fct_orders",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "fct_orders",
+      "relation_name": "fernwood_dw.marts.fct_orders",
+      "path": "marts/finance/fct_orders.sql",
+      "original_file_path": "models/marts/finance/fct_orders.sql",
+      "description": "One row per order with gross and net amounts.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "order_id": {
+          "name": "order_id",
+          "description": "Order identifier",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer",
+          "data_type": "TEXT"
+        },
+        "ordered_at": {
+          "name": "ordered_at",
+          "description": "Order timestamp",
+          "data_type": "TEXT"
+        },
+        "order_status": {
+          "name": "order_status",
+          "description": "Order status",
+          "data_type": "TEXT"
+        },
+        "gross_amount_usd": {
+          "name": "gross_amount_usd",
+          "description": "Gross revenue",
+          "data_type": "REAL"
+        },
+        "discount_usd": {
+          "name": "discount_usd",
+          "description": "Discount",
+          "data_type": "REAL"
+        },
+        "net_amount_usd": {
+          "name": "net_amount_usd",
+          "description": "Net revenue",
+          "data_type": "REAL"
+        },
+        "item_count": {
+          "name": "item_count",
+          "description": "Units",
+          "data_type": "INTEGER"
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "description": "Payment status",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_orders_enriched"
+        ]
+      },
+      "raw_code": "select order_id, customer_id, ordered_at, order_status, gross_amount_usd,\ndiscount_usd, net_amount_usd, item_count, payment_status\nfrom {{ ref('int_orders_enriched') }}"
+    },
+    "model.fernwood.fct_order_items": {
+      "unique_id": "model.fernwood.fct_order_items",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "fct_order_items",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "fct_order_items",
+      "relation_name": "fernwood_dw.marts.fct_order_items",
+      "path": "marts/finance/fct_order_items.sql",
+      "original_file_path": "models/marts/finance/fct_order_items.sql",
+      "description": "One row per order line with product category and line amount.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "order_item_id": {
+          "name": "order_item_id",
+          "description": "Order line identifier",
+          "data_type": "TEXT"
+        },
+        "order_id": {
+          "name": "order_id",
+          "description": "Order",
+          "data_type": "TEXT"
+        },
+        "product_id": {
+          "name": "product_id",
+          "description": "Product",
+          "data_type": "TEXT"
+        },
+        "category": {
+          "name": "category",
+          "description": "Product category",
+          "data_type": "TEXT"
+        },
+        "quantity": {
+          "name": "quantity",
+          "description": "Units",
+          "data_type": "INTEGER"
+        },
+        "unit_price_usd": {
+          "name": "unit_price_usd",
+          "description": "Unit price",
+          "data_type": "REAL"
+        },
+        "line_amount_usd": {
+          "name": "line_amount_usd",
+          "description": "Quantity × unit price",
+          "data_type": "REAL"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_storefront__order_items",
+          "model.fernwood.dim_products"
+        ]
+      },
+      "raw_code": "select i.order_item_id, i.order_id, i.product_id, p.category, i.quantity,\ni.unit_price_usd, round(i.quantity * i.unit_price_usd, 2) as line_amount_usd\nfrom {{ ref('stg_storefront__order_items') }} i\njoin {{ ref('dim_products') }} p on p.product_id = i.product_id"
+    },
+    "model.fernwood.fct_payments": {
+      "unique_id": "model.fernwood.fct_payments",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "fct_payments",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "fct_payments",
+      "relation_name": "fernwood_dw.marts.fct_payments",
+      "path": "marts/finance/fct_payments.sql",
+      "original_file_path": "models/marts/finance/fct_payments.sql",
+      "description": "One row per payment transaction, including partial card details.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "transaction_id": {
+          "name": "transaction_id",
+          "description": "Transaction identifier",
+          "data_type": "TEXT"
+        },
+        "order_id": {
+          "name": "order_id",
+          "description": "Order",
+          "data_type": "TEXT"
+        },
+        "card_last4": {
+          "name": "card_last4",
+          "description": "Card last four",
+          "data_type": "TEXT"
+        },
+        "card_brand": {
+          "name": "card_brand",
+          "description": "Card brand",
+          "data_type": "TEXT"
+        },
+        "billing_postal_code": {
+          "name": "billing_postal_code",
+          "description": "Billing postal code",
+          "data_type": "TEXT"
+        },
+        "amount_usd": {
+          "name": "amount_usd",
+          "description": "Amount",
+          "data_type": "REAL"
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "description": "Status",
+          "data_type": "TEXT"
+        },
+        "processed_at": {
+          "name": "processed_at",
+          "description": "Timestamp",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_payments__transactions"
+        ]
+      },
+      "raw_code": "select transaction_id, order_id, card_last4, card_brand, billing_postal_code,\namount_usd, payment_status, processed_at\nfrom {{ ref('stg_payments__transactions') }}"
+    },
+    "model.fernwood.customer_lifetime_value": {
+      "unique_id": "model.fernwood.customer_lifetime_value",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "customer_lifetime_value",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "customer_lifetime_value",
+      "relation_name": "fernwood_dw.marts.customer_lifetime_value",
+      "path": "marts/customer/customer_lifetime_value.sql",
+      "original_file_path": "models/marts/customer/customer_lifetime_value.sql",
+      "description": "Customer lifetime value to date, 12-month prediction and segment.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer",
+          "data_type": "TEXT"
+        },
+        "net_revenue_to_date_usd": {
+          "name": "net_revenue_to_date_usd",
+          "description": "Net revenue to date",
+          "data_type": "REAL"
+        },
+        "predicted_12m_value_usd": {
+          "name": "predicted_12m_value_usd",
+          "description": "Predicted next-12-month net revenue",
+          "data_type": "REAL"
+        },
+        "ltv_segment": {
+          "name": "ltv_segment",
+          "description": "low / mid / high / vip",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.dim_customers",
+          "model.fernwood.fct_orders"
+        ]
+      },
+      "raw_code": "with rev as (\nselect d.customer_id, d.is_active,\ncoalesce(sum(case when f.order_status != 'cancelled'\nthen f.net_amount_usd end), 0) as net\nfrom {{ ref('dim_customers') }} d\nleft join {{ ref('fct_orders') }} f on f.customer_id = d.customer_id\ngroup by d.customer_id)\nselect customer_id, round(net, 2) as net_revenue_to_date_usd,\nround(net * case when is_active = 1 then 0.45 else 0.12 end, 2)\nas predicted_12m_value_usd,\ncase when net >= 1500 then 'vip' when net >= 600 then 'high'\nwhen net >= 150 then 'mid' else 'low' end as ltv_segment\nfrom rev"
+    },
+    "model.fernwood.mart_marketing_audience": {
+      "unique_id": "model.fernwood.mart_marketing_audience",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "mart_marketing_audience",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "mart_marketing_audience",
+      "relation_name": "fernwood_dw.marts.mart_marketing_audience",
+      "path": "marts/marketing/mart_marketing_audience.sql",
+      "original_file_path": "models/marts/marketing/mart_marketing_audience.sql",
+      "description": "Opted-in customers with audience segments, synced to the email platform.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer",
+          "data_type": "TEXT"
+        },
+        "email": {
+          "name": "email",
+          "description": "Email to target",
+          "data_type": "TEXT"
+        },
+        "first_name": {
+          "name": "first_name",
+          "description": "First name for personalisation",
+          "data_type": "TEXT"
+        },
+        "ltv_segment": {
+          "name": "ltv_segment",
+          "description": "LTV segment",
+          "data_type": "TEXT"
+        },
+        "audience_segment": {
+          "name": "audience_segment",
+          "description": "Campaign audience segment",
+          "data_type": "TEXT"
+        },
+        "is_marketing_opted_in": {
+          "name": "is_marketing_opted_in",
+          "description": "Always 1 (opted-in only)",
+          "data_type": "INTEGER"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.dim_customers",
+          "model.fernwood.stg_storefront__customers",
+          "model.fernwood.customer_lifetime_value"
+        ]
+      },
+      "raw_code": "select d.customer_id, d.email, s.first_name, v.ltv_segment,\ncase when v.ltv_segment in ('vip', 'high') and d.is_active = 0\nthen 'high_value_lapsed'\nwhen d.is_active = 1 then 'active_engaged'\nelse 'reactivation' end as audience_segment,\n1 as is_marketing_opted_in\nfrom {{ ref('dim_customers') }} d\njoin {{ ref('stg_storefront__customers') }} s on s.customer_id = d.customer_id\njoin {{ ref('customer_lifetime_value') }} v on v.customer_id = d.customer_id\nwhere s.is_marketing_opted_in = 1"
+    },
+    "model.fernwood.mart_email_engagement": {
+      "unique_id": "model.fernwood.mart_email_engagement",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "mart_email_engagement",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "mart_email_engagement",
+      "relation_name": "fernwood_dw.marts.mart_email_engagement",
+      "path": "marts/marketing/mart_email_engagement.sql",
+      "original_file_path": "models/marts/marketing/mart_email_engagement.sql",
+      "description": "Email engagement per hashed recipient and campaign.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "recipient_email_sha256": {
+          "name": "recipient_email_sha256",
+          "description": "Hashed recipient email",
+          "data_type": "TEXT"
+        },
+        "campaign_id": {
+          "name": "campaign_id",
+          "description": "Campaign",
+          "data_type": "TEXT"
+        },
+        "sends": {
+          "name": "sends",
+          "description": "Emails sent",
+          "data_type": "INTEGER"
+        },
+        "opens": {
+          "name": "opens",
+          "description": "Opens",
+          "data_type": "INTEGER"
+        },
+        "clicks": {
+          "name": "clicks",
+          "description": "Clicks",
+          "data_type": "INTEGER"
+        },
+        "last_engaged_at": {
+          "name": "last_engaged_at",
+          "description": "Last open or click",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_campaign_touches"
+        ]
+      },
+      "raw_code": "select recipient_email_sha256, campaign_id, 1 as sends, opened as opens,\nclicked as clicks,\ncase when opened = 1 or clicked = 1 then touched_at end as last_engaged_at\nfrom {{ ref('int_campaign_touches') }}"
+    },
+    "model.fernwood.mart_campaign_performance": {
+      "unique_id": "model.fernwood.mart_campaign_performance",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "mart_campaign_performance",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "mart_campaign_performance",
+      "relation_name": "fernwood_dw.marts.mart_campaign_performance",
+      "path": "marts/marketing/mart_campaign_performance.sql",
+      "original_file_path": "models/marts/marketing/mart_campaign_performance.sql",
+      "description": "Campaign sends, open and click rates, and attributed revenue.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "campaign_id": {
+          "name": "campaign_id",
+          "description": "Campaign",
+          "data_type": "TEXT"
+        },
+        "campaign_name": {
+          "name": "campaign_name",
+          "description": "Campaign name",
+          "data_type": "TEXT"
+        },
+        "channel": {
+          "name": "channel",
+          "description": "Channel",
+          "data_type": "TEXT"
+        },
+        "sends": {
+          "name": "sends",
+          "description": "Emails sent",
+          "data_type": "INTEGER"
+        },
+        "open_rate": {
+          "name": "open_rate",
+          "description": "Opens / delivered",
+          "data_type": "REAL"
+        },
+        "click_rate": {
+          "name": "click_rate",
+          "description": "Clicks / delivered",
+          "data_type": "REAL"
+        },
+        "attributed_orders": {
+          "name": "attributed_orders",
+          "description": "Orders attributed (last touch, 7 days)",
+          "data_type": "INTEGER"
+        },
+        "attributed_revenue_usd": {
+          "name": "attributed_revenue_usd",
+          "description": "Net revenue attributed",
+          "data_type": "REAL"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.dim_customers",
+          "model.fernwood.int_campaign_touches",
+          "model.fernwood.fct_orders",
+          "model.fernwood.stg_marketing__campaigns"
+        ]
+      },
+      "raw_code": "with cust as (select customer_id, sha256(email) as h from {{ ref('dim_customers') }}),\nattr as (\nselect t.campaign_id, count(distinct f.order_id) as orders,\nsum(f.net_amount_usd) as revenue\nfrom {{ ref('int_campaign_touches') }} t\njoin cust c on c.h = t.recipient_email_sha256\njoin {{ ref('fct_orders') }} f on f.customer_id = c.customer_id\nand f.ordered_at between t.touched_at and datetime(t.touched_at, '+7 days')\nwhere t.clicked = 1 and f.order_status != 'cancelled'\ngroup by t.campaign_id)\nselect c.campaign_id, c.campaign_name, c.channel,\ncount(t.recipient_email_sha256) as sends,\nround(avg(t.opened), 4) as open_rate, round(avg(t.clicked), 4) as click_rate,\ncoalesce(a.orders, 0) as attributed_orders,\nround(coalesce(a.revenue, 0), 2) as attributed_revenue_usd\nfrom {{ ref('stg_marketing__campaigns') }} c\nleft join {{ ref('int_campaign_touches') }} t on t.campaign_id = c.campaign_id\nleft join attr a on a.campaign_id = c.campaign_id\ngroup by c.campaign_id"
+    },
+    "model.fernwood.mart_loyalty_members": {
+      "unique_id": "model.fernwood.mart_loyalty_members",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "mart_loyalty_members",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "mart_loyalty_members",
+      "relation_name": "fernwood_dw.marts.mart_loyalty_members",
+      "path": "marts/customer/mart_loyalty_members.sql",
+      "original_file_path": "models/marts/customer/mart_loyalty_members.sql",
+      "description": "Loyalty program members with tier and in-store spend.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer",
+          "data_type": "TEXT"
+        },
+        "email": {
+          "name": "email",
+          "description": "Email",
+          "data_type": "TEXT"
+        },
+        "full_name": {
+          "name": "full_name",
+          "description": "Full name",
+          "data_type": "TEXT"
+        },
+        "date_of_birth": {
+          "name": "date_of_birth",
+          "description": "Date of birth",
+          "data_type": "TEXT"
+        },
+        "loyalty_tier": {
+          "name": "loyalty_tier",
+          "description": "Loyalty tier",
+          "data_type": "TEXT"
+        },
+        "loyalty_joined_at": {
+          "name": "loyalty_joined_at",
+          "description": "Enrolment date",
+          "data_type": "TEXT"
+        },
+        "in_store_spend_usd": {
+          "name": "in_store_spend_usd",
+          "description": "12-month in-store spend",
+          "data_type": "REAL"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_crm__contacts",
+          "model.fernwood.dim_customers",
+          "model.fernwood.stg_stores__pos_transactions"
+        ]
+      },
+      "raw_code": "select d.customer_id, d.email, d.full_name, k.date_of_birth, k.loyalty_tier,\nk.loyalty_joined_at,\nround(coalesce(sum(p.amount_usd), 0), 2) as in_store_spend_usd\nfrom {{ ref('stg_crm__contacts') }} k\njoin {{ ref('dim_customers') }} d on d.customer_id = k.customer_id\nleft join {{ ref('stg_stores__pos_transactions') }} p\non p.loyalty_id = k.loyalty_id\nand p.transacted_at >= datetime('2026-10-01 00:00:00', '-12 months')\ngroup by d.customer_id"
+    },
+    "model.fernwood.mart_support_ticket_summary": {
+      "unique_id": "model.fernwood.mart_support_ticket_summary",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "mart_support_ticket_summary",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "mart_support_ticket_summary",
+      "relation_name": "fernwood_dw.marts.mart_support_ticket_summary",
+      "path": "marts/support/mart_support_ticket_summary.sql",
+      "original_file_path": "models/marts/support/mart_support_ticket_summary.sql",
+      "description": "Support tickets matched to customers, with response times.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "ticket_id": {
+          "name": "ticket_id",
+          "description": "Ticket",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Matched customer",
+          "data_type": "TEXT"
+        },
+        "requester_email": {
+          "name": "requester_email",
+          "description": "Requester email",
+          "data_type": "TEXT"
+        },
+        "requester_name": {
+          "name": "requester_name",
+          "description": "Customer full name from dim_customers",
+          "data_type": "TEXT"
+        },
+        "subject": {
+          "name": "subject",
+          "description": "Subject line",
+          "data_type": "TEXT"
+        },
+        "body_excerpt": {
+          "name": "body_excerpt",
+          "description": "First 200 characters of the message",
+          "data_type": "TEXT"
+        },
+        "priority": {
+          "name": "priority",
+          "description": "Priority",
+          "data_type": "TEXT"
+        },
+        "ticket_status": {
+          "name": "ticket_status",
+          "description": "Status",
+          "data_type": "TEXT"
+        },
+        "first_response_minutes": {
+          "name": "first_response_minutes",
+          "description": "Minutes to first reply",
+          "data_type": "INTEGER"
+        },
+        "created_at": {
+          "name": "created_at",
+          "description": "Created timestamp",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_helpdesk__tickets",
+          "model.fernwood.dim_customers"
+        ]
+      },
+      "raw_code": "select t.ticket_id, d.customer_id, t.requester_email, d.full_name as requester_name,\nt.subject, substr(t.body, 1, 200) as body_excerpt, t.priority, t.ticket_status,\nt.first_response_minutes, t.created_at\nfrom {{ ref('stg_helpdesk__tickets') }} t\nleft join {{ ref('dim_customers') }} d on d.email = lower(t.requester_email)"
+    },
+    "model.fernwood.mart_finance_daily_revenue": {
+      "unique_id": "model.fernwood.mart_finance_daily_revenue",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "mart_finance_daily_revenue",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "mart_finance_daily_revenue",
+      "relation_name": "fernwood_dw.marts.mart_finance_daily_revenue",
+      "path": "marts/finance/mart_finance_daily_revenue.sql",
+      "original_file_path": "models/marts/finance/mart_finance_daily_revenue.sql",
+      "description": "Daily gross, refunded and net revenue by channel.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "revenue_date": {
+          "name": "revenue_date",
+          "description": "Calendar date",
+          "data_type": "TEXT"
+        },
+        "channel": {
+          "name": "channel",
+          "description": "online / store",
+          "data_type": "TEXT"
+        },
+        "order_count": {
+          "name": "order_count",
+          "description": "Orders",
+          "data_type": "INTEGER"
+        },
+        "gross_revenue_usd": {
+          "name": "gross_revenue_usd",
+          "description": "Gross revenue",
+          "data_type": "REAL"
+        },
+        "refunds_usd": {
+          "name": "refunds_usd",
+          "description": "Refunds",
+          "data_type": "REAL"
+        },
+        "net_revenue_usd": {
+          "name": "net_revenue_usd",
+          "description": "Net revenue",
+          "data_type": "REAL"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.fct_orders",
+          "model.fernwood.fct_payments",
+          "model.fernwood.stg_stores__pos_transactions"
+        ]
+      },
+      "raw_code": "with online as (\nselect date(ordered_at) as d, count(*) as n, sum(gross_amount_usd) as g,\nsum(net_amount_usd) as net\nfrom {{ ref('fct_orders') }} where order_status != 'cancelled' group by 1),\nrefunds as (\nselect date(processed_at) as d, sum(amount_usd) as r\nfrom {{ ref('fct_payments') }} where payment_status = 'refunded' group by 1),\nstore as (\nselect date(transacted_at) as d, count(*) as n, sum(amount_usd) as g\nfrom {{ ref('stg_stores__pos_transactions') }} group by 1)\nselect o.d as revenue_date, 'online' as channel, o.n as order_count,\nround(o.g, 2) as gross_revenue_usd, round(coalesce(r.r, 0), 2) as refunds_usd,\nround(o.net - coalesce(r.r, 0), 2) as net_revenue_usd\nfrom online o left join refunds r on r.d = o.d\nunion all\nselect d, 'store', n, round(g, 2), 0, round(g, 2) from store"
+    },
+    "model.fernwood.mart_inventory_health": {
+      "unique_id": "model.fernwood.mart_inventory_health",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "mart_inventory_health",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "mart_inventory_health",
+      "relation_name": "fernwood_dw.marts.mart_inventory_health",
+      "path": "marts/supply_chain/mart_inventory_health.sql",
+      "original_file_path": "models/marts/supply_chain/mart_inventory_health.sql",
+      "description": "Latest stock position, weeks of cover and sell-through by SKU and warehouse.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "sku": {
+          "name": "sku",
+          "description": "SKU",
+          "data_type": "TEXT"
+        },
+        "warehouse_id": {
+          "name": "warehouse_id",
+          "description": "Warehouse code",
+          "data_type": "TEXT"
+        },
+        "snapshot_date": {
+          "name": "snapshot_date",
+          "description": "Latest snapshot date",
+          "data_type": "TEXT"
+        },
+        "on_hand_qty": {
+          "name": "on_hand_qty",
+          "description": "Units on hand",
+          "data_type": "INTEGER"
+        },
+        "weeks_of_cover": {
+          "name": "weeks_of_cover",
+          "description": "Weeks of cover",
+          "data_type": "REAL"
+        },
+        "sell_through_rate": {
+          "name": "sell_through_rate",
+          "description": "Sell-through rate (4 weeks)",
+          "data_type": "REAL"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_warehouse__inventory_snapshots",
+          "model.fernwood.fct_order_items",
+          "model.fernwood.dim_products",
+          "model.fernwood.fct_orders"
+        ]
+      },
+      "raw_code": "with latest as (\nselect sku, warehouse_id, snapshot_date, on_hand_qty\nfrom {{ ref('stg_warehouse__inventory_snapshots') }}\nwhere snapshot_date = (select max(snapshot_date)\nfrom {{ ref('stg_warehouse__inventory_snapshots') }})),\nsold as (\nselect p.sku, sum(i.quantity) / 3.0 as units\nfrom {{ ref('fct_order_items') }} i\njoin {{ ref('dim_products') }} p on p.product_id = i.product_id\njoin {{ ref('fct_orders') }} o on o.order_id = i.order_id\nwhere o.ordered_at >= datetime('2026-10-01 00:00:00', '-28 days')\nand o.order_status != 'cancelled'\ngroup by p.sku)\nselect l.sku, l.warehouse_id, l.snapshot_date, l.on_hand_qty,\nround(l.on_hand_qty / nullif(s.units / 4.0, 0), 1) as weeks_of_cover,\nround(coalesce(s.units, 0) / nullif(coalesce(s.units, 0) + l.on_hand_qty, 0), 4)\nas sell_through_rate\nfrom latest l left join sold s on s.sku = l.sku"
+    },
+    "model.fernwood.dim_employees": {
+      "unique_id": "model.fernwood.dim_employees",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "dim_employees",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "dim_employees",
+      "relation_name": "fernwood_dw.marts.dim_employees",
+      "path": "marts/people/dim_employees.sql",
+      "original_file_path": "models/marts/people/dim_employees.sql",
+      "description": "One row per employee for workforce reporting.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "employee_id": {
+          "name": "employee_id",
+          "description": "Employee identifier",
+          "data_type": "TEXT"
+        },
+        "full_name": {
+          "name": "full_name",
+          "description": "Full name",
+          "data_type": "TEXT"
+        },
+        "work_email": {
+          "name": "work_email",
+          "description": "Work email",
+          "data_type": "TEXT"
+        },
+        "personal_email": {
+          "name": "personal_email",
+          "description": "Personal email",
+          "data_type": "TEXT"
+        },
+        "department": {
+          "name": "department",
+          "description": "Department",
+          "data_type": "TEXT"
+        },
+        "job_title": {
+          "name": "job_title",
+          "description": "Job title",
+          "data_type": "TEXT"
+        },
+        "annual_salary": {
+          "name": "annual_salary",
+          "description": "Annual salary",
+          "data_type": "REAL"
+        },
+        "joining_date": {
+          "name": "joining_date",
+          "description": "Joining date",
+          "data_type": "TEXT"
+        },
+        "termination_date": {
+          "name": "termination_date",
+          "description": "Termination date",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_hr__employees"
+        ]
+      },
+      "raw_code": "select employee_id, full_name, work_email, personal_email, department, job_title,\nannual_salary, joining_date, termination_date\nfrom {{ ref('stg_hr__employees') }}"
+    },
+    "model.fernwood.mart_web_sessions": {
+      "unique_id": "model.fernwood.mart_web_sessions",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "mart_web_sessions",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "mart_web_sessions",
+      "relation_name": "fernwood_dw.marts.mart_web_sessions",
+      "path": "marts/web/mart_web_sessions.sql",
+      "original_file_path": "models/marts/web/mart_web_sessions.sql",
+      "description": "Website sessions with landing page and page count.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "session_id": {
+          "name": "session_id",
+          "description": "Session",
+          "data_type": "TEXT"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Logged-in customer",
+          "data_type": "TEXT"
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "description": "IP at session start",
+          "data_type": "TEXT"
+        },
+        "session_start": {
+          "name": "session_start",
+          "description": "Session start",
+          "data_type": "TEXT"
+        },
+        "page_count": {
+          "name": "page_count",
+          "description": "Pages viewed",
+          "data_type": "INTEGER"
+        },
+        "landing_page": {
+          "name": "landing_page",
+          "description": "First page path",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_web_sessions"
+        ]
+      },
+      "raw_code": "select session_id, customer_id, ip_address, session_start, page_count, landing_page\nfrom {{ ref('int_web_sessions') }}"
+    },
+    "model.fernwood.legacy_customer_export": {
+      "unique_id": "model.fernwood.legacy_customer_export",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "legacy_customer_export",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "legacy_customer_export",
+      "relation_name": "fernwood_dw.marts.legacy_customer_export",
+      "path": "marts/customer/legacy_customer_export.sql",
+      "original_file_path": "models/marts/customer/legacy_customer_export.sql",
+      "description": "Deprecated customer extract. Use dim_customers instead.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart",
+          "deprecated"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "customer_id": {
+          "name": "customer_id",
+          "description": "Customer",
+          "data_type": "TEXT"
+        },
+        "email": {
+          "name": "email",
+          "description": "Email",
+          "data_type": "TEXT"
+        },
+        "first_name": {
+          "name": "first_name",
+          "description": "First name",
+          "data_type": "TEXT"
+        },
+        "last_name": {
+          "name": "last_name",
+          "description": "Last name",
+          "data_type": "TEXT"
+        },
+        "phone": {
+          "name": "phone",
+          "description": "Phone",
+          "data_type": "TEXT"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_storefront__customers"
+        ]
+      },
+      "raw_code": "select customer_id, email, first_name, last_name, phone\nfrom {{ ref('stg_storefront__customers') }}\nwhere created_at < '2025-07-01'",
+      "deprecation_date": "2025-07-01"
+    },
+    "model.fernwood.mart_store_performance": {
+      "unique_id": "model.fernwood.mart_store_performance",
+      "resource_type": "model",
+      "package_name": "fernwood",
+      "name": "mart_store_performance",
+      "database": "fernwood_dw",
+      "schema": "marts",
+      "alias": "mart_store_performance",
+      "relation_name": "fernwood_dw.marts.mart_store_performance",
+      "path": "marts/finance/mart_store_performance.sql",
+      "original_file_path": "models/marts/finance/mart_store_performance.sql",
+      "description": "Daily sales per store. In development: not yet built in the warehouse, registered in Collibra or covered by a data contract.",
+      "config": {
+        "materialized": "table",
+        "tags": [
+          "mart",
+          "in_development"
+        ]
+      },
+      "meta": {},
+      "columns": {
+        "store_id": {
+          "name": "store_id",
+          "description": "Store code",
+          "data_type": "TEXT"
+        },
+        "sales_date": {
+          "name": "sales_date",
+          "description": "Calendar date",
+          "data_type": "TEXT"
+        },
+        "transactions": {
+          "name": "transactions",
+          "description": "Transactions",
+          "data_type": "INTEGER"
+        },
+        "sales_usd": {
+          "name": "sales_usd",
+          "description": "Sales",
+          "data_type": "REAL"
+        }
+      },
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_stores__pos_transactions"
+        ]
+      },
+      "raw_code": "select store_id, date(transacted_at) as sales_date, count(*) as transactions,\n       sum(amount_usd) as sales_usd\nfrom {{ ref('stg_stores__pos_transactions') }}\ngroup by 1, 2"
+    },
+    "test.fernwood.unique_customers_customer_id": {
+      "unique_id": "test.fernwood.unique_customers_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_customers_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "source.fernwood.storefront.customers",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.customers"
+        ]
+      }
+    },
+    "test.fernwood.not_null_customers_customer_id": {
+      "unique_id": "test.fernwood.not_null_customers_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_customers_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "source.fernwood.storefront.customers",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.customers"
+        ]
+      }
+    },
+    "test.fernwood.unique_orders_order_id": {
+      "unique_id": "test.fernwood.unique_orders_order_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_orders_order_id",
+      "column_name": "order_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "order_id"
+        }
+      },
+      "attached_node": "source.fernwood.storefront.orders",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.orders"
+        ]
+      }
+    },
+    "test.fernwood.not_null_orders_order_id": {
+      "unique_id": "test.fernwood.not_null_orders_order_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_orders_order_id",
+      "column_name": "order_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "order_id"
+        }
+      },
+      "attached_node": "source.fernwood.storefront.orders",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.orders"
+        ]
+      }
+    },
+    "test.fernwood.unique_order_items_order_item_id": {
+      "unique_id": "test.fernwood.unique_order_items_order_item_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_order_items_order_item_id",
+      "column_name": "order_item_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "order_item_id"
+        }
+      },
+      "attached_node": "source.fernwood.storefront.order_items",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.order_items"
+        ]
+      }
+    },
+    "test.fernwood.not_null_order_items_order_item_id": {
+      "unique_id": "test.fernwood.not_null_order_items_order_item_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_order_items_order_item_id",
+      "column_name": "order_item_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "order_item_id"
+        }
+      },
+      "attached_node": "source.fernwood.storefront.order_items",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.order_items"
+        ]
+      }
+    },
+    "test.fernwood.unique_products_product_id": {
+      "unique_id": "test.fernwood.unique_products_product_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_products_product_id",
+      "column_name": "product_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "product_id"
+        }
+      },
+      "attached_node": "source.fernwood.storefront.products",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.products"
+        ]
+      }
+    },
+    "test.fernwood.not_null_products_product_id": {
+      "unique_id": "test.fernwood.not_null_products_product_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_products_product_id",
+      "column_name": "product_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "product_id"
+        }
+      },
+      "attached_node": "source.fernwood.storefront.products",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.storefront.products"
+        ]
+      }
+    },
+    "test.fernwood.unique_transactions_transaction_id": {
+      "unique_id": "test.fernwood.unique_transactions_transaction_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_transactions_transaction_id",
+      "column_name": "transaction_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "transaction_id"
+        }
+      },
+      "attached_node": "source.fernwood.payments.transactions",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.payments.transactions"
+        ]
+      }
+    },
+    "test.fernwood.not_null_transactions_transaction_id": {
+      "unique_id": "test.fernwood.not_null_transactions_transaction_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_transactions_transaction_id",
+      "column_name": "transaction_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "transaction_id"
+        }
+      },
+      "attached_node": "source.fernwood.payments.transactions",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.payments.transactions"
+        ]
+      }
+    },
+    "test.fernwood.unique_contacts_contact_id": {
+      "unique_id": "test.fernwood.unique_contacts_contact_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_contacts_contact_id",
+      "column_name": "contact_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "contact_id"
+        }
+      },
+      "attached_node": "source.fernwood.crm.contacts",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.crm.contacts"
+        ]
+      }
+    },
+    "test.fernwood.not_null_contacts_contact_id": {
+      "unique_id": "test.fernwood.not_null_contacts_contact_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_contacts_contact_id",
+      "column_name": "contact_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "contact_id"
+        }
+      },
+      "attached_node": "source.fernwood.crm.contacts",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.crm.contacts"
+        ]
+      }
+    },
+    "test.fernwood.unique_tickets_ticket_id": {
+      "unique_id": "test.fernwood.unique_tickets_ticket_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_tickets_ticket_id",
+      "column_name": "ticket_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "ticket_id"
+        }
+      },
+      "attached_node": "source.fernwood.helpdesk.tickets",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.helpdesk.tickets"
+        ]
+      }
+    },
+    "test.fernwood.not_null_tickets_ticket_id": {
+      "unique_id": "test.fernwood.not_null_tickets_ticket_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_tickets_ticket_id",
+      "column_name": "ticket_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "ticket_id"
+        }
+      },
+      "attached_node": "source.fernwood.helpdesk.tickets",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.helpdesk.tickets"
+        ]
+      }
+    },
+    "test.fernwood.unique_email_events_event_id": {
+      "unique_id": "test.fernwood.unique_email_events_event_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_email_events_event_id",
+      "column_name": "event_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "event_id"
+        }
+      },
+      "attached_node": "source.fernwood.marketing.email_events",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.marketing.email_events"
+        ]
+      }
+    },
+    "test.fernwood.not_null_email_events_event_id": {
+      "unique_id": "test.fernwood.not_null_email_events_event_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_email_events_event_id",
+      "column_name": "event_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "event_id"
+        }
+      },
+      "attached_node": "source.fernwood.marketing.email_events",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.marketing.email_events"
+        ]
+      }
+    },
+    "test.fernwood.unique_campaigns_campaign_id": {
+      "unique_id": "test.fernwood.unique_campaigns_campaign_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_campaigns_campaign_id",
+      "column_name": "campaign_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "campaign_id"
+        }
+      },
+      "attached_node": "source.fernwood.marketing.campaigns",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.marketing.campaigns"
+        ]
+      }
+    },
+    "test.fernwood.not_null_campaigns_campaign_id": {
+      "unique_id": "test.fernwood.not_null_campaigns_campaign_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_campaigns_campaign_id",
+      "column_name": "campaign_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "campaign_id"
+        }
+      },
+      "attached_node": "source.fernwood.marketing.campaigns",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.marketing.campaigns"
+        ]
+      }
+    },
+    "test.fernwood.unique_inventory_snapshots_snapshot_id": {
+      "unique_id": "test.fernwood.unique_inventory_snapshots_snapshot_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_inventory_snapshots_snapshot_id",
+      "column_name": "snapshot_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "snapshot_id"
+        }
+      },
+      "attached_node": "source.fernwood.warehouse.inventory_snapshots",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.warehouse.inventory_snapshots"
+        ]
+      }
+    },
+    "test.fernwood.not_null_inventory_snapshots_snapshot_id": {
+      "unique_id": "test.fernwood.not_null_inventory_snapshots_snapshot_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_inventory_snapshots_snapshot_id",
+      "column_name": "snapshot_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "snapshot_id"
+        }
+      },
+      "attached_node": "source.fernwood.warehouse.inventory_snapshots",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.warehouse.inventory_snapshots"
+        ]
+      }
+    },
+    "test.fernwood.unique_pos_transactions_pos_txn_id": {
+      "unique_id": "test.fernwood.unique_pos_transactions_pos_txn_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_pos_transactions_pos_txn_id",
+      "column_name": "pos_txn_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "pos_txn_id"
+        }
+      },
+      "attached_node": "source.fernwood.stores.pos_transactions",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.stores.pos_transactions"
+        ]
+      }
+    },
+    "test.fernwood.not_null_pos_transactions_pos_txn_id": {
+      "unique_id": "test.fernwood.not_null_pos_transactions_pos_txn_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_pos_transactions_pos_txn_id",
+      "column_name": "pos_txn_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "pos_txn_id"
+        }
+      },
+      "attached_node": "source.fernwood.stores.pos_transactions",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.stores.pos_transactions"
+        ]
+      }
+    },
+    "test.fernwood.unique_employees_employee_id": {
+      "unique_id": "test.fernwood.unique_employees_employee_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_employees_employee_id",
+      "column_name": "employee_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "employee_id"
+        }
+      },
+      "attached_node": "source.fernwood.hr.employees",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.hr.employees"
+        ]
+      }
+    },
+    "test.fernwood.not_null_employees_employee_id": {
+      "unique_id": "test.fernwood.not_null_employees_employee_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_employees_employee_id",
+      "column_name": "employee_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "employee_id"
+        }
+      },
+      "attached_node": "source.fernwood.hr.employees",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.hr.employees"
+        ]
+      }
+    },
+    "test.fernwood.unique_page_views_view_id": {
+      "unique_id": "test.fernwood.unique_page_views_view_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_page_views_view_id",
+      "column_name": "view_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "view_id"
+        }
+      },
+      "attached_node": "source.fernwood.web.page_views",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.web.page_views"
+        ]
+      }
+    },
+    "test.fernwood.not_null_page_views_view_id": {
+      "unique_id": "test.fernwood.not_null_page_views_view_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_page_views_view_id",
+      "column_name": "view_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "view_id"
+        }
+      },
+      "attached_node": "source.fernwood.web.page_views",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.web.page_views"
+        ]
+      }
+    },
+    "test.fernwood.unique_return_requests_return_id": {
+      "unique_id": "test.fernwood.unique_return_requests_return_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_return_requests_return_id",
+      "column_name": "return_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "return_id"
+        }
+      },
+      "attached_node": "source.fernwood.returns.return_requests",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.returns.return_requests"
+        ]
+      }
+    },
+    "test.fernwood.not_null_return_requests_return_id": {
+      "unique_id": "test.fernwood.not_null_return_requests_return_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_return_requests_return_id",
+      "column_name": "return_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "return_id"
+        }
+      },
+      "attached_node": "source.fernwood.returns.return_requests",
+      "depends_on": {
+        "nodes": [
+          "source.fernwood.returns.return_requests"
+        ]
+      }
+    },
+    "test.fernwood.unique_stg_marketing__email_events_event_id": {
+      "unique_id": "test.fernwood.unique_stg_marketing__email_events_event_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_stg_marketing__email_events_event_id",
+      "column_name": "event_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "event_id"
+        }
+      },
+      "attached_node": "model.fernwood.stg_marketing__email_events",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_marketing__email_events"
+        ]
+      }
+    },
+    "test.fernwood.not_null_stg_marketing__email_events_event_id": {
+      "unique_id": "test.fernwood.not_null_stg_marketing__email_events_event_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_stg_marketing__email_events_event_id",
+      "column_name": "event_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "event_id"
+        }
+      },
+      "attached_node": "model.fernwood.stg_marketing__email_events",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_marketing__email_events"
+        ]
+      }
+    },
+    "test.fernwood.unique_int_customer_identity_customer_id": {
+      "unique_id": "test.fernwood.unique_int_customer_identity_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_int_customer_identity_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.int_customer_identity",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_customer_identity"
+        ]
+      }
+    },
+    "test.fernwood.not_null_int_customer_identity_customer_id": {
+      "unique_id": "test.fernwood.not_null_int_customer_identity_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_int_customer_identity_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.int_customer_identity",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_customer_identity"
+        ]
+      }
+    },
+    "test.fernwood.unique_int_orders_enriched_order_id": {
+      "unique_id": "test.fernwood.unique_int_orders_enriched_order_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_int_orders_enriched_order_id",
+      "column_name": "order_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "order_id"
+        }
+      },
+      "attached_node": "model.fernwood.int_orders_enriched",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_orders_enriched"
+        ]
+      }
+    },
+    "test.fernwood.not_null_int_orders_enriched_order_id": {
+      "unique_id": "test.fernwood.not_null_int_orders_enriched_order_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_int_orders_enriched_order_id",
+      "column_name": "order_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "order_id"
+        }
+      },
+      "attached_node": "model.fernwood.int_orders_enriched",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_orders_enriched"
+        ]
+      }
+    },
+    "test.fernwood.unique_int_customer_order_stats_customer_id": {
+      "unique_id": "test.fernwood.unique_int_customer_order_stats_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_int_customer_order_stats_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.int_customer_order_stats",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_customer_order_stats"
+        ]
+      }
+    },
+    "test.fernwood.not_null_int_customer_order_stats_customer_id": {
+      "unique_id": "test.fernwood.not_null_int_customer_order_stats_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_int_customer_order_stats_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.int_customer_order_stats",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_customer_order_stats"
+        ]
+      }
+    },
+    "test.fernwood.unique_int_web_sessions_session_id": {
+      "unique_id": "test.fernwood.unique_int_web_sessions_session_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_int_web_sessions_session_id",
+      "column_name": "session_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "session_id"
+        }
+      },
+      "attached_node": "model.fernwood.int_web_sessions",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_web_sessions"
+        ]
+      }
+    },
+    "test.fernwood.not_null_int_web_sessions_session_id": {
+      "unique_id": "test.fernwood.not_null_int_web_sessions_session_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_int_web_sessions_session_id",
+      "column_name": "session_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "session_id"
+        }
+      },
+      "attached_node": "model.fernwood.int_web_sessions",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.int_web_sessions"
+        ]
+      }
+    },
+    "test.fernwood.unique_dim_customers_customer_id": {
+      "unique_id": "test.fernwood.unique_dim_customers_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_dim_customers_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.dim_customers",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.dim_customers"
+        ]
+      }
+    },
+    "test.fernwood.not_null_dim_customers_customer_id": {
+      "unique_id": "test.fernwood.not_null_dim_customers_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_dim_customers_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.dim_customers",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.dim_customers"
+        ]
+      }
+    },
+    "test.fernwood.accepted_values_dim_customers_loyalty_tier": {
+      "unique_id": "test.fernwood.accepted_values_dim_customers_loyalty_tier",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "accepted_values_dim_customers_loyalty_tier",
+      "column_name": "loyalty_tier",
+      "test_metadata": {
+        "name": "accepted_values",
+        "kwargs": {
+          "column_name": "loyalty_tier",
+          "values": [
+            "Trail",
+            "Summit",
+            "Peak"
+          ]
+        }
+      },
+      "attached_node": "model.fernwood.dim_customers",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.dim_customers"
+        ]
+      }
+    },
+    "test.fernwood.unique_dim_products_product_id": {
+      "unique_id": "test.fernwood.unique_dim_products_product_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_dim_products_product_id",
+      "column_name": "product_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "product_id"
+        }
+      },
+      "attached_node": "model.fernwood.dim_products",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.dim_products"
+        ]
+      }
+    },
+    "test.fernwood.not_null_dim_products_product_id": {
+      "unique_id": "test.fernwood.not_null_dim_products_product_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_dim_products_product_id",
+      "column_name": "product_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "product_id"
+        }
+      },
+      "attached_node": "model.fernwood.dim_products",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.dim_products"
+        ]
+      }
+    },
+    "test.fernwood.unique_fct_orders_order_id": {
+      "unique_id": "test.fernwood.unique_fct_orders_order_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_fct_orders_order_id",
+      "column_name": "order_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "order_id"
+        }
+      },
+      "attached_node": "model.fernwood.fct_orders",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.fct_orders"
+        ]
+      }
+    },
+    "test.fernwood.not_null_fct_orders_order_id": {
+      "unique_id": "test.fernwood.not_null_fct_orders_order_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_fct_orders_order_id",
+      "column_name": "order_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "order_id"
+        }
+      },
+      "attached_node": "model.fernwood.fct_orders",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.fct_orders"
+        ]
+      }
+    },
+    "test.fernwood.unique_fct_order_items_order_item_id": {
+      "unique_id": "test.fernwood.unique_fct_order_items_order_item_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_fct_order_items_order_item_id",
+      "column_name": "order_item_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "order_item_id"
+        }
+      },
+      "attached_node": "model.fernwood.fct_order_items",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.fct_order_items"
+        ]
+      }
+    },
+    "test.fernwood.not_null_fct_order_items_order_item_id": {
+      "unique_id": "test.fernwood.not_null_fct_order_items_order_item_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_fct_order_items_order_item_id",
+      "column_name": "order_item_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "order_item_id"
+        }
+      },
+      "attached_node": "model.fernwood.fct_order_items",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.fct_order_items"
+        ]
+      }
+    },
+    "test.fernwood.unique_fct_payments_transaction_id": {
+      "unique_id": "test.fernwood.unique_fct_payments_transaction_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_fct_payments_transaction_id",
+      "column_name": "transaction_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "transaction_id"
+        }
+      },
+      "attached_node": "model.fernwood.fct_payments",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.fct_payments"
+        ]
+      }
+    },
+    "test.fernwood.not_null_fct_payments_transaction_id": {
+      "unique_id": "test.fernwood.not_null_fct_payments_transaction_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_fct_payments_transaction_id",
+      "column_name": "transaction_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "transaction_id"
+        }
+      },
+      "attached_node": "model.fernwood.fct_payments",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.fct_payments"
+        ]
+      }
+    },
+    "test.fernwood.accepted_values_fct_payments_payment_status": {
+      "unique_id": "test.fernwood.accepted_values_fct_payments_payment_status",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "accepted_values_fct_payments_payment_status",
+      "column_name": "payment_status",
+      "test_metadata": {
+        "name": "accepted_values",
+        "kwargs": {
+          "column_name": "payment_status",
+          "values": [
+            "authorized",
+            "captured",
+            "refunded",
+            "failed"
+          ]
+        }
+      },
+      "attached_node": "model.fernwood.fct_payments",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.fct_payments"
+        ]
+      }
+    },
+    "test.fernwood.unique_customer_lifetime_value_customer_id": {
+      "unique_id": "test.fernwood.unique_customer_lifetime_value_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_customer_lifetime_value_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.customer_lifetime_value",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.customer_lifetime_value"
+        ]
+      }
+    },
+    "test.fernwood.not_null_customer_lifetime_value_customer_id": {
+      "unique_id": "test.fernwood.not_null_customer_lifetime_value_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_customer_lifetime_value_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.customer_lifetime_value",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.customer_lifetime_value"
+        ]
+      }
+    },
+    "test.fernwood.unique_mart_marketing_audience_customer_id": {
+      "unique_id": "test.fernwood.unique_mart_marketing_audience_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_mart_marketing_audience_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.mart_marketing_audience",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_marketing_audience"
+        ]
+      }
+    },
+    "test.fernwood.not_null_mart_marketing_audience_customer_id": {
+      "unique_id": "test.fernwood.not_null_mart_marketing_audience_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_mart_marketing_audience_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.mart_marketing_audience",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_marketing_audience"
+        ]
+      }
+    },
+    "test.fernwood.unique_mart_campaign_performance_campaign_id": {
+      "unique_id": "test.fernwood.unique_mart_campaign_performance_campaign_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_mart_campaign_performance_campaign_id",
+      "column_name": "campaign_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "campaign_id"
+        }
+      },
+      "attached_node": "model.fernwood.mart_campaign_performance",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_campaign_performance"
+        ]
+      }
+    },
+    "test.fernwood.not_null_mart_campaign_performance_campaign_id": {
+      "unique_id": "test.fernwood.not_null_mart_campaign_performance_campaign_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_mart_campaign_performance_campaign_id",
+      "column_name": "campaign_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "campaign_id"
+        }
+      },
+      "attached_node": "model.fernwood.mart_campaign_performance",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_campaign_performance"
+        ]
+      }
+    },
+    "test.fernwood.unique_mart_loyalty_members_customer_id": {
+      "unique_id": "test.fernwood.unique_mart_loyalty_members_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_mart_loyalty_members_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.mart_loyalty_members",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_loyalty_members"
+        ]
+      }
+    },
+    "test.fernwood.not_null_mart_loyalty_members_customer_id": {
+      "unique_id": "test.fernwood.not_null_mart_loyalty_members_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_mart_loyalty_members_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.mart_loyalty_members",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_loyalty_members"
+        ]
+      }
+    },
+    "test.fernwood.unique_mart_support_ticket_summary_ticket_id": {
+      "unique_id": "test.fernwood.unique_mart_support_ticket_summary_ticket_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_mart_support_ticket_summary_ticket_id",
+      "column_name": "ticket_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "ticket_id"
+        }
+      },
+      "attached_node": "model.fernwood.mart_support_ticket_summary",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_support_ticket_summary"
+        ]
+      }
+    },
+    "test.fernwood.not_null_mart_support_ticket_summary_ticket_id": {
+      "unique_id": "test.fernwood.not_null_mart_support_ticket_summary_ticket_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_mart_support_ticket_summary_ticket_id",
+      "column_name": "ticket_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "ticket_id"
+        }
+      },
+      "attached_node": "model.fernwood.mart_support_ticket_summary",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_support_ticket_summary"
+        ]
+      }
+    },
+    "test.fernwood.unique_dim_employees_employee_id": {
+      "unique_id": "test.fernwood.unique_dim_employees_employee_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_dim_employees_employee_id",
+      "column_name": "employee_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "employee_id"
+        }
+      },
+      "attached_node": "model.fernwood.dim_employees",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.dim_employees"
+        ]
+      }
+    },
+    "test.fernwood.not_null_dim_employees_employee_id": {
+      "unique_id": "test.fernwood.not_null_dim_employees_employee_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_dim_employees_employee_id",
+      "column_name": "employee_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "employee_id"
+        }
+      },
+      "attached_node": "model.fernwood.dim_employees",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.dim_employees"
+        ]
+      }
+    },
+    "test.fernwood.unique_mart_web_sessions_session_id": {
+      "unique_id": "test.fernwood.unique_mart_web_sessions_session_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_mart_web_sessions_session_id",
+      "column_name": "session_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "session_id"
+        }
+      },
+      "attached_node": "model.fernwood.mart_web_sessions",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_web_sessions"
+        ]
+      }
+    },
+    "test.fernwood.not_null_mart_web_sessions_session_id": {
+      "unique_id": "test.fernwood.not_null_mart_web_sessions_session_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_mart_web_sessions_session_id",
+      "column_name": "session_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "session_id"
+        }
+      },
+      "attached_node": "model.fernwood.mart_web_sessions",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_web_sessions"
+        ]
+      }
+    },
+    "test.fernwood.unique_legacy_customer_export_customer_id": {
+      "unique_id": "test.fernwood.unique_legacy_customer_export_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "unique_legacy_customer_export_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.legacy_customer_export",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.legacy_customer_export"
+        ]
+      }
+    },
+    "test.fernwood.not_null_legacy_customer_export_customer_id": {
+      "unique_id": "test.fernwood.not_null_legacy_customer_export_customer_id",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "not_null_legacy_customer_export_customer_id",
+      "column_name": "customer_id",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {
+          "column_name": "customer_id"
+        }
+      },
+      "attached_node": "model.fernwood.legacy_customer_export",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.legacy_customer_export"
+        ]
+      }
+    },
+    "test.fernwood.accepted_values_stg_storefront__orders_order_status": {
+      "unique_id": "test.fernwood.accepted_values_stg_storefront__orders_order_status",
+      "resource_type": "test",
+      "package_name": "fernwood",
+      "name": "accepted_values_stg_storefront__orders_order_status",
+      "column_name": "order_status",
+      "test_metadata": {
+        "name": "accepted_values",
+        "kwargs": {
+          "column_name": "order_status",
+          "values": [
+            "placed",
+            "shipped",
+            "delivered",
+            "cancelled"
+          ]
+        }
+      },
+      "attached_node": "model.fernwood.stg_storefront__orders",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.stg_storefront__orders"
+        ]
+      }
+    }
+  },
+  "exposures": {
+    "exposure.fernwood.exec_revenue_dashboard": {
+      "unique_id": "exposure.fernwood.exec_revenue_dashboard",
+      "resource_type": "exposure",
+      "package_name": "fernwood",
+      "name": "exec_revenue_dashboard",
+      "label": "Executive Revenue Dashboard",
+      "type": "dashboard",
+      "maturity": "high",
+      "description": "Daily revenue and order trends for the leadership team.",
+      "owner": {
+        "name": "Grace Whitfield",
+        "email": "grace.whitfield@fernwood.example"
+      },
+      "url": "https://bi.fernwood.example/exec-revenue-dashboard",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_finance_daily_revenue",
+          "model.fernwood.fct_orders"
+        ]
+      },
+      "path": "models/exposures.yml"
+    },
+    "exposure.fernwood.email_audience_sync": {
+      "unique_id": "exposure.fernwood.email_audience_sync",
+      "resource_type": "exposure",
+      "package_name": "fernwood",
+      "name": "email_audience_sync",
+      "label": "Email Audience Sync",
+      "type": "application",
+      "maturity": "high",
+      "description": "Reverse ETL job that pushes opted-in audiences to the email platform nightly.",
+      "owner": {
+        "name": "Hannah Lindqvist",
+        "email": "hannah.lindqvist@fernwood.example"
+      },
+      "url": "https://bi.fernwood.example/email-audience-sync",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_marketing_audience"
+        ]
+      },
+      "path": "models/exposures.yml"
+    },
+    "exposure.fernwood.churn_model": {
+      "unique_id": "exposure.fernwood.churn_model",
+      "resource_type": "exposure",
+      "package_name": "fernwood",
+      "name": "churn_model",
+      "label": "Churn Prediction Model",
+      "type": "ml",
+      "maturity": "high",
+      "description": "Predicts 90-day churn risk per customer.",
+      "owner": {
+        "name": "Maya Okafor",
+        "email": "maya.okafor@fernwood.example"
+      },
+      "url": "https://bi.fernwood.example/churn-model",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.customer_lifetime_value",
+          "model.fernwood.dim_customers"
+        ]
+      },
+      "path": "models/exposures.yml"
+    },
+    "exposure.fernwood.loyalty_dashboard": {
+      "unique_id": "exposure.fernwood.loyalty_dashboard",
+      "resource_type": "exposure",
+      "package_name": "fernwood",
+      "name": "loyalty_dashboard",
+      "label": "Loyalty Program Dashboard",
+      "type": "dashboard",
+      "maturity": "high",
+      "description": "Membership growth, tier mix and in-store spend.",
+      "owner": {
+        "name": "Maya Okafor",
+        "email": "maya.okafor@fernwood.example"
+      },
+      "url": "https://bi.fernwood.example/loyalty-dashboard",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_loyalty_members"
+        ]
+      },
+      "path": "models/exposures.yml"
+    },
+    "exposure.fernwood.support_quality_dashboard": {
+      "unique_id": "exposure.fernwood.support_quality_dashboard",
+      "resource_type": "exposure",
+      "package_name": "fernwood",
+      "name": "support_quality_dashboard",
+      "label": "Support Quality Dashboard",
+      "type": "dashboard",
+      "maturity": "high",
+      "description": "Ticket volumes and first response times.",
+      "owner": {
+        "name": "Aisha Karim",
+        "email": "aisha.karim@fernwood.example"
+      },
+      "url": "https://bi.fernwood.example/support-quality-dashboard",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_support_ticket_summary"
+        ]
+      },
+      "path": "models/exposures.yml"
+    },
+    "exposure.fernwood.inventory_replenishment_report": {
+      "unique_id": "exposure.fernwood.inventory_replenishment_report",
+      "resource_type": "exposure",
+      "package_name": "fernwood",
+      "name": "inventory_replenishment_report",
+      "label": "Inventory Replenishment Report",
+      "type": "dashboard",
+      "maturity": "high",
+      "description": "Weekly report of SKUs below target weeks of cover.",
+      "owner": {
+        "name": "Lucia Ferraro",
+        "email": "lucia.ferraro@fernwood.example"
+      },
+      "url": "https://bi.fernwood.example/inventory-replenishment-report",
+      "depends_on": {
+        "nodes": [
+          "model.fernwood.mart_inventory_health"
+        ]
+      },
+      "path": "models/exposures.yml"
+    }
+  }
+}

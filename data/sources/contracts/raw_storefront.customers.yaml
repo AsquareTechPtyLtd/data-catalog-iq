@@ -1,0 +1,78 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_storefront__customers
+name: customers
+version: 1.3.2
+status: active
+domain: customer
+dataProduct: 'Source: storefront'
+description:
+  purpose: Customer accounts from the e-commerce storefront, loaded daily.
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: carlos.mendes@fernwood.example
+  name: Carlos Mendes
+  role: Owner
+- username: samuel.adeyemi@fernwood.example
+  name: Samuel Adeyemi
+  role: Owner
+support:
+- channel: '#data-platform-support'
+  tool: slack
+  scope: issues
+- channel: data-platform@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: customers
+  physicalName: fernwood_dw.raw_storefront.customers
+  physicalType: table
+  description: Customer accounts from the e-commerce storefront, loaded daily.
+  properties:
+  - name: customer_id
+    logicalType: string
+    physicalType: TEXT
+    description: Storefront customer identifier
+    primaryKey: true
+    required: true
+  - name: email
+    logicalType: string
+    physicalType: TEXT
+    description: Account email address
+  - name: first_name
+    logicalType: string
+    physicalType: TEXT
+    description: Customer first name
+  - name: last_name
+    logicalType: string
+    physicalType: TEXT
+    description: Customer last name
+  - name: phone
+    logicalType: string
+    physicalType: TEXT
+    description: Contact phone number
+  - name: marketing_opt_in
+    logicalType: integer
+    physicalType: INTEGER
+    description: 1 if the customer consented to marketing email
+  - name: created_at
+    logicalType: string
+    physicalType: TEXT
+    description: Account creation timestamp (ISO 8601)
+quality:
+- rule: unique
+  columns:
+  - customer_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - customer_id
+  description: Primary key is never null.

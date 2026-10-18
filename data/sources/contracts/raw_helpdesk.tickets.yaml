@@ -1,0 +1,86 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_raw_helpdesk__tickets
+name: tickets
+version: 1.3.1
+status: active
+domain: support
+dataProduct: 'Source: helpdesk'
+description:
+  purpose: Customer support tickets from the helpdesk tool.
+  usage: Source data as landed from the operational system; consume via staging models.
+team:
+- username: aisha.karim@fernwood.example
+  name: Aisha Karim
+  role: Owner
+- username: samuel.adeyemi@fernwood.example
+  name: Samuel Adeyemi
+  role: Owner
+support:
+- channel: '#support-ops'
+  tool: slack
+  scope: issues
+- channel: support-ops@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: tickets
+  physicalName: fernwood_dw.raw_helpdesk.tickets
+  physicalType: table
+  description: Customer support tickets from the helpdesk tool.
+  properties:
+  - name: ticket_id
+    logicalType: string
+    physicalType: TEXT
+    description: Ticket identifier
+    primaryKey: true
+    required: true
+  - name: requester_email
+    logicalType: string
+    physicalType: TEXT
+    description: Email of the person raising the ticket
+  - name: requester_name
+    logicalType: string
+    physicalType: TEXT
+    description: Name of the person raising the ticket
+  - name: subject
+    logicalType: string
+    physicalType: TEXT
+    description: Ticket subject line (template-driven, e.g. "Where is my order?")
+  - name: body
+    logicalType: string
+    physicalType: TEXT
+    description: Customer's message text
+  - name: priority
+    logicalType: string
+    physicalType: TEXT
+    description: low / normal / high / urgent
+  - name: status
+    logicalType: string
+    physicalType: TEXT
+    description: open / pending / solved / closed
+  - name: created_at
+    logicalType: string
+    physicalType: TEXT
+    description: Ticket creation timestamp
+  - name: first_response_at
+    logicalType: string
+    physicalType: TEXT
+    description: First agent reply timestamp
+quality:
+- rule: unique
+  columns:
+  - ticket_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - ticket_id
+  description: Primary key is never null.

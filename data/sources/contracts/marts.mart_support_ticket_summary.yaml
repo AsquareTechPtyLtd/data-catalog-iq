@@ -1,0 +1,87 @@
+# Synthetic data contract for the fictional company Fernwood Outfitters.
+# ODCS-style (Open Data Contract Standard v3).
+apiVersion: v3.0.0
+kind: DataContract
+id: contract_marts__mart_support_ticket_summary
+name: mart_support_ticket_summary
+version: 2.0.1
+status: active
+domain: support
+dataProduct: Support Insights
+description:
+  purpose: Support tickets matched to customers, with response times.
+  usage: Governed mart for reporting and downstream data products.
+team:
+- username: aisha.karim@fernwood.example
+  name: Aisha Karim
+  role: Owner
+support:
+- channel: '#support-ops'
+  tool: slack
+  scope: issues
+- channel: support-ops@fernwood.example
+  tool: email
+  scope: questions
+slaProperties:
+- property: freshness
+  value: 24
+  unit: h
+- property: frequency
+  value: daily
+schema:
+- name: mart_support_ticket_summary
+  physicalName: fernwood_dw.marts.mart_support_ticket_summary
+  physicalType: table
+  description: Support tickets matched to customers, with response times.
+  properties:
+  - name: ticket_id
+    logicalType: string
+    physicalType: TEXT
+    description: Ticket
+    primaryKey: true
+    required: true
+  - name: customer_id
+    logicalType: string
+    physicalType: TEXT
+    description: Matched customer
+  - name: requester_email
+    logicalType: string
+    physicalType: TEXT
+    description: Requester email
+  - name: requester_name
+    logicalType: string
+    physicalType: TEXT
+    description: Customer full name from dim_customers
+  - name: subject
+    logicalType: string
+    physicalType: TEXT
+    description: Subject line
+  - name: body_excerpt
+    logicalType: string
+    physicalType: TEXT
+    description: First 200 characters of the message
+  - name: priority
+    logicalType: string
+    physicalType: TEXT
+    description: Priority
+  - name: ticket_status
+    logicalType: string
+    physicalType: TEXT
+    description: Status
+  - name: first_response_minutes
+    logicalType: integer
+    physicalType: INTEGER
+    description: Minutes to first reply
+  - name: created_at
+    logicalType: string
+    physicalType: TEXT
+    description: Created timestamp
+quality:
+- rule: unique
+  columns:
+  - ticket_id
+  description: Primary key is unique.
+- rule: notNull
+  columns:
+  - ticket_id
+  description: Primary key is never null.
