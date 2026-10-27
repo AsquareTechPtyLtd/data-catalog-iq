@@ -12,7 +12,7 @@ Citation ids are "<source>:<ref>":
   dbt:model.fernwood.dim_customers                           dbt manifest node
   dbt:exposure.fernwood.loyalty_dashboard                    dbt exposure (dashboard, ML model, app)
   catalog:<fqn>#certification                                rule applied at ingestion
-  catalog:<fqn>#data_category_inheritance                              rule applied at ingestion (stg_/int_ data category, or none)
+  catalog:<fqn>#data_category_inheritance                    rule applied at ingestion (stg_/int_ inheritance, or none)
   catalog:<fqn>#ownership                                    rule applied at ingestion (no contract / no owner)
   catalog:<fqn>#governance_gaps                              gap detected at ingestion
   catalog:<fqn>                                              catalog entry (search match)
@@ -259,31 +259,35 @@ def get_table(conn: sqlite3.Connection, table: str) -> dict:
                      "details": json.loads(t["cert_details"]),
                      "sources": [cites.add("catalog", f"{fqn}#certification")]}
 
-    # Data category (table level): assigned in Collibra, or inherited by stg_/int_ (§4, §6); retention and stewards follow it
+    # Data category (table level): assigned in Collibra, or inherited by stg_/int_ (§4, §6);
+    # retention and stewards follow it
     if t["data_category_source"] == "collibra":
         data_category_src = [cites.add("collibra", fqn, t["url"])]
     else:
         data_category_src = [cites.add("catalog", f"{fqn}#data_category_inheritance")]
     if t["data_category_id"]:
-        b = conn.execute("SELECT * FROM data_categories WHERE data_category_id = ?", (t["data_category_id"],)).fetchone()
+        b = conn.execute("SELECT * FROM data_categories WHERE data_category_id = ?",
+                         (t["data_category_id"],)).fetchone()
         stewards: dict[str, list] = {}
         for r in conn.execute("SELECT s.role, p.full_name, p.email FROM data_category_stewardship s "
-                              "JOIN people p USING (username) WHERE s.data_category_id = ? ORDER BY s.role, p.full_name",
+                              "JOIN people p USING (username) WHERE s.data_category_id = ? "
+                              "ORDER BY s.role, p.full_name",
                               (b["data_category_id"],)):
             stewards.setdefault(r["role"], []).append({"name": r["full_name"], "email": r["email"]})
         retention = ({"months": b["retention_months"], "trigger": b["retention_trigger"],
                       "disposal_action": b["disposal_action"], "legal_basis": b["legal_basis"]}
                      if b["retention_months"] is not None else "not defined")
-        data_category = {"data_category_id": b["data_category_id"], "name": b["name"], "status": b["status"], "retention": retention,
-               "stewards": stewards, "assigned": t["data_category_source"],
-               **({"inherited_from": t["data_category_inherited_from"]} if t["data_category_source"] == "inherited" else {}),
-               "sources": [cites.add("collibra", b["data_category_id"], b["url"]), *data_category_src]}
+        inherited = t["data_category_source"] == "inherited"
+        data_category = {"data_category_id": b["data_category_id"], "name": b["name"], "status": b["status"],
+                         "retention": retention, "stewards": stewards, "assigned": t["data_category_source"],
+                         **({"inherited_from": t["data_category_inherited_from"]} if inherited else {}),
+                         "sources": [cites.add("collibra", b["data_category_id"], b["url"]), *data_category_src]}
     else:
-        note = (f"Inherits its data category from {t['data_category_inherited_from']}, which has none." if t["data_category_inherited_from"]
+        parent = t["data_category_inherited_from"]
+        note = (f"Inherits its data category from {parent}, which has none." if parent
                 else "No data category is assigned to this table in Collibra.")
-        data_category = {"data_category_id": None, "note": note,
-               **({"inherited_from": t["data_category_inherited_from"]} if t["data_category_inherited_from"] else {}),
-               "sources": data_category_src}
+        data_category = {"data_category_id": None, "note": note, **({"inherited_from": parent} if parent else {}),
+                         "sources": data_category_src}
 
     pi_columns = []
     for c in conn.execute("SELECT name, pi_status, pi_type, data_subject, sensitivity, detection_confidence, "
@@ -291,7 +295,7 @@ def get_table(conn: sqlite3.Connection, table: str) -> dict:
                           "AND pi_status IN ('confirmed', 'suggested') ORDER BY ordinal", (fqn,)):
         src = (cites.add("collibra", f"{fqn}.{c['name']}", c["url"]) if c["classification_source"] == "collibra"
                else cites.add("catalog", f"{fqn}#column_lineage"))
-        pi_columns.append({"column": c["name"], "status": c["pi_status"], "category": c["pi_type"],
+        pi_columns.append({"column": c["name"], "status": c["pi_status"], "pi_type": c["pi_type"],
                            "data_subject": c["data_subject"], "sensitivity": c["sensitivity"],
                            **({"confidence": c["detection_confidence"]} if c["pi_status"] == "suggested" else {}),
                            "classification": c["classification_source"], "sources": [src]})

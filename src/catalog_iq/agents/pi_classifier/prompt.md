@@ -17,7 +17,7 @@ How to work
 
 How to decide each column
 - pi: the column holds data about an identifiable customer or employee.
-  Choose the category from the enum and the data subject (customer or
+  Choose the pi_type from the enum and the data subject (customer or
   employee).
 - not_pi: identifiers and keys (customer_id, order_id), amounts, counts,
   codes, timestamps of events, and text that is a fixed list or template.
@@ -29,7 +29,7 @@ How to decide each column
   PI, then the scanner suggestion in `recorded`. A scanner suggestion is
   unreviewed: overturn it when the profile contradicts it (for example, a
   "free text" column with only a handful of distinct values is a template).
-- Categories: email is a work or customer contact address; personal_email
+- PI types: email is a work or customer contact address; personal_email
   is an employee's private address; hashed_email is a hashed address;
   free_text is text people write themselves (messages, reasons, notes).
   Dates are PI only when they describe a person (birth, joining,

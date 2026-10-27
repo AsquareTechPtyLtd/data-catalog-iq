@@ -1,11 +1,14 @@
-"""Tests for the data category tools: search_data_categories, get_data_category (shared) and get_data_category_evidence (Data Category Recommender)."""
+"""Tests for the data category tools: search_data_categories, get_data_category (shared) and
+get_data_category_evidence (Data Category Recommender)."""
 
 import json
 
 import pytest
 
 from catalog_iq.catalog.db import catalog_path, connect
-from catalog_iq.tools.data_category_evidence import data_category_evidence_tools, get_data_category_evidence, lineage_neighbours
+from catalog_iq.tools.data_category_evidence import (
+    data_category_evidence_tools, get_data_category_evidence, lineage_neighbours,
+)
 from catalog_iq.tools.data_categories import DATA_CATEGORY_TOOLS, fts_query, get_data_category, search_data_categories
 
 pytestmark = pytest.mark.skipif(not catalog_path().exists(),
@@ -39,7 +42,7 @@ def test_index_has_every_data_category(conn):
 
 
 def test_search_ranks_by_meaning_words(conn):
-    assert matched(search_data_categories(conn, "return requests refunds"))[0] == "DC-008"   # "returns" in the definition
+    assert matched(search_data_categories(conn, "return requests refunds"))[0] == "DC-008"  # "returns", definition
     assert matched(search_data_categories(conn, "website page views sessions"))[0] == "DC-005"
     assert matched(search_data_categories(conn, "RMA"))[0] == "DC-008"                       # glossary synonym
 
@@ -71,7 +74,8 @@ def test_query_syntax_is_inert(conn):
 
 
 def test_data_category_shape_and_citation(conn):
-    b = next(b for b in search_data_categories(conn, "pseudonymized hashed")["data_categories"] if b["data_category_id"] == "DC-006")
+    found = search_data_categories(conn, "pseudonymized hashed")["data_categories"]
+    b = next(b for b in found if b["data_category_id"] == "DC-006")
     assert b["status"] == "Candidate" and b["retention"] == "not defined"
     assert b["sources"] == ["collibra:DC-006"]
     b5 = next(b for b in search_data_categories(conn, "web")["data_categories"] if b["data_category_id"] == "DC-005")
@@ -131,7 +135,8 @@ def test_lineage_neighbours_all_hops(conn):
 
 
 def test_neighbour_data_category_is_a_strong_signal(conn, monkeypatch):
-    r = get_data_category_evidence(conn, "marts.mart_store_performance")  # dbt-only, no data category; its upstream tables have one
+    # dbt-only, no data category; its upstream tables have one
+    r = get_data_category_evidence(conn, "marts.mart_store_performance")
     assert r["status"] == "found"
     strong = [s for s in r["signals"] if s["signal"] == "neighbour"]
     assert strong and all(s["strong"] for s in strong)
@@ -164,7 +169,8 @@ def test_blind_is_not_in_the_tool_schema():
 def test_stg_and_int_are_not_applicable(conn):
     r = get_data_category_evidence(conn, "stg_web__page_views")
     assert r["status"] == "not_applicable" and r["inherits_from"] == PAGE_VIEWS
-    assert get_data_category_evidence(conn, "int_web_sessions")["inherits_from"] == "fernwood_dw.marts.mart_web_sessions"
+    r = get_data_category_evidence(conn, "int_web_sessions")
+    assert r["inherits_from"] == "fernwood_dw.marts.mart_web_sessions"
 
 
 def test_not_found(conn):

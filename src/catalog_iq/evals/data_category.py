@@ -100,7 +100,7 @@ class TableResult(_Strict):
     got: str | None            # the recommended data category id, or the status when there is none
     outcome: Outcome
     confidence: str | None
-    truth_rank: int | None     # best rank of the true data category among search_data_categories matches; None = never matched
+    truth_rank: int | None     # best rank of the true one among search_data_categories matches; None = never
     attempts: int
     trap: bool
     guardrail_checks: list[str]
@@ -133,7 +133,8 @@ def score(response: dict, tool_results: list[dict], key: TableKey, run_number: i
         outcome = "error"
     return TableResult(table=key.table, set=key.set, run=run_number, truth=key.data_category, got=got or status,
                        outcome=outcome, confidence=response.get("confidence"),
-                       truth_rank=truth_rank(tool_results, key.data_category), attempts=g["attempts"], trap=bool(key.trap),
+                       truth_rank=truth_rank(tool_results, key.data_category), attempts=g["attempts"],
+                       trap=bool(key.trap),
                        guardrail_checks=sorted({f"{e['part']}:{e['check']}" for e in g["events"]}))
 
 
@@ -245,7 +246,8 @@ def main(argv: list[str] | None = None) -> Path:
 
     summary = {"agent": AGENT, "provider": cfg["provider"], "model": cfg["model"], "sets": args.sets,
                "runs": args.runs, "tables": len(keys), "catalog": str(args.catalog or "default"),
-               "data_categories_in_catalog": data_category_count, "scored": len(results), "stopped": stopped, "errors": errors,
+               "data_categories_in_catalog": data_category_count, "scored": len(results), "stopped": stopped,
+               "errors": errors,
                **summarize(results), "performance": performance(runs, wall)}
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))

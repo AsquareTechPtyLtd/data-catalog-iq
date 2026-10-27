@@ -102,7 +102,8 @@ def main() -> None:
     rows = distractors(args.count, args.seed)
     conn.executemany("INSERT INTO data_categories VALUES (?,?,?,?,?,?,?,?,?,?)", [
         (b["data_category_id"], b["name"], b["domain"], b["status"], b["definition"], b["retention_months"],
-         b["retention_trigger"], "Delete" if b["retention_months"] else None, None, f"{base_url}/data-category/{b['data_category_id']}")
+         b["retention_trigger"], "Delete" if b["retention_months"] else None, None,
+         f"{base_url}/data-category/{b['data_category_id']}")
         for b in rows])
     conn.executemany("INSERT INTO data_category_search VALUES (?,?,?,?)",
                      [(b["data_category_id"], b["name"], b["definition"], "") for b in rows])

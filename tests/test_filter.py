@@ -62,7 +62,7 @@ def test_hero_traps_are_excluded(conn, trap):
 
 def test_matched_columns_say_why(conn):
     cols = by_fqn(filter_tables(conn, **HERO))["fernwood_dw.raw_marketing.email_events"]["matched_columns"]
-    assert [(c["column"], c["category"], c["data_subject"]) for c in cols] == [("recipient_email", "email", "customer")]
+    assert [(c["column"], c["pi_type"], c["data_subject"]) for c in cols] == [("recipient_email", "email", "customer")]
     assert cols[0]["sources"] == ["collibra:fernwood_dw.raw_marketing.email_events.recipient_email"]
 
 

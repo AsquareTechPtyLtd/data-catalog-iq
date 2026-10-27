@@ -1,15 +1,16 @@
-"""data category tools: search_data_categories and get_data_category. Shared catalog tools (Data Category Recommender,
-and Catalog Lookup for DC-level questions later).
+"""Data category tools: search_data_categories and get_data_category. Shared catalog tools
+(Data Category Recommender, and Catalog Lookup for data-category questions later).
 
-A Data Category categorizes a whole table (data-model §4). These tools
-describe the concepts themselves; they never list which tables use a data category, so
+A Data Category categorizes a whole table (data-model §4). These tools describe
+the categories themselves; they never list which tables use a data category, so
 blind evals cannot read an answer from them (filter_tables does that).
 
-search_data_categories is retrieve-then-judge stage 1 (Data Category Recommender, Scale): keyword
-search (SQLite FTS5, porter stemming, BM25) over each data category's name, definition
-and linked glossary terms with their synonyms. When the whole catalog fits in
-one result (at most `k` data categories) the data categories that did not match are listed too, after
-the matches, so nothing is missed; at scale only the top `k` matches return.
+search_data_categories is retrieve-then-judge stage 1 (Data Category Recommender,
+Scale): keyword search (SQLite FTS5, porter stemming, BM25) over each data
+category's name, definition and linked glossary terms with their synonyms. When
+the whole catalog fits in one result (at most `k` data categories) the ones that
+did not match are listed too, after the matches, so nothing is missed; at scale
+only the top `k` matches return.
 
 Citation ids:
   collibra:DC-001     the data category asset: definition, status, retention, stewards
@@ -52,20 +53,23 @@ def _retention(b: sqlite3.Row) -> dict | str:
 
 
 def _summary(b: sqlite3.Row, cites: _Citations) -> dict:
-    return {"data_category_id": b["data_category_id"], "name": b["name"], "status": b["status"], "domain": _domain(b["domain"]),
+    return {"data_category_id": b["data_category_id"], "name": b["name"], "status": b["status"],
+            "domain": _domain(b["domain"]),
             "definition": b["definition"], "retention": _retention(b),
             "sources": [cites.add("collibra", b["data_category_id"], b["url"])]}
 
 
-def search_data_categories(conn: sqlite3.Connection, query: str, domain: str | None = None, k: int = K_DEFAULT) -> dict:
-    """data categories whose name, definition or glossary terms match any word of `query`, best first."""
+def search_data_categories(conn: sqlite3.Connection, query: str, domain: str | None = None,
+                           k: int = K_DEFAULT) -> dict:
+    """Data categories whose name, definition or glossary terms match any word of `query`, best first."""
     k = max(1, min(int(k), K_MAX))
     cites = _Citations(settings(conn)["base_url"])
     rows = {r["data_category_id"]: r for r in conn.execute("SELECT * FROM data_categories ORDER BY data_category_id")
             if domain is None or _domain(r["domain"]) == domain}
     q = fts_query(query)
     hits = [] if q is None else [r["data_category_id"] for r in conn.execute(
-        f"SELECT data_category_id FROM data_category_search WHERE data_category_search MATCH ? ORDER BY bm25(data_category_search, {', '.join(map(str, BM25_WEIGHTS))})",
+        f"SELECT data_category_id FROM data_category_search WHERE data_category_search MATCH ? "
+        f"ORDER BY bm25(data_category_search, {', '.join(map(str, BM25_WEIGHTS))})",
         (q,)) if r["data_category_id"] in rows]
     out = [{**_summary(rows[b], cites), "rank": i + 1, "matched": True} for i, b in enumerate(hits[:k])]
     complete = len(rows) <= k
@@ -80,12 +84,15 @@ def search_data_categories(conn: sqlite3.Connection, query: str, domain: str | N
 
 def get_data_category(conn: sqlite3.Connection, data_category_id: str) -> dict:
     """One data category in full: definition, status, retention, stewards, glossary terms."""
-    b = conn.execute("SELECT * FROM data_categories WHERE data_category_id = ?", (data_category_id.strip().upper(),)).fetchone()
+    b = conn.execute("SELECT * FROM data_categories WHERE data_category_id = ?",
+                     (data_category_id.strip().upper(),)).fetchone()
     if b is None:
-        return {"status": "not_found", "data_category_id": data_category_id, "hint": "Use search_data_categories to find a data category by its meaning."}
+        return {"status": "not_found", "data_category_id": data_category_id,
+                "hint": "Use search_data_categories to find a data category by its meaning."}
     cites = _Citations(settings(conn)["base_url"])
     stewards: dict[str, list] = {}
-    for r in conn.execute("SELECT s.role, p.full_name, p.email FROM data_category_stewardship s JOIN people p USING (username) "
+    for r in conn.execute("SELECT s.role, p.full_name, p.email FROM data_category_stewardship s "
+                          "JOIN people p USING (username) "
                           "WHERE s.data_category_id = ? ORDER BY s.role, p.full_name", (b["data_category_id"],)):
         stewards.setdefault(r["role"], []).append({"name": r["full_name"], "email": r["email"]})
     retention = _retention(b)
@@ -93,9 +100,10 @@ def get_data_category(conn: sqlite3.Connection, data_category_id: str) -> dict:
         retention.update(disposal_action=b["disposal_action"], legal_basis=b["legal_basis"])
     terms = [{"term": t["name"], "synonyms": json.loads(t["synonyms"]), "definition": t["definition"]}
              for t in conn.execute("SELECT g.* FROM term_links l JOIN glossary_terms g USING (term_id) "
-                                   "WHERE l.entity_type = 'data_category' AND l.entity_id = ? ORDER BY g.name", (b["data_category_id"],))]
+                                   "WHERE l.entity_type = 'data_category' AND l.entity_id = ? ORDER BY g.name",
+                                   (b["data_category_id"],))]
     return {"status": "found", "data_category": {**_summary(b, cites), "retention": retention, "stewards": stewards,
-                                       "glossary_terms": terms},
+                                                 "glossary_terms": terms},
             "citations": cites.as_list(compact=True)}
 
 
@@ -115,10 +123,11 @@ GET_SCHEMA = {
 }
 DATA_CATEGORY_TOOLS = [
     {"name": "search_data_categories",
-     "description": ("Search Data Categories by meaning: keyword match on name, definition and glossary "
-                     "terms, best first. Each data category has its definition, status (Approved / Candidate), governance "
+     "description": ("Search Data Categories by meaning: keyword match on name, definition and glossary terms, "
+                     "best first. Each data category has its definition, status (Approved / Candidate), governance "
                      "domain and retention. When `complete` is true every data category in scope is listed (matches "
-                     "first); otherwise search again with other words if none fits. Cite a data category with its id."),
+                     "first); otherwise search again with other words if none fits. Cite a data category with its "
+                     "id."),
      "input_schema": SEARCH_SCHEMA, "function": search_data_categories},
     {"name": "get_data_category",
      "description": "One Data Category in full: definition, status, retention, stewards, glossary terms.",

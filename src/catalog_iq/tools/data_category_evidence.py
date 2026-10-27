@@ -77,11 +77,13 @@ def definition_signal(conn: sqlite3.Connection, evidence: dict, data_category_id
     """
     t = evidence["table"]
     q = fts_query(table_text(t["fqn"].split(".")[-1], t["description"], evidence["columns"]))
-    if q is None or conn.execute("SELECT 1 FROM data_category_search WHERE data_category_search MATCH ? AND data_category_id = ?",
+    if q is None or conn.execute("SELECT 1 FROM data_category_search "
+                                 "WHERE data_category_search MATCH ? AND data_category_id = ?",
                                  (q, data_category_id)).fetchone() is None:
         return None
-    return _signal("definition", [data_category_id], f"table name, description and column names match {data_category_id}'s "
-                                           "definition (checked for the chosen data category)", [f"collibra:{data_category_id}"])
+    return _signal("definition", [data_category_id],
+                   f"table name, description and column names match {data_category_id}'s definition "
+                   "(checked for the chosen data category)", [f"collibra:{data_category_id}"])
 
 
 def signals(conn: sqlite3.Connection, t: sqlite3.Row, columns: list[dict], neighbours: list[dict],
@@ -93,8 +95,9 @@ def signals(conn: sqlite3.Connection, t: sqlite3.Row, columns: list[dict], neigh
     out = []
     for n in neighbours:
         if n.get("data_category_id"):
-            out.append(_signal("neighbour", [n["data_category_id"]], f"{n['direction']} {n['fqn']} ({n['hops']} hop"
-                                                           f"{'s' if n['hops'] > 1 else ''}) has {n['data_category_id']}",
+            hops = f"{n['hops']} hop{'s' if n['hops'] > 1 else ''}"
+            out.append(_signal("neighbour", [n["data_category_id"]],
+                               f"{n['direction']} {n['fqn']} ({hops}) has {n['data_category_id']}",
                                [*n["sources"], data_category_cite(n["data_category_id"])], strong=True))
     text = table_text(t["name"], t["description"], columns)
     matches = [b for b in search_data_categories(conn, text)["data_categories"] if b["matched"]][:DEFINITION_TOP]
@@ -105,10 +108,12 @@ def signals(conn: sqlite3.Connection, t: sqlite3.Row, columns: list[dict], neigh
     # only domain data categories that other evidence names: a large catalog has hundreds per domain
     named = [b["data_category_id"] for b in matches] + [d["data_category_id"] for d in domain_data_categories]
     in_domain = [r["data_category_id"] for r in conn.execute(
-        f"SELECT data_category_id FROM data_categories WHERE lower(replace(domain, ' ', '_')) = ? AND data_category_id IN "
+        f"SELECT data_category_id FROM data_categories "
+        f"WHERE lower(replace(domain, ' ', '_')) = ? AND data_category_id IN "
         f"({','.join('?' * len(named))}) ORDER BY data_category_id", (t["domain"], *named))] if named else []
     for b in in_domain:  # one signal per data category, so citing a data category never vouches for another
-        out.append(_signal("data_category_domain", [b], f"{b} belongs to the {t['domain']} governance domain", [data_category_cite(b)]))
+        out.append(_signal("data_category_domain", [b], f"{b} belongs to the {t['domain']} governance domain",
+                           [data_category_cite(b)]))
     for d in domain_data_categories:
         out.append(_signal("domain_tables", [d["data_category_id"]],
                            f"{len(d['tables'])} other {t['domain']} table(s) use {d['data_category_id']}: "
@@ -126,12 +131,13 @@ def get_data_category_evidence(conn: sqlite3.Connection, table: str, blind: bool
             "status": t["status"], "row_count": t["row_count"], "sources": [cites.add("catalog", fqn, t["url"])]}
     if t["layer"] in ("staging", "intermediate"):
         return {"status": "not_applicable", "table": head,
-                "note": ("stg_/int_ tables have no data category of their own: a stg_ table inherits its source's, an int_ "
-                         "table its built_for mart's (data-model §6). Recommend for that table instead."),
+                "note": ("stg_/int_ tables have no data category of their own: a stg_ table inherits its source's, "
+                         "an int_ table its built_for mart's (data-model §6). Recommend for that table instead."),
                 "inherits_from": t["data_category_inherited_from"], "citations": cites.as_list(compact=True)}
 
     if t["data_category_id"] and not blind:
-        b = conn.execute("SELECT data_category_id, name, status FROM data_categories WHERE data_category_id = ?", (t["data_category_id"],)).fetchone()
+        b = conn.execute("SELECT data_category_id, name, status FROM data_categories WHERE data_category_id = ?",
+                         (t["data_category_id"],)).fetchone()
         return {"status": "assigned", "table": head,
                 "data_category": {"data_category_id": b["data_category_id"], "name": b["name"], "status": b["status"],
                         "sources": [cites.add("collibra", fqn, t["url"])]},
@@ -148,7 +154,8 @@ def get_data_category_evidence(conn: sqlite3.Connection, table: str, blind: bool
 
     neighbours, near = [], set()
     for nfqn, direction, hops in lineage_neighbours(conn, fqn):
-        n = conn.execute("SELECT fqn, layer, description, data_category_id, url FROM tables WHERE fqn = ?", (nfqn,)).fetchone()
+        n = conn.execute("SELECT fqn, layer, description, data_category_id, url FROM tables WHERE fqn = ?",
+                         (nfqn,)).fetchone()
         near.add(nfqn)
         entry = {"fqn": nfqn, "direction": direction, "hops": hops, "layer": n["layer"],
                  "description": n["description"]}
@@ -158,12 +165,15 @@ def get_data_category_evidence(conn: sqlite3.Connection, table: str, blind: bool
         neighbours.append(entry)
 
     by_data_category: dict[str, dict] = {}
-    for r in conn.execute("SELECT t.fqn, t.url, t.data_category_id, b.name FROM tables t JOIN data_categories b USING (data_category_id) "
+    for r in conn.execute("SELECT t.fqn, t.url, t.data_category_id, b.name FROM tables t "
+                          "JOIN data_categories b USING (data_category_id) "
                           "WHERE t.domain = ? AND t.layer IN ('source', 'mart') AND t.fqn != ? ORDER BY t.fqn",
                           (t["domain"], fqn)):
         if r["fqn"] in near:  # a neighbour's data category is shown (or hidden) with the neighbour
             continue
-        d = by_data_category.setdefault(r["data_category_id"], {"data_category_id": r["data_category_id"], "name": r["name"], "tables": [], "sources": []})
+        dc_id = r["data_category_id"]
+        d = by_data_category.setdefault(dc_id, {"data_category_id": dc_id, "name": r["name"], "tables": [],
+                                                "sources": []})
         d["tables"].append(r["fqn"])
         d["sources"].append(cites.add("catalog", r["fqn"], r["url"]))
     domain_data_categories = list(by_data_category.values())
@@ -182,11 +192,11 @@ INPUT_SCHEMA = {
     "required": ["table"],
 }
 DESCRIPTION = (
-    "Get the evidence for categorizing one table under a Data Category: its description, domain and "
-    "columns (with recorded PI, as context only), its lineage neighbours and their data categories, the data categories other tables "
-    "in its domain use, and signals code computed from these. Status `assigned` means it already has a data category; "
-    "`not_applicable` means a stg_/int_ table, which inherits its data category. Accepts a fully qualified name, "
-    "schema.name or an exact table name. Cite facts with the ids in their `sources`."
+    "Get the evidence for categorizing one table under a Data Category: its description, domain and columns (with "
+    "recorded PI, as context only), its lineage neighbours and their data categories, the data categories other "
+    "tables in its domain use, and signals code computed from these. Status `assigned` means it already has a data "
+    "category; `not_applicable` means a stg_/int_ table, which inherits its data category. Accepts a fully "
+    "qualified name, schema.name or an exact table name. Cite facts with the ids in their `sources`."
 )
 
 

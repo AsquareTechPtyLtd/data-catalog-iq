@@ -13,7 +13,7 @@ Citation ids:
   catalog:<fqn>              the table's catalog entry
 
 Signals (data-model §7, PI agent D6) each say what they suggest: a PI
-category, or "not_pi". Strong signals can contradict a decision; weak ones
+pi_type, or "not_pi". Strong signals can contradict a decision; weak ones
 (shapes shared by PI and non-PI columns, such as dates, and words in a
 description, which often describe the row rather than the value: "Emails
 sent") only support one.
@@ -61,7 +61,7 @@ NAME_PATTERNS = {
     "payment_card": r"\bcard|\bpan\b",
     "government_id": r"national[ _]id|\bssn\b|passport|government",
 }
-# value patterns (ingest PROFILE_PATTERNS) → categories they fit; weak = shared with non-PI columns
+# value patterns (ingest PROFILE_PATTERNS) → PI types they fit; weak = shared with non-PI columns
 STRONG_PATTERNS = {"email": ["email", "personal_email"], "sha256_hex": ["hashed_email"], "phone": ["phone"],
                    "ipv4": ["ip_address"]}
 WEAK_PATTERNS = {"person_name": ["name"], "iso_date": ["date_of_birth", "joining_date", "termination_date"],
@@ -133,8 +133,8 @@ def signals(col: dict, profile: dict | None, neighbours: list[dict], recorded: d
         elif n.get("pi_status") == "rejected":
             out.append(_signal("neighbour", ["not_pi"], f"{n['fqn']}.{n['column']} was reviewed: not PI"))
     if recorded and recorded["status"] == "suggested":
-        out.append(_signal("scanner", [recorded["category"]],
-                           f"{recorded['method']} scanner suggested {recorded['category']} "
+        out.append(_signal("scanner", [recorded["pi_type"]],
+                           f"{recorded['method']} scanner suggested {recorded['pi_type']} "
                            f"({recorded['confidence']}), not reviewed"))
     return out
 
@@ -188,7 +188,7 @@ def get_columns(conn: sqlite3.Connection, table: str, blind: bool = False) -> di
                              "pi_type": c["pi_type"], "data_subject": c["data_subject"], "sources": [cid]})
             continue
         recorded = None if blind else {
-            "status": c["pi_status"], "category": c["pi_type"], "subject": c["data_subject"],
+            "status": c["pi_status"], "pi_type": c["pi_type"], "subject": c["data_subject"],
             "method": c["detection_method"], "confidence": c["detection_confidence"]}
         profile = _profile(profiles.get(c["name"]))
         neighbours = _neighbours(conn, fqn, c["name"], blind, cites)

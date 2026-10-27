@@ -96,7 +96,7 @@ def test_sensitivity_lookup_matches_catalog(conn):
     assert set(SENSITIVITY) == set(PI_TYPES)
     rows = conn.execute("SELECT DISTINCT pi_type, sensitivity FROM columns WHERE pi_status = 'confirmed' "
                         "AND classification_source = 'collibra'").fetchall()
-    # the catalog records sensitivity per column; a confirmed column is never below its category's level
+    # the catalog records sensitivity per column; a confirmed column is never below its pi_type's level
     order = ["Public", "Internal", "Confidential", "Highly Confidential"]
     assert all(order.index(s) >= order.index(SENSITIVITY[c]) for c, s in rows)
 
@@ -136,8 +136,8 @@ def guard(conn, table=RETURNS, blind=False):
     return g
 
 
-def rec(table, column, recommendation="not_pi", category=None, subject=None, reason="An identifier.", extra=()):
-    return ColumnDraft(column=column, recommendation=recommendation, category=category, data_subject=subject,
+def rec(table, column, recommendation="not_pi", pi_type=None, subject=None, reason="An identifier.", extra=()):
+    return ColumnDraft(column=column, recommendation=recommendation, pi_type=pi_type, data_subject=subject,
                        reason=reason, citations=[f"catalog:{table}#{column}", *extra])
 
 
@@ -216,13 +216,13 @@ def test_not_applicable_has_no_recommendations(conn):
     assert checks(g.check_output(bad)) == ["not_applicable"]
 
 
-def test_schema_enforces_category_rules():
+def test_schema_enforces_pi_type_rules():
     with pytest.raises(ValidationError):
         ColumnDraft(column="x", recommendation="pi", reason="x", citations=["a"])
     with pytest.raises(ValidationError):
-        ColumnDraft(column="x", recommendation="not_pi", category="email", reason="x", citations=["a"])
+        ColumnDraft(column="x", recommendation="not_pi", pi_type="email", reason="x", citations=["a"])
     with pytest.raises(ValidationError):
-        ColumnDraft(column="x", recommendation="pi", category="favourite_colour", data_subject="customer",
+        ColumnDraft(column="x", recommendation="pi", pi_type="favourite_colour", data_subject="customer",
                     reason="x", citations=["a"])
 
 
@@ -289,17 +289,17 @@ def test_answer_key_matches_catalog(conn):
         rows = {r["name"]: r for r in conn.execute("SELECT * FROM columns WHERE table_fqn = ?", (k.table,))}
         assert set(k.columns) <= set(rows), k.table
         for col, truth in k.columns.items():
-            category, subject = parse_truth(truth)
+            pi_type, subject = parse_truth(truth)
             r = rows[col]
             if k.set == "open":
                 assert r["pi_status"] in ("suggested", "unclassified"), (k.table, col)
             elif r["pi_status"] in ("confirmed", "rejected"):  # no planted mistakes: reviewed = truth
-                assert (r["pi_type"], r["data_subject"]) == ((category, subject) if category else (None, None)) \
-                    or r["pi_status"] == "rejected" and category is None, (k.table, col)
-            if category:
-                all_categories.add(category)
+                assert (r["pi_type"], r["data_subject"]) == ((pi_type, subject) if pi_type else (None, None)) \
+                    or r["pi_status"] == "rejected" and pi_type is None, (k.table, col)
+            if pi_type:
+                all_categories.add(pi_type)
                 if k.blind:
-                    blind_categories.add(category)
+                    blind_categories.add(pi_type)
         assert set(k.traps) <= set(k.columns)
     assert all_categories == set(PI_TYPES)
     assert set(PI_TYPES) - blind_categories == {"free_text"}  # only on the open tables
@@ -317,7 +317,7 @@ def test_scorer(conn):
     d.recommendations[4] = rec(RETURNS, "reason_text", reason="Short codes.")  # name says free text: low → review
     d.recommendations[0] = rec(RETURNS, "return_id", "needs_manual_review", reason="Unsure.")
     result = score(g.complete(d), key)
-    outcomes = {c.column: (c.outcome, c.category_ok) for c in result.columns}
+    outcomes = {c.column: (c.outcome, c.pi_type_ok) for c in result.columns}
     assert outcomes["contact_email"] == ("tp", False)
     assert outcomes["reason_text"] == ("flagged_pi", None)
     assert outcomes["customer_id"] == ("tn", None)
@@ -325,5 +325,5 @@ def test_scorer(conn):
     assert not result.passed
     s = summarize([result])
     assert s["precision"] == 1.0 and s["recall"] == 1.0 and s["strict_recall"] == 0.5
-    assert s["category_accuracy"] == 0.0 and s["manual_review_rate"] == round(2 / 7, 3)
+    assert s["pi_type_accuracy"] == 0.0 and s["manual_review_rate"] == round(2 / 7, 3)
     assert s["traps"] == {f"{RETURNS}.contact_email": "0/1", f"{RETURNS}.reason_text": "0/1"}

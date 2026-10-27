@@ -2,7 +2,7 @@
 
     run = recommend_pi("raw_returns.return_requests")
     for r in run.response.recommendations:
-        print(r.column, r.recommendation, r.category, r.confidence)
+        print(r.column, r.recommendation, r.pi_type, r.confidence)
 
 Recommendations are pending steward review; the catalog is never changed.
 `blind` hides recorded PI (evals only, D4); the LLM cannot set it.

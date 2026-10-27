@@ -67,7 +67,8 @@ def test_other_outcomes_have_no_data_category_id():
 
 
 def sig(kind, data_category, strong=False):
-    return {"signal": kind, "suggests": [data_category] if isinstance(data_category, str) else data_category, "strong": strong, "detail": ""}
+    suggests = [data_category] if isinstance(data_category, str) else data_category
+    return {"signal": kind, "suggests": suggests, "strong": strong, "detail": ""}
 
 
 @pytest.mark.parametrize("outcome, data_category, signals, retried, level", [
@@ -130,13 +131,13 @@ def test_assigned_and_inherited_tables_get_no_recommendation(conn):
         draft = returns_draft(table=fqn, citations=[f"catalog:{fqn}"])
         assert checks(g.check_output(draft)) == {"nothing_to_recommend"}
         ok = DataCategoryDraft(table=fqn, outcome="no_recommendation", reason="It already has one.",
-                      citations=[f"catalog:{fqn}"], summary="Nothing to recommend.")
+                               citations=[f"catalog:{fqn}"], summary="Nothing to recommend.")
         assert g.check_output(ok) == []
 
 
 def test_open_table_needs_an_outcome(conn):
     draft = DataCategoryDraft(table=RETURNS, outcome="no_recommendation", reason="r", citations=[f"catalog:{RETURNS}"],
-                     summary="s")
+                              summary="s")
     assert "outcome_missing" in checks(guard_for(conn, RETURNS).check_output(draft))
 
 
@@ -162,8 +163,8 @@ def test_candidate_data_category_is_flagged(conn):
     g = guard_for(conn, "mart_email_engagement", search="hashed email engagement pseudonymized", blind=True)
     fqn = "fernwood_dw.marts.mart_email_engagement"
     draft = DataCategoryDraft(table=fqn, outcome="recommended", data_category_id="DC-006",
-                     reason="Engagement per hashed recipient matches DC-006 Pseudonymized Marketing Data.",
-                     citations=[f"catalog:{fqn}", "collibra:DC-006"], summary="Recommend DC-006.")
+                              reason="Engagement per hashed recipient matches DC-006 Pseudonymized Marketing Data.",
+                              citations=[f"catalog:{fqn}", "collibra:DC-006"], summary="Recommend DC-006.")
     assert g.check_output(draft) == []
     rec = g.complete(draft).recommendation
     assert rec.retention == "not defined" and "not Approved" in rec.flags[0]
@@ -182,7 +183,8 @@ def test_low_confidence_becomes_manual_review(conn):
 def test_no_fit_refers_to_data_strategy(conn):
     g = guard_for(conn, RETURNS)
     draft = DataCategoryDraft(table=RETURNS, outcome="no_fit", considered=["DC-008"],
-                     reason="No data category describes return requests.", citations=[f"catalog:{RETURNS}"], summary="No fit.")
+                              reason="No data category describes return requests.", citations=[f"catalog:{RETURNS}"],
+                              summary="No fit.")
     r = g.complete(draft)
     assert r.status == "no_fit" and r.recommendation is None and "Data Strategy" in r.note
 
@@ -197,7 +199,7 @@ def test_assigned_response_names_the_current_data_category(conn):
     g = guard_for(conn, "raw_crm.contacts", search=None)
     fqn = "fernwood_dw.raw_crm.contacts"
     draft = DataCategoryDraft(table=fqn, outcome="no_recommendation", reason="It already has DC-001.",
-                     citations=[f"catalog:{fqn}"], summary="Already assigned.")
+                              citations=[f"catalog:{fqn}"], summary="Already assigned.")
     r = g.complete(draft)
     assert r.status == "assigned" and r.current.data_category_id == "DC-001" and r.recommendation is None
 

@@ -37,8 +37,10 @@ class DataCategoryDraft(_Strict):
         "needs_manual_review: two fit equally well, or the evidence is too thin. no_recommendation: the "
         "table already has a data category, inherits one (stg_/int_), or was not found."))
     data_category_id: str | None = Field(default=None, pattern=DATA_CATEGORY_ID,
-                               description="The recommended data category, from a search_data_categories result; only when recommended.")
-    considered: list[str] = Field(default_factory=list, description="Other data category ids weighed, e.g. the runner-up.")
+                               description=("The recommended data category, from a search_data_categories "
+                                                 "result; only when recommended."))
+    considered: list[str] = Field(default_factory=list,
+                                  description="Other data category ids weighed, e.g. the runner-up.")
     reason: str = Field(min_length=1, description="One or two sentences: the evidence that decides it.")
     citations: list[str] = Field(min_length=1, description="Citation ids from the tool results: the table's, the "
                                                            "data category's, and any neighbour or column relied on.")
@@ -71,7 +73,8 @@ class DataCategoryRecommendation(_Strict):
     definition: str | None = None
     retention: dict | str = Field(description="months, trigger, disposal_action, legal_basis; or 'not defined'.")
     stewards: dict[str, list[dict]] = Field(default_factory=dict, description="role → people, from the catalog.")
-    flags: list[str] = Field(default_factory=list, description="e.g. a Candidate data category would not certify the table.")
+    flags: list[str] = Field(default_factory=list,
+                             description="e.g. a Candidate data category would not certify the table.")
 
 
 class CurrentDataCategory(_Strict):
@@ -94,7 +97,8 @@ class DataCategoryResponse(_Strict):
     considered: list[str] = Field(default_factory=list)
     reason: str | None = None
     note: str | None = Field(default=None, description="Why code changed the outcome (low confidence), or a referral.")
-    current: CurrentDataCategory | None = Field(default=None, description="assigned / not_applicable: the data category it has today.")
+    current: CurrentDataCategory | None = Field(
+        default=None, description="assigned / not_applicable: the data category it has today.")
     confidence: Confidence
     signals: list[Signal] = Field(default_factory=list, description="Code-computed evidence behind the confidence.")
     citations: list[Citation] = Field(default_factory=list)

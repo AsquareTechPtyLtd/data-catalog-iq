@@ -10,12 +10,12 @@ this module reads it; the agent's tools cannot. `open` tables run as they are
 (every column scored).
 
 Per column, a recommendation is scored against the truth:
-  true PI     pi + right category → tp (category_ok) · pi + other category → tp
+  true PI     pi + right pi_type → tp (pi_type_ok) · pi + other pi_type → tp
               needs_manual_review → flagged · not_pi → fn (a miss)
   not PI      not_pi → tn · needs_manual_review → flagged · pi → fp
 Metrics: precision = tp / (tp + fp); recall = (tp + flagged true PI) / true PI
 (a column sent to a steward is not missed); strict recall = tp / true PI;
-category accuracy = right category / tp; manual-review rate; trap columns
+pi_type accuracy = right pi_type / tp; manual-review rate; trap columns
 right in every run. A table run passes when every column is exactly right
 (manual review is not exact) and the guardrails did not refuse.
 
@@ -54,7 +54,7 @@ class _Strict(BaseModel):
 class TableKey(_Strict):
     table: str
     set: PISet
-    columns: dict[str, str] = Field(description="column → 'category (subject)' or 'none'")
+    columns: dict[str, str] = Field(description="column → 'pi_type (subject)' or 'none'")
     traps: dict[str, str] = Field(default_factory=dict)
 
     @property
@@ -79,8 +79,8 @@ def parse_truth(value: str) -> tuple[str | None, str | None]:
     """'email (customer)' → ('email', 'customer'); 'none' → (None, None)."""
     if value == "none":
         return None, None
-    category, subject = value.split(" (")
-    return category, subject.rstrip(")")
+    pi_type, subject = value.split(" (")
+    return pi_type, subject.rstrip(")")
 
 
 # --- scoring ------------------------------------------------------------------------
@@ -89,9 +89,9 @@ def parse_truth(value: str) -> tuple[str | None, str | None]:
 class ColumnScore(_Strict):
     column: str
     truth: str
-    got: str            # pi:<category> | not_pi | needs_manual_review | missing
+    got: str            # pi:<pi_type> | not_pi | needs_manual_review | missing
     outcome: Literal["tp", "fp", "tn", "fn", "flagged_pi", "flagged_not_pi", "missing"]
-    category_ok: bool | None = None
+    pi_type_ok: bool | None = None
     subject_ok: bool | None = None
     confidence: str | None = None
     trap: bool = False
@@ -110,28 +110,28 @@ class TableResult(_Strict):
     @property
     def passed(self) -> bool:
         return self.outcome != "refused" and all(
-            c.outcome in ("tn",) or (c.outcome == "tp" and c.category_ok) for c in self.columns)
+            c.outcome in ("tn",) or (c.outcome == "tp" and c.pi_type_ok) for c in self.columns)
 
 
 def score(response: PIResponse, key: TableKey, run_number: int = 1) -> TableResult:
     recs = {r.column: r for r in response.recommendations}
     columns = []
     for col, truth in key.columns.items():
-        category, subject = parse_truth(truth)
+        pi_type, subject = parse_truth(truth)
         r = recs.get(col)
         if r is None:
             columns.append(ColumnScore(column=col, truth=truth, got="missing", outcome="missing", trap=col in key.traps))
             continue
-        got = f"pi:{r.category}" if r.recommendation == "pi" else r.recommendation
+        got = f"pi:{r.pi_type}" if r.recommendation == "pi" else r.recommendation
         if r.recommendation == "pi":
-            outcome = "tp" if category else "fp"
+            outcome = "tp" if pi_type else "fp"
         elif r.recommendation == "not_pi":
-            outcome = "fn" if category else "tn"
+            outcome = "fn" if pi_type else "tn"
         else:
-            outcome = "flagged_pi" if category else "flagged_not_pi"
+            outcome = "flagged_pi" if pi_type else "flagged_not_pi"
         columns.append(ColumnScore(
             column=col, truth=truth, got=got, outcome=outcome, confidence=r.confidence, trap=col in key.traps,
-            category_ok=(r.category == category) if outcome == "tp" else None,
+            pi_type_ok=(r.pi_type == pi_type) if outcome == "tp" else None,
             subject_ok=(r.data_subject == subject) if outcome == "tp" else None))
     g = response.guardrails
     return TableResult(table=key.table, set=key.set, run=run_number, status=response.status, outcome=g.outcome,
@@ -152,14 +152,14 @@ def summarize(results: list[TableResult]) -> dict:
     for r in results:
         for c in r.columns:
             if c.trap:
-                ok = c.outcome == "tn" or (c.outcome == "tp" and c.category_ok)
+                ok = c.outcome == "tn" or (c.outcome == "tp" and c.pi_type_ok)
                 traps[f"{r.table}.{c.column}"].append(ok)
     by_table = defaultdict(list)
     for r in results:
         by_table[r.table].append(r)
     fired = Counter(check for r in results for check in r.guardrail_checks)
     calibration = {lvl: _ratio(sum(1 for c in cols if c.confidence == lvl and c.outcome in ("tp", "tn")
-                                   and c.category_ok is not False),
+                                   and c.pi_type_ok is not False),
                                sum(1 for c in cols if c.confidence == lvl and c.outcome in ("tp", "tn", "fp", "fn")))
                    for lvl in ("high", "medium")}
     return {
@@ -168,7 +168,7 @@ def summarize(results: list[TableResult]) -> dict:
         "precision": _ratio(n["tp"], n["tp"] + n["fp"]),
         "recall": _ratio(n["tp"] + n["flagged_pi"], true_pi),
         "strict_recall": _ratio(n["tp"], true_pi),
-        "category_accuracy": _ratio(sum(1 for c in tps if c.category_ok), len(tps)),
+        "pi_type_accuracy": _ratio(sum(1 for c in tps if c.pi_type_ok), len(tps)),
         "subject_accuracy": _ratio(sum(1 for c in tps if c.subject_ok), len(tps)),
         "manual_review_rate": _ratio(n["flagged_pi"] + n["flagged_not_pi"], len(cols)),
         "outcomes": dict(sorted(n.items())),
@@ -184,7 +184,7 @@ def summarize(results: list[TableResult]) -> dict:
             "trigger_rate": {k: _ratio(v, len(results)) for k, v in sorted(fired.items())},
         },
         "errors_by_table": {t: sorted({f"{c.column}: {c.got} (truth {c.truth})" for r in rs for c in r.columns
-                                       if not (c.outcome == "tn" or (c.outcome == "tp" and c.category_ok))})
+                                       if not (c.outcome == "tn" or (c.outcome == "tp" and c.pi_type_ok))})
                             for t, rs in sorted(by_table.items()) if not all(r.passed for r in rs)},
     }
 
@@ -239,7 +239,7 @@ def main(argv: list[str] | None = None):
                                     "llm_calls": [vars(c) for c in run.llm_calls]}) + "\n")
                 f.flush()
                 wrong = [c.column for c in result.columns if not (c.outcome == "tn" or
-                                                                  (c.outcome == "tp" and c.category_ok))]
+                                                                  (c.outcome == "tp" and c.pi_type_ok))]
                 print(f"run {n} {k.table}: {'PASS' if result.passed else 'FAIL'} {result.outcome} "
                       f"attempts={result.attempts} {wall[-1]:.0f}s" + (f" wrong={wrong}" if wrong else ""),
                       flush=True)

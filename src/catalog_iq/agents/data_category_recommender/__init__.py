@@ -21,7 +21,8 @@ from catalog_iq.tools.data_category_evidence import data_category_evidence_tools
 
 AGENT = "data_category_recommender"
 PROMPT_PATH = Path(__file__).with_name("prompt.md")
-MAX_TOOL_CALLS = 5  # get_data_category_evidence once, search_data_categories up to 3 times, a get_data_category or a corrected name
+# get_data_category_evidence once, search_data_categories up to 3 times, a get_data_category or a corrected name
+MAX_TOOL_CALLS = 5
 
 
 def request(table: str) -> str:
@@ -29,7 +30,7 @@ def request(table: str) -> str:
 
 
 def recommend_data_category(table: str, conn: sqlite3.Connection | None = None, provider: Provider | None = None,
-                  blind: bool = False) -> AgentRun:
+                            blind: bool = False) -> AgentRun:
     own_conn = conn is None
     conn = conn or connect()
     try:

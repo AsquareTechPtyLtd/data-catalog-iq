@@ -239,11 +239,13 @@ def test_data_category_inherited_by_stg_and_int(conn):
 
 def test_no_data_category_is_a_gap(conn):
     r = get_table(conn, "raw_web.page_views")
-    assert r["data_category"]["data_category_id"] is None and "No data category is assigned" in r["data_category"]["note"]
+    assert r["data_category"]["data_category_id"] is None
+    assert "No data category is assigned" in r["data_category"]["note"]
     assert any(g["type"] == "data_category_missing" for g in r["governance_gaps"])
     assert "data_category_missing" in r["certification"]["failed_criteria"]
     inherited = get_table(conn, "int_web_sessions")["data_category"]
-    assert inherited["data_category_id"] is None and inherited["inherited_from"] == "fernwood_dw.marts.mart_web_sessions"
+    assert inherited["data_category_id"] is None
+    assert inherited["inherited_from"] == "fernwood_dw.marts.mart_web_sessions"
 
 
 def test_columns_carry_no_data_category(conn):
@@ -253,13 +255,13 @@ def test_columns_carry_no_data_category(conn):
 def test_hashed_email_inherited_in_staging(conn):
     r = get_table(conn, "stg_marketing__email_events")
     hashed = [c for c in r["pi_columns"] if c["column"] == "recipient_email_sha256"]
-    assert hashed[0]["category"] == "hashed_email"
+    assert hashed[0]["pi_type"] == "hashed_email"
     assert hashed[0]["classification"] == "inherited"
 
 
 def test_employee_email_has_employee_subject(conn):
     r = get_table(conn, "dim_employees")
-    emails = [c for c in r["pi_columns"] if c["category"] == "email"]
+    emails = [c for c in r["pi_columns"] if c["pi_type"] == "email"]
     assert emails and all(c["data_subject"] == "employee" for c in emails)
 
 

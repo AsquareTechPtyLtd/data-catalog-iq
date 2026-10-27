@@ -75,7 +75,7 @@ def render_pi(run: AgentRun, verbose: bool = False) -> str:
     if r.recommendations:
         lines += ["", "Recommendations (pending steward review)"]
         for c in r.recommendations:
-            what = f"PI: {c.category} ({c.data_subject}), {c.sensitivity}" if c.recommendation == "pi" else \
+            what = f"PI: {c.pi_type} ({c.data_subject}), {c.sensitivity}" if c.recommendation == "pi" else \
                 "not PI" if c.recommendation == "not_pi" else "needs manual review"
             lines += [f"  • {c.column}: {what} · {c.confidence} confidence (recorded: {c.recorded_status})",
                       f"      {c.reason}"] + ([f"      note: {c.note}"] if c.note else [])
@@ -151,7 +151,8 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
     ask_cmd.add_argument("question")
     pi_cmd = sub.add_parser("recommend-pi", help="PI recommendations for one table's open columns")
     pi_cmd.add_argument("table")
-    data_category_cmd = sub.add_parser("recommend-category", help="data category recommendation for one table that has none")
+    data_category_cmd = sub.add_parser("recommend-category",
+                                       help="data category recommendation for one table that has none")
     data_category_cmd.add_argument("table")
     for p in (parser, ask_cmd, pi_cmd, data_category_cmd):
         p.add_argument("--json", action="store_true", help="print the full AgentResponse as JSON")

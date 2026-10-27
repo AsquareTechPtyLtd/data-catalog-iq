@@ -13,12 +13,12 @@ Output guardrail (D9), on every draft:
 - invalid_citation / unsupported_claim / answer_entity_not_in_facts: the
   shared faithfulness checks, with each reason as a cited claim and the
   summary as the answer
-Category and data subject enums, and pi/not_pi needing/forbidding a
-category, are enforced by the PIDraft schema (invalid_draft).
+PI type and data subject enums, and pi/not_pi needing/forbidding a
+pi_type, are enforced by the PIDraft schema (invalid_draft).
 On failure the loop retries once, then refuses: every open column becomes
 needs_manual_review.
 
-Completion: sensitivity from the category, confidence from the
+Completion: sensitivity from the pi_type, confidence from the
 code-computed signals (D8; low turns the recommendation into
 needs_manual_review), citation details, counts.
 """
@@ -36,7 +36,7 @@ CONFIDENCE_ORDER = ["low", "medium", "high"]
 REFUSAL_REASON = "The recommendation could not be verified against the catalog; review this column manually."
 
 
-def confidence(recommendation: str, category: str | None, signals: list[dict], retried: bool = False) -> str:
+def confidence(recommendation: str, pi_type: str | None, signals: list[dict], retried: bool = False) -> str:
     """D8: from the signals code computed, not from the LLM's certainty.
 
     support: signals suggesting the decision. contra: strong signals suggesting
@@ -46,7 +46,7 @@ def confidence(recommendation: str, category: str | None, signals: list[dict], r
     """
     if recommendation == "needs_manual_review":
         return "low"
-    target = category if recommendation == "pi" else "not_pi"
+    target = pi_type if recommendation == "pi" else "not_pi"
     support = [s for s in signals if target in s["suggests"]]
     contra = [s for s in signals if s["strong"] and target not in s["suggests"]]
     if not contra:
@@ -122,17 +122,17 @@ class PIGuard(Guard):
         recs = []
         for r in draft.recommendations:
             col = columns[r.column]
-            level = confidence(r.recommendation, r.category, col["signals"], retried)
+            level = confidence(r.recommendation, r.pi_type, col["signals"], retried)
             rec, note = r.recommendation, None
             if level == "low" and rec != "needs_manual_review":
-                note = f"Recommended {rec}" + (f" ({r.category})" if r.category else "") + \
+                note = f"Recommended {rec}" + (f" ({r.pi_type})" if r.pi_type else "") + \
                        ", but the signals do not support it or conflict: review manually."
                 rec = "needs_manual_review"
             recs.append(ColumnRecommendation(
                 column=r.column, recommendation=rec,
-                category=r.category if rec != "not_pi" else None,
+                pi_type=r.pi_type if rec != "not_pi" else None,
                 data_subject=r.data_subject if rec != "not_pi" else None,
-                sensitivity=SENSITIVITY.get(r.category) if rec == "pi" else None,
+                sensitivity=SENSITIVITY.get(r.pi_type) if rec == "pi" else None,
                 confidence=level, recorded_status=(col["recorded"] or {}).get("status"),
                 reason=r.reason, citations=r.citations,
                 signals=[Signal(**s) for s in col["signals"]], note=note))

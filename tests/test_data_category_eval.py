@@ -45,7 +45,8 @@ def test_blind_truth_matches_the_catalog(conn):
 def test_key_data_categories_exist(conn):
     data_categories = {r[0] for r in conn.execute("SELECT data_category_id FROM data_categories")}
     for k in load_key():
-        assert k.data_category in data_categories and set(k.acceptable) <= data_categories and k.data_category not in k.acceptable
+        assert k.data_category in data_categories and set(k.acceptable) <= data_categories
+        assert k.data_category not in k.acceptable
 
 
 def test_true_data_category_is_retrievable_for_every_open_table(conn):
@@ -63,7 +64,8 @@ KEY = TableKey(table="fernwood_dw.raw_crm.contacts", set="dev", data_category="D
 
 
 def response(status="recommended", data_category_id="DC-001", confidence="high", outcome="answered", attempts=1):
-    return {"status": status, "recommendation": {"data_category_id": data_category_id} if status == "recommended" else None,
+    recommendation = {"data_category_id": data_category_id} if status == "recommended" else None
+    return {"status": status, "recommendation": recommendation,
             "confidence": confidence,
             "guardrails": {"outcome": outcome, "attempts": attempts, "events": []}}
 
@@ -90,8 +92,8 @@ def test_truth_rank_from_search_results(conn):
 
 
 def test_summarize():
-    results = [score(response(), [{"data_categories": [{"data_category_id": "DC-001", "rank": 2, "matched": True}], "complete": True}],
-                     KEY, 1),
+    searched = [{"data_categories": [{"data_category_id": "DC-001", "rank": 2, "matched": True}], "complete": True}]
+    results = [score(response(), searched, KEY, 1),
                score(response(data_category_id="DC-002", confidence="medium"), [], KEY, 2),
                score(response(data_category_id="DC-008", confidence="medium", attempts=2), [], KEY, 3),
                score(response(status="needs_manual_review", confidence="low"), [], KEY, 4)]

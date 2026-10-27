@@ -399,7 +399,8 @@ def certify(table: dict, columns: list[dict], contract: dict | None, data_catego
         details.append("No data category assigned in Collibra")
     elif data_categories[table["data_category_id"]]["status"] != "Approved":
         failed.append("data_category_not_approved")
-        details.append(f"{table['data_category_id']} is {data_categories[table['data_category_id']]['status']}, not Approved")
+        dc_id = table["data_category_id"]
+        details.append(f"{dc_id} is {data_categories[dc_id]['status']}, not Approved")
     return {"status": "uncertified" if failed else "certified", "failed": failed, "details": details}
 
 
@@ -520,12 +521,13 @@ def build(cfg: dict, db_path: Path, run_id: str, hashes: list) -> dict:
     data_categories = {}
     for data_category_id, a in collibra["data_categories"].items():
         attrs = a["attributes"]
-        data_categories[data_category_id] = {"data_category_id": data_category_id, "name": a["name"], "domain": a["domain"], "status": a["status"],
-                        "definition": attrs.get("Definition"),
-                        "retention_months": attrs.get("Retention Period (Months)"),
-                        "retention_trigger": attrs.get("Retention Trigger"),
-                        "disposal_action": attrs.get("Disposal Action"),
-                        "legal_basis": attrs.get("Legal Basis"), "url": f"{base_url}/data-category/{data_category_id}"}
+        data_categories[data_category_id] = {
+            "data_category_id": data_category_id, "name": a["name"], "domain": a["domain"], "status": a["status"],
+            "definition": attrs.get("Definition"),
+            "retention_months": attrs.get("Retention Period (Months)"),
+            "retention_trigger": attrs.get("Retention Trigger"),
+            "disposal_action": attrs.get("Disposal Action"),
+            "legal_basis": attrs.get("Legal Basis"), "url": f"{base_url}/data-category/{data_category_id}"}
 
     gaps = []
 
@@ -683,7 +685,8 @@ def build(cfg: dict, db_path: Path, run_id: str, hashes: list) -> dict:
         represents = ca.get("relations", {}).get("represents", [])
         assigned_data_category[fqn] = represents[0] if represents else None
         if len(represents) > 1:
-            gap(fqn, None, "multiple_data_categories", "high", f"Collibra assigns {', '.join(represents)}; a table has one data category")
+            gap(fqn, None, "multiple_data_categories", "high",
+                f"Collibra assigns {', '.join(represents)}; a table has one data category")
 
     for fqn, t in tables.items():
         contract = contracts.get(fqn)
@@ -704,7 +707,8 @@ def build(cfg: dict, db_path: Path, run_id: str, hashes: list) -> dict:
                   "sensitivity": max_sensitivity(c["sensitivity"] for c in columns.get(fqn, []))})
         if data_category_id is None and t["status"] != "in_development":
             gap(fqn, None, "data_category_missing", "high",
-                f"Inherits its data category from {owner_from}, which has none" if owner_from else "No data category assigned in Collibra")
+                f"Inherits its data category from {owner_from}, which has none" if owner_from
+                else "No data category assigned in Collibra")
         elif data_category_id and data_categories[data_category_id]["retention_months"] is None:
             gap(fqn, None, "retention_not_defined", "medium", f"{data_category_id} has no retention policy")
 
@@ -790,7 +794,8 @@ def build(cfg: dict, db_path: Path, run_id: str, hashes: list) -> dict:
          (a.get("responsibilities", {}).get("Owner") or [None])[0], f"{base_url}/term/{tid}")
         for tid, a in collibra["terms"].items()])
     links = []
-    for kind, assets in (("data_category", collibra["data_categories"]), ("table", collibra["tables"]), ("term", collibra["terms"])):
+    for kind, assets in (("data_category", collibra["data_categories"]), ("table", collibra["tables"]),
+                         ("term", collibra["terms"])):
         for entity_id, a in assets.items():
             for term in a.get("relations", {}).get("related to", []):
                 links.append((term, kind, entity_id))
@@ -798,7 +803,8 @@ def build(cfg: dict, db_path: Path, run_id: str, hashes: list) -> dict:
     terms = {tid: [a["name"], *a["attributes"].get("Synonyms", [])] for tid, a in collibra["terms"].items()}
     conn.executemany("INSERT INTO data_category_search VALUES (?,?,?,?)", [
         (data_category_id, b["name"], b["definition"],
-         " ".join(w for term, kind, e in links if kind == "data_category" and e == data_category_id for w in terms.get(term, [])))
+         " ".join(w for term, kind, e in links if kind == "data_category" and e == data_category_id
+                  for w in terms.get(term, [])))
         for data_category_id, b in data_categories.items()])
 
     table_fields = [r[1] for r in conn.execute("PRAGMA table_info(tables)")]

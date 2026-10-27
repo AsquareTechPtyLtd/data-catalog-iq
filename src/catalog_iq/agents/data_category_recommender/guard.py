@@ -31,7 +31,9 @@ into needs_manual_review); a Candidate data category flagged (N4); no_fit refers
 Data Strategy (N1).
 """
 
-from catalog_iq.agents.data_category_recommender.schema import DataCategoryDraft, DataCategoryRecommendation, DataCategoryResponse, CurrentDataCategory, Signal
+from catalog_iq.agents.data_category_recommender.schema import (
+    CurrentDataCategory, DataCategoryDraft, DataCategoryRecommendation, DataCategoryResponse, Signal,
+)
 from catalog_iq.core.faithfulness import check_faithfulness
 from catalog_iq.core.guardrails import Guard
 from catalog_iq.core.response import Citation, Fact, GuardrailEvent, Guardrails, TableRef
@@ -86,7 +88,8 @@ class DataCategoryGuard(Guard):
                 if r.get("status") in ("found", "assigned", "not_applicable") and isinstance(r.get("table"), dict)}
 
     def _retrieved(self) -> set[str]:
-        """data categories a search_data_categories or get_data_category result, or an evidence signal, returned in this run."""
+        """Data categories a search_data_categories or get_data_category result, or an evidence signal,
+        returned in this run."""
         out = set()
         for r in self.tool_results:
             out.update(b["data_category_id"] for b in (r.get("data_categories", []) if "complete" in r else []))
@@ -105,14 +108,16 @@ class DataCategoryGuard(Guard):
         result = evidence.get(draft.table)
         if result is None:
             if evidence:
-                problems.append(("table_not_returned", f"{draft.table}: use the fqn get_data_category_evidence returned"))
+                problems.append(("table_not_returned",
+                                  f"{draft.table}: use the fqn get_data_category_evidence returned"))
             elif draft.outcome != "no_recommendation":
                 problems.append(("nothing_to_recommend", "no table was found; the outcome is no_recommendation"))
             return self._output_events(problems)
         fqn = draft.table
         if result["status"] in ("assigned", "not_applicable"):
             if draft.outcome != "no_recommendation":
-                why = "already has a data category" if result["status"] == "assigned" else "inherits its data category (stg_/int_)"
+                why = ("already has a data category" if result["status"] == "assigned"
+                       else "inherits its data category (stg_/int_)")
                 problems.append(("nothing_to_recommend", f"{fqn} {why}; the outcome is no_recommendation"))
             return self._output_events(problems)
 
@@ -120,15 +125,18 @@ class DataCategoryGuard(Guard):
             problems.append(("outcome_missing", f"{fqn} has no data category: recommend one, or use no_fit or "
                                                 "needs_manual_review"))
         if draft.outcome in ("recommended", "no_fit") and not self._searched():
-            problems.append(("no_search", "call search_data_categories to see the data category definitions before deciding"))
+            problems.append(("no_search",
+                             "call search_data_categories to see the data category definitions before deciding"))
         retrieved = self._retrieved()
         named = ([draft.data_category_id] if draft.data_category_id else []) + draft.considered
-        problems += [("data_category_not_retrieved", f"{b} was not returned by search_data_categories or get_data_category in this run")
+        problems += [("data_category_not_retrieved",
+                      f"{b} was not returned by search_data_categories or get_data_category in this run")
                      for b in dict.fromkeys(named) if b not in retrieved]
         if f"catalog:{fqn}" not in draft.citations:
             problems.append(("uncited_table", f"cite the table as catalog:{fqn}"))
         if draft.data_category_id and f"collibra:{draft.data_category_id}" not in draft.citations:
-            problems.append(("uncited_data_category", f"cite the recommended data category as collibra:{draft.data_category_id}"))
+            problems.append(("uncited_data_category",
+                             f"cite the recommended data category as collibra:{draft.data_category_id}"))
 
         cited = self._citations(draft, retrieved)
         facts = [Fact(claim=draft.reason, citations=cited)]
@@ -148,9 +156,10 @@ class DataCategoryGuard(Guard):
     def feedback(self, events: list[GuardrailEvent]) -> str:
         lines = [f"- {e.check}: {e.detail}" for e in events]
         return ("Your recommendation failed verification against the tool results:\n" + "\n".join(lines) +
-                "\nRevise it. Recommend only a data category id that search_data_categories returned, cite the table's id and the "
-                "data category's id (plus any neighbour or column you rely on), and state only values that appear in the "
-                "tool results. If no data category fits, use no_fit; if the evidence is unclear, use needs_manual_review.")
+                "\nRevise it. Recommend only a data category id that search_data_categories returned, cite the "
+                "table's id and the data category's id (plus any neighbour or column you rely on), and state only "
+                "values that appear in the tool results. If no data category fits, use no_fit; if the evidence is "
+                "unclear, use needs_manual_review.")
 
     # --- completion -------------------------------------------------------------------
 
@@ -158,10 +167,12 @@ class DataCategoryGuard(Guard):
         result = self._evidence().get(draft.table)
         outcome = "passed" if self.attempts <= 1 else "passed_after_retry"
         if result is None or result["status"] != "found":
-            return self._data_category_response(result, draft.summary, outcome, reason=draft.reason, cited=draft.citations)
+            return self._data_category_response(result, draft.summary, outcome, reason=draft.reason,
+                                                cited=draft.citations)
         signals = list(result["signals"])
-        if draft.data_category_id and not any(s["signal"] == "definition" and draft.data_category_id in s["suggests"] for s in signals):
-            extra = definition_signal(self.conn, result, draft.data_category_id)  # beyond the catalog-wide top 3
+        chosen = draft.data_category_id
+        if chosen and not any(s["signal"] == "definition" and chosen in s["suggests"] for s in signals):
+            extra = definition_signal(self.conn, result, chosen)  # beyond the catalog-wide top 3
             signals += [extra] if extra else []
         level = confidence(draft.outcome, draft.data_category_id, signals, retried=self.attempts > 1)
         status, note, rec = draft.outcome, None, None
@@ -173,37 +184,41 @@ class DataCategoryGuard(Guard):
                         "categorize manually.")
         elif draft.outcome == "no_fit":
             s = self.settings
-            note = (f"No existing data category fits: refer to the {s['escalation_team']} team ({s['escalation_email']}, "
-                    f"{s['escalation_slack']}) to propose one.")
+            note = (f"No existing data category fits: refer to the {s['escalation_team']} team "
+                    f"({s['escalation_email']}, {s['escalation_slack']}) to propose one.")
         return self._data_category_response(result, draft.summary, outcome, status=status, recommendation=rec,
-                                  considered=draft.considered, reason=draft.reason, note=note, confidence=level,
-                                  signals=signals, cited=self._citations(draft, self._retrieved()))
+                                            considered=draft.considered, reason=draft.reason, note=note,
+                                            confidence=level, signals=signals,
+                                            cited=self._citations(draft, self._retrieved()))
 
     def refuse(self) -> DataCategoryResponse:
         results = list(self._evidence().values())
         result = results[-1] if results else None
         found = result is not None and result["status"] == "found"
-        summary = ("I couldn't verify a data category recommendation for this table, so it needs manual categorization."
-                   if found else "I couldn't find a table to categorize in the catalog.")
-        return self._data_category_response(result, summary, "refused", status="needs_manual_review" if found else None,
-                                  reason=REFUSAL_REASON if found else None, confidence="low",
-                                  signals=result["signals"] if found else [],
-                                  cited=result["table"]["sources"] if result else [])
+        summary = ("I couldn't verify a data category recommendation for this table, so it needs manual "
+                   "categorization." if found else "I couldn't find a table to categorize in the catalog.")
+        return self._data_category_response(result, summary, "refused",
+                                            status="needs_manual_review" if found else None,
+                                            reason=REFUSAL_REASON if found else None, confidence="low",
+                                            signals=result["signals"] if found else [],
+                                            cited=result["table"]["sources"] if result else [])
 
     def _recommendation(self, data_category_id: str) -> DataCategoryRecommendation:
         b = get_data_category(self.conn, data_category_id)["data_category"]
-        flags = [] if b["status"] == "Approved" else [CANDIDATE_FLAG.format(data_category_id=data_category_id, status=b["status"])]
-        return DataCategoryRecommendation(data_category_id=b["data_category_id"], name=b["name"], status=b["status"], domain=b["domain"],
-                                 definition=b["definition"], retention=b["retention"], stewards=b["stewards"],
-                                 flags=flags)
+        flags = ([] if b["status"] == "Approved"
+                 else [CANDIDATE_FLAG.format(data_category_id=data_category_id, status=b["status"])])
+        return DataCategoryRecommendation(data_category_id=b["data_category_id"], name=b["name"], status=b["status"],
+                                          domain=b["domain"], definition=b["definition"], retention=b["retention"],
+                                          stewards=b["stewards"], flags=flags)
 
     def _data_category_response(self, result: dict | None, summary: str, outcome: str, status: str | None = None,
-                      cited: list[str] = (), confidence: str | None = None, signals: list[dict] = (),
-                      **fields) -> DataCategoryResponse:
+                                cited: list[str] = (), confidence: str | None = None, signals: list[dict] = (),
+                                **fields) -> DataCategoryResponse:
         fqn = result["table"]["fqn"] if result else None
         current = None
         if result and result["status"] == "assigned":
-            current = CurrentDataCategory(data_category_id=result["data_category"]["data_category_id"], name=result["data_category"]["name"])
+            assigned = result["data_category"]
+            current = CurrentDataCategory(data_category_id=assigned["data_category_id"], name=assigned["name"])
         elif result and result["status"] == "not_applicable":
             current = CurrentDataCategory(data_category_id=None, inherits_from=result["inherits_from"])
         status = status or ("not_found" if result is None else result["status"])

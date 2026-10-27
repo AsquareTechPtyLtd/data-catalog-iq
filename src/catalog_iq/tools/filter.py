@@ -62,7 +62,7 @@ COLUMN_FILTERS = {"pi_type": "pi_type", "data_subject": "data_subject", "pi_stat
 CONDITIONS = [*TABLE_FILTERS, "owner", "gap_type", *COLUMN_FILTERS]
 
 # words in an unclassified column's name that suggest it may hold a PI type
-CATEGORY_WORDS = {"date_of_birth": ["birth", "dob"], "ip_address": ["ip"], "payment_card": ["card", "pan"],
+PI_TYPE_WORDS = {"date_of_birth": ["birth", "dob"], "ip_address": ["ip"], "payment_card": ["card", "pan"],
                   "government_id": ["ssn", "passport", "national_id"], "hashed_email": ["email"],
                   "personal_email": ["email"], "free_text": ["text", "notes", "comment"]}
 
@@ -116,7 +116,8 @@ class _FilterNodes(_Nodes):
         # the contract file is the owner's source, so its status sits with the owner
         node["owner"]["contract"] = (t["contract_status"] if t["has_contract"] else
                                      "not_applicable" if t["layer"] in ("staging", "intermediate") else "missing")
-        node["catalog"] = {"domain": t["domain"], "sensitivity": t["sensitivity"], "data_category": t["data_category_id"],
+        node["catalog"] = {"domain": t["domain"], "sensitivity": t["sensitivity"],
+                           "data_category": t["data_category_id"],
                            "sources": [self.cites.add("catalog", fqn)]}
         col_where, col_params = _column_where(filters)
         if col_where:
@@ -138,16 +139,16 @@ class _FilterNodes(_Nodes):
     def _column(self, fqn: str, c: sqlite3.Row) -> dict:
         src = (self.cites.add("collibra", f"{fqn}.{c['name']}") if c["classification_source"] == "collibra"
                else self.cites.add("catalog", f"{fqn}#column_lineage"))
-        return {"column": c["name"], "status": c["pi_status"], "category": c["pi_type"],
+        return {"column": c["name"], "status": c["pi_status"], "pi_type": c["pi_type"],
                 "data_subject": c["data_subject"], "sensitivity": c["sensitivity"], "sources": [src]}
 
 
 def _candidates(conn, nodes: _FilterNodes, filters: dict, include_internal: bool, matched: set[str]) -> list[dict]:
     """Unclassified columns that could match the PI type, on tables meeting the other conditions."""
-    category = filters.get("pi_type")
-    if not category or filters.get("pi_status", "confirmed") != "confirmed":
+    pi_type = filters.get("pi_type")
+    if not pi_type or filters.get("pi_status", "confirmed") != "confirmed":
         return []
-    words = CATEGORY_WORDS.get(category, [w for w in category.split("_") if len(w) > 2])
+    words = PI_TYPE_WORDS.get(pi_type, [w for w in pi_type.split("_") if len(w) > 2])
     others = {k: v for k, v in filters.items() if k not in COLUMN_FILTERS}
     where, params = _where(others, include_internal)
     out = []
@@ -159,7 +160,7 @@ def _candidates(conn, nodes: _FilterNodes, filters: dict, include_internal: bool
             continue
         out.append({"fqn": c["table_fqn"], "column": c["name"], "description": c["description"],
                     "status": "unclassified",
-                    "note": f"Not yet classified; could hold {category} data. Awaiting review.",
+                    "note": f"Not yet classified; could hold {pi_type} data. Awaiting review.",
                     "sources": [nodes.cites.add("catalog", f"{c['table_fqn']}#governance_gaps")]})
     return out
 
@@ -258,7 +259,7 @@ FILTER_TOOLS = [
             "All conditions must hold (AND); give at least one. PI conditions (pi_type, "
             "data_subject, pi_status) must hold on the same column: customer email = "
             "pi_type email + data_subject customer; hashed_email and personal_email are separate "
-            "categories; only confirmed PI by default. owner = the Owner role. Searches sources and "
+            "PI types; only confirmed PI by default. owner = the Owner role. Searches sources and "
             "marts unless include_internal. Each table has owner, certification, contract, data category and "
             "the columns/gaps that matched; with_consumers adds downstream marts and exposures "
             "(10 or fewer tables). `query` holds the count and a citation for the result set, "

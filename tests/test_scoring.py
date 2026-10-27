@@ -138,10 +138,10 @@ def test_filter_questions_match_the_tool(conn, key):
     assert {q.id for q in key.values() if "filter" in q.slices} == set(FILTERS) | {"FN3"}
 
 
-def _collibra_pi(category: str, subject: str) -> set[str]:
+def _collibra_pi(pi_type: str, subject: str) -> set[str]:
     assets = json.loads((ROOT / "data/sources/collibra_export.json").read_text())["assets"]
     return {a["relations"]["is part of"][0] for a in assets if a["type"] == "Column"
-            and a["attributes"].get("PI Status") == "Confirmed" and a["attributes"].get("PI Type") == category
+            and a["attributes"].get("PI Status") == "Confirmed" and a["attributes"].get("PI Type") == pi_type
             and a["attributes"].get("Data Subject") == subject}
 
 
