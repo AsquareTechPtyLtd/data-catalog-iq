@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Catalog IQ</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #1d2430; --muted: #5f6b7a; --line: #dfe3e8;
+    --accent: #2457c5; --accent-soft: #e8eefb; --user: #eef1f5;
+    --high: #1f7a4d; --high-bg: #e4f4ec; --medium: #8a5a00; --medium-bg: #fbf0d9;
+    --low: #b3261e; --low-bg: #fbe5e3; --code: #f0f2f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12151b; --panel: #1a1f27; --text: #e4e8ee; --muted: #9aa5b4; --line: #2c333e;
+      --accent: #7ea6ff; --accent-soft: #1f2b45; --user: #222833;
+      --high: #6fd19f; --high-bg: #16322a; --medium: #f0c060; --medium-bg: #3a2e12;
+      --low: #ff8a80; --low-bg: #3d1c1a; --code: #232a34;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  header h1 { margin: 0; font-size: 17px; }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  main { max-width: 880px; margin: 0 auto; padding: 16px 16px 140px; }
+  #log { display: flex; flex-direction: column; gap: 14px; }
+  .user { align-self: flex-end; background: var(--user); padding: 8px 12px; border-radius: 12px;
+          max-width: 85%; white-space: pre-wrap; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .card + .card { margin-top: 10px; }
+  .route { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted);
+           margin-bottom: 8px; }
+  .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px;
+          background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .high { color: var(--high); background: var(--high-bg); }
+  .medium { color: var(--medium); background: var(--medium-bg); }
+  .low { color: var(--low); background: var(--low-bg); }
+  .neutral { color: var(--muted); background: var(--code); }
+  .answer { font-size: 15.5px; margin: 4px 0 8px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+  ol, ul { margin: 6px 0; padding-left: 22px; }
+  li { margin: 2px 0; }
+  sup a { text-decoration: none; }
+  a { color: var(--accent); }
+  .sources { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+  .sources b { color: var(--text); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 6px 0; }
+  th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .scroll { overflow-x: auto; }
+  code { background: var(--code); padding: 0 4px; border-radius: 4px; font-size: 13px; overflow-wrap: anywhere; }
+  details { margin-top: 8px; font-size: 13px; color: var(--muted); }
+  details pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--code); padding: 8px;
+                border-radius: 6px; color: var(--text); }
+  .options { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line);
+           background: var(--panel); color: var(--text); padding: 5px 10px; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .note { font-size: 13.5px; color: var(--medium); margin-top: 6px; }
+  .error { color: var(--low); }
+  form { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel); border-top: 1px solid var(--line);
+         padding: 10px 16px 14px; }
+  .bar { max-width: 880px; margin: 0 auto; }
+  .row { display: flex; gap: 8px; }
+  textarea { flex: 1; resize: none; font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line);
+             background: var(--bg); color: var(--text); min-height: 42px; max-height: 120px; }
+  .examples { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 4px; }
+  .examples button { white-space: nowrap; font-size: 12.5px; padding: 3px 9px; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--line);
+             border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite;
+             vertical-align: -2px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { color: var(--muted); text-align: center; margin-top: 40px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Data Catalog IQ</h1>
+  <p>Ask Fernwood Outfitters' (fictional) data catalog. Every answer is cited; recommendations await steward review.</p>
+</header>
+<main>
+  <div id="log"><p class="empty" id="empty">Ask about owners, lineage, PI or data categories, or ask for a PI or data category recommendation.</p></div>
+</main>
+<form id="form">
+  <div class="bar">
+    <div class="examples" id="examples"></div>
+    <div class="row">
+      <textarea id="q" rows="1" maxlength="1000" placeholder="e.g. Who owns fct_orders and does it hold personal data?"></textarea>
+      <button class="primary" id="send" type="submit">Ask</button>
+    </div>
+  </div>
+</form>
+<script>
+"use strict";
+const EXAMPLES = [
+  "Who owns dim_customers?",
+  "What feeds mart_finance_daily_revenue?",
+  "Does raw_crm.contacts have personal data?",
+  "Which data category should mart_web_sessions use?",
+  "Who owns fct_orders and does it hold personal data?",
+  "Recommend a data category",
+];
+const MAX_HISTORY = 3;
+const history = [];
+const log = document.getElementById("log");
+const form = document.getElementById("form");
+const input = document.getElementById("q");
+const send = document.getElementById("send");
+
+// Build DOM nodes; text is always set as text, never parsed as HTML.
+function el(tag, attrs, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "class") node.className = v;
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  }
+  for (const c of children.flat()) {
+    if (c === null || c === undefined || c === false) continue;
+    node.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return node;
+}
+const badge = (text, level) => el("span", { class: `badge ${level || "neutral"}` }, text);
+const link = (text, url) => url && /^https?:\/\//.test(url)
+  ? el("a", { href: url, target: "_blank", rel: "noopener noreferrer" }, text) : text;
+const short = (fqn) => (fqn || "").split(".").pop();
+
+function citationsBlock(citations) {
+  if (!citations || !citations.length) return null;
+  return el("div", { class: "sources" }, el("b", {}, "Sources"),
+    el("ol", {}, citations.map((c) => el("li", { id: null }, `${c.source}: `, link(c.ref, c.url)))));
+}
+
+function evidenceBlock(resp, usage) {
+  const g = resp.guardrails || {};
+  const lines = [];
+  for (const t of resp.evidence || []) lines.push(`${t.tool}(${JSON.stringify(t.args)}) → ${t.result_status}`);
+  lines.push("", `guardrails: ${g.outcome}, ${g.attempts} attempt(s)`);
+  for (const e of g.events || []) lines.push(`  ${e.part}:${e.check} ${e.detail}`);
+  if (usage) lines.push("", `${usage.llm_calls} LLM calls · ${(usage.tokens / 1000).toFixed(1)}k tokens · ${usage.seconds}s · ${usage.model || ""}`);
+  return el("details", {}, el("summary", {}, "Evidence: tool calls and guardrails"), el("pre", {}, lines.join("\n")));
+}
+
+function renderLookup(r, question) {
+  const ids = new Map((r.citations || []).map((c, i) => [c.id, i + 1]));
+  const out = [el("div", { class: "answer" }, r.answer),
+    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), badge(`confidence: ${r.confidence}`, r.confidence))];
+  if (r.facts && r.facts.length) {
+    out.push(el("ol", {}, r.facts.map((f) => el("li", {}, f.claim, " ",
+      f.citations.map((c) => el("sup", {}, `[${ids.get(c)}]`))))));
+  }
+  if (r.tables && r.tables.length) {
+    out.push(el("div", { class: "meta" }, r.tables.map((t) => el("span", { class: "chip" }, link(t.name, t.url)))));
+  }
+  if (r.clarification) {
+    out.push(el("div", {}, r.clarification.question));
+    out.push(el("div", { class: "options" }, r.clarification.options.map((fqn) =>
+      el("button", { type: "button", onclick: () => ask(`${question} (${fqn})`) }, fqn))));
+  }
+  if (r.escalation) {
+    const e = r.escalation;
+    out.push(el("div", { class: "note" }, `Contact: ${e.team} team · ${e.email} · ${e.slack}`));
+  }
+  out.push(citationsBlock(r.citations));
+  return out;
+}
+
+function renderPI(r) {
+  const out = [el("div", { class: "answer" }, r.summary),
+    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), badge(`confidence: ${r.confidence}`, r.confidence),
+      badge("pending steward review", "medium"), r.table ? el("span", { class: "chip" }, link(r.table.name, r.table.url)) : null)];
+  if (r.recommendations && r.recommendations.length) {
+    out.push(el("div", { class: "scroll" }, el("table", {},
+      el("tr", {}, ["Column", "Recommendation", "Confidence", "Reason"].map((h) => el("th", {}, h))),
+      r.recommendations.map((c) => el("tr", {},
+        el("td", {}, el("code", {}, c.column)),
+        el("td", {}, c.recommendation === "pi" ? `PI: ${c.pi_type} (${c.data_subject}), ${c.sensitivity || ""}`
+          : c.recommendation === "not_pi" ? "not PI" : "needs manual review"),
+        el("td", {}, badge(c.confidence, c.confidence)),
+        el("td", {}, c.reason, c.note ? el("div", { class: "note" }, c.note) : null))))));
+  }
+  out.push(citationsBlock(r.citations));
+  return out;
+}
+
+function renderDataCategory(r) {
+  const out = [el("div", { class: "answer" }, r.summary),
+    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), badge(`confidence: ${r.confidence}`, r.confidence),
+      badge("pending steward review", "medium"), r.table ? el("span", { class: "chip" }, link(r.table.name, r.table.url)) : null)];
+  if (r.current) {
+    out.push(el("div", {}, r.current.data_category_id ? `Current data category: ${r.current.data_category_id} ${r.current.name || ""}`
+      : `Inherits its data category from ${r.current.inherits_from}`));
+  }
+  const b = r.recommendation;
+  if (b) {
+    const ret = typeof b.retention === "object" ? `${b.retention.months} months ${b.retention.trigger || ""}` : b.retention;
+    const stewards = Object.entries(b.stewards || {}).map(([role, ps]) => `${role}: ${ps.map((p) => p.name).join(", ")}`).join("; ");
+    out.push(el("div", { class: "card" },
+      el("div", {}, el("b", {}, `${b.data_category_id} ${b.name}`), ` (${b.status})`),
+      el("div", { class: "sources" }, b.definition || ""),
+      el("div", {}, `Retention: ${ret}`), el("div", {}, `Stewards: ${stewards || "none on record"}`),
+      (b.flags || []).map((f) => el("div", { class: "note" }, f))));
+  }
+  if (r.reason) out.push(el("p", {}, el("b", {}, "Reason: "), r.reason));
+  if (r.considered && r.considered.length) out.push(el("div", { class: "sources" }, `Also considered: ${r.considered.join(", ")}`));
+  if (r.note) out.push(el("div", { class: "note" }, r.note));
+  out.push(citationsBlock(r.citations));
+  return out;
+}
+
+function routeChip(route, decision) {
+  const parts = [el("span", { class: "chip" }, `→ ${route.label}${route.table ? " · " + short(route.table) : ""}`)];
+  if (decision) parts.push(badge(`routing: ${decision.confidence} (${decision.agreement})`, decision.confidence));
+  if (route.agent === "catalog_lookup" && decision && route.request !== decision.request) {
+    parts.push(el("span", {}, `asked as: “${route.request}”`));
+  }
+  return el("div", { class: "route", title: route.reason }, parts);
+}
+
+function renderAnswer(a, decision, question) {
+  const r = a.response;
+  const body = a.route.agent === "pi_classifier" ? renderPI(r)
+    : a.route.agent === "data_category_recommender" ? renderDataCategory(r) : renderLookup(r, question);
+  return el("div", { class: "card" }, routeChip(a.route, decision), body, evidenceBlock(r, a.usage));
+}
+
+function optionButtons(options) {
+  return el("div", { class: "options" }, options.map((o) =>
+    el("button", { type: "button", onclick: () => runOption(o) }, o.label)));
+}
+
+function renderDecision(data, question) {
+  const d = data.decision;
+  const box = el("div", {});
+  if (d && d.status === "clarify") {
+    box.append(el("div", { class: "card" },
+      el("div", { class: "route" }, badge(`routing: ${d.confidence} (${d.agreement})`, d.confidence)),
+      el("div", {}, d.clarification.question),
+      d.clarification.options.length ? optionButtons(d.clarification.options) : null));
+    return box;
+  }
+  for (const a of data.answers) box.append(renderAnswer(a, d, question));
+  if (d && d.alternative) {
+    box.append(el("div", { class: "sources" }, "Or did you mean: ", optionButtons([d.alternative])));
+  }
+  if (d && d.note) box.append(el("div", { class: "note" }, d.note));
+  return box;
+}
+
+function remember(question, data) {
+  const summary = data.answers.map((a) => a.response.answer || a.response.summary).filter(Boolean).join(" ");
+  history.push({ request: question, routes: data.answers.map((a) => ({ agent: a.route.agent, table: a.route.table })),
+                 summary: summary.slice(0, 1900) || null });
+  while (history.length > MAX_HISTORY) history.shift();
+}
+
+async function post(path, body) {
+  const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const detail = typeof data.detail === "string" ? data.detail : (data.detail || []).map((d) => d.msg).join("; ");
+    throw new Error(detail || `HTTP ${res.status}`);
+  }
+  return data;
+}
+
+function pending(text) {
+  const node = el("div", { class: "card sources" }, el("span", { class: "spinner" }), text);
+  log.append(node);
+  node.scrollIntoView({ behavior: "smooth", block: "end" });
+  return node;
+}
+
+function busy(on) { send.disabled = on; input.disabled = on; }
+
+async function ask(question) {
+  question = question.trim();
+  if (!question) return;
+  document.getElementById("empty")?.remove();
+  log.append(el("div", { class: "user" }, question));
+  const wait = pending("Routing and answering… (about 5–10 s per agent)");
+  busy(true);
+  try {
+    const data = await post("/ask", { request: question, history });
+    const node = renderDecision(data, question);
+    wait.replaceWith(node);
+    node.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (data.answers.length) remember(question, data);
+  } catch (e) {
+    wait.replaceWith(el("div", { class: "card error" }, `Something went wrong: ${e.message}`));
+  } finally {
+    busy(false);
+    input.focus();
+  }
+}
+
+async function runOption(option) {
+  log.append(el("div", { class: "user" }, option.label));
+  const wait = pending(`Running ${option.label}…`);
+  busy(true);
+  try {
+    const answers = [];
+    for (const r of option.routes) {
+      const body = r.agent === "catalog_lookup" ? { request: r.request } : { table: r.table };
+      const data = await post(`/agents/${r.agent}`, body);
+      answers.push(...data.answers.map((a) => ({ ...a, route: r })));
+    }
+    const data = { decision: null, answers };
+    const node = renderDecision(data, option.label);
+    wait.replaceWith(node);
+    node.scrollIntoView({ behavior: "smooth", block: "start" });
+    remember(option.label, data);
+  } catch (e) {
+    wait.replaceWith(el("div", { class: "card error" }, `Something went wrong: ${e.message}`));
+  } finally {
+    busy(false);
+  }
+}
+
+for (const q of EXAMPLES) {
+  document.getElementById("examples").append(el("button", { type: "button", onclick: () => ask(q) }, q));
+}
+form.addEventListener("submit", (e) => { e.preventDefault(); const q = input.value; input.value = ""; ask(q); });
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+});
+</script>
+</body>
+</html>

@@ -7,6 +7,7 @@
     catalog-iq recommend-pi raw_returns.return_requests  # PI Classifier: recommendations for review
     catalog-iq recommend-category raw_web.page_views          # Data Category Recommender: one data category for review
     catalog-iq route "Who owns fct_orders and is it PI?" # the router's decision only (no agent runs)
+    catalog-iq serve                                     # API + web page on http://127.0.0.1:8000
 
 Each question is answered on its own (no chat memory). With
 PHOENIX_COLLECTOR_ENDPOINT set, every question is a trace in Phoenix.
@@ -172,10 +173,19 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
     data_category_cmd.add_argument("table")
     route_cmd = sub.add_parser("route", help="show which agent the router picks (no agent runs)")
     route_cmd.add_argument("request")
+    serve_cmd = sub.add_parser("serve", help="run the API and the web page")
+    serve_cmd.add_argument("--host", default="127.0.0.1")
+    serve_cmd.add_argument("--port", type=int, default=8000)
     for p in (parser, ask_cmd, pi_cmd, data_category_cmd, route_cmd):
         p.add_argument("--json", action="store_true", help="print the full AgentResponse as JSON")
         p.add_argument("--verbose", "-v", action="store_true", help="show tool calls, guardrails and tokens")
     args = parser.parse_args(argv)
+    if args.command == "serve":
+        import uvicorn  # optional extra: pip install -e ".[api]"
+
+        from catalog_iq.api import create_app
+        uvicorn.run(create_app(), host=args.host, port=args.port)
+        return 0
 
     load_env()
     traced = setup_tracing()
