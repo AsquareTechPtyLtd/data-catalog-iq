@@ -1,0 +1,306 @@
+# PI Classifier answer key: true PI per column (category (subject), or none).
+# Generated from the synthetic table blueprint; only the scorer reads it, never the agent.
+# open: the open columns (suggested/unclassified) of tables run as is.
+# dev / heldout: tables run in blind mode (recorded PI hidden on the table and its neighbours).
+tables:
+  - table: fernwood_dw.raw_returns.return_requests
+    set: open
+    columns:
+      return_id: none
+      order_id: none
+      customer_id: none
+      contact_email: email (customer)
+      reason_text: free_text (customer)
+      refund_amount_usd: none
+      requested_at: none
+    traps:
+      contact_email: "unclassified email on an ungoverned table"
+      reason_text: "short free text (4.5 words per value)"
+  - table: fernwood_dw.raw_helpdesk.tickets
+    set: open
+    columns:
+      subject: none
+      body: free_text (customer)
+    traps:
+      subject: "scanner false positive: template-driven subject line"
+      body: "scanner suggestion to confirm"
+  - table: fernwood_dw.marts.mart_support_ticket_summary
+    set: open
+    columns:
+      subject: none
+      body_excerpt: free_text (customer)
+    traps:
+      subject: "scanner false positive (copy of tickets.subject)"
+      body_excerpt: "scanner suggestion to confirm"
+  - table: fernwood_dw.marts.mart_store_performance
+    set: open
+    columns:
+      store_id: none
+      sales_date: none
+      transactions: none
+      sales_usd: none
+  - table: fernwood_dw.marts.fct_order_items
+    set: open
+    columns:
+      category: none
+  - table: fernwood_dw.marts.customer_lifetime_value
+    set: dev
+    columns:
+      customer_id: none
+      net_revenue_to_date_usd: none
+      predicted_12m_value_usd: none
+      ltv_segment: none
+  - table: fernwood_dw.marts.dim_customers
+    set: dev
+    columns:
+      customer_id: none
+      email: email (customer)
+      full_name: name (customer)
+      phone: phone (customer)
+      loyalty_tier: none
+      first_order_at: none
+      last_order_at: none
+      lifetime_order_count: none
+      is_active: none
+  - table: fernwood_dw.marts.dim_employees
+    set: dev
+    columns:
+      employee_id: none
+      full_name: name (employee)
+      work_email: email (employee)
+      personal_email: personal_email (employee)
+      department: none
+      job_title: none
+      annual_salary: salary (employee)
+      joining_date: joining_date (employee)
+      termination_date: termination_date (employee)
+  - table: fernwood_dw.marts.dim_products
+    set: dev
+    columns:
+      product_id: none
+      sku: none
+      product_name: none
+      category: none
+      list_price_usd: none
+      email_template_id: none
+      is_active: none
+  - table: fernwood_dw.marts.fct_orders
+    set: dev
+    columns:
+      order_id: none
+      customer_id: none
+      ordered_at: none
+      order_status: none
+      gross_amount_usd: none
+      discount_usd: none
+      net_amount_usd: none
+      item_count: none
+      payment_status: none
+  - table: fernwood_dw.marts.fct_payments
+    set: heldout
+    columns:
+      transaction_id: none
+      order_id: none
+      card_last4: payment_card (customer)
+      card_brand: none
+      billing_postal_code: address (customer)
+      amount_usd: none
+      payment_status: none
+      processed_at: none
+  - table: fernwood_dw.marts.legacy_customer_export
+    set: heldout
+    columns:
+      customer_id: none
+      email: email (customer)
+      first_name: name (customer)
+      last_name: name (customer)
+      phone: phone (customer)
+  - table: fernwood_dw.marts.mart_campaign_performance
+    set: dev
+    columns:
+      campaign_id: none
+      campaign_name: none
+      channel: none
+      sends: none
+      open_rate: none
+      click_rate: none
+      attributed_orders: none
+      attributed_revenue_usd: none
+  - table: fernwood_dw.marts.mart_email_engagement
+    set: dev
+    columns:
+      recipient_email_sha256: hashed_email (customer)
+      campaign_id: none
+      sends: none
+      opens: none
+      clicks: none
+      last_engaged_at: none
+  - table: fernwood_dw.marts.mart_finance_daily_revenue
+    set: heldout
+    columns:
+      revenue_date: none
+      channel: none
+      order_count: none
+      gross_revenue_usd: none
+      refunds_usd: none
+      net_revenue_usd: none
+  - table: fernwood_dw.marts.mart_inventory_health
+    set: dev
+    columns:
+      sku: none
+      warehouse_id: none
+      snapshot_date: none
+      on_hand_qty: none
+      weeks_of_cover: none
+      sell_through_rate: none
+  - table: fernwood_dw.marts.mart_loyalty_members
+    set: heldout
+    columns:
+      customer_id: none
+      email: email (customer)
+      full_name: name (customer)
+      date_of_birth: date_of_birth (customer)
+      loyalty_tier: none
+      loyalty_joined_at: none
+      in_store_spend_usd: none
+  - table: fernwood_dw.marts.mart_marketing_audience
+    set: dev
+    columns:
+      customer_id: none
+      email: email (customer)
+      first_name: name (customer)
+      ltv_segment: none
+      audience_segment: none
+      is_marketing_opted_in: none
+  - table: fernwood_dw.marts.mart_web_sessions
+    set: heldout
+    columns:
+      session_id: none
+      customer_id: none
+      ip_address: ip_address (customer)
+      session_start: none
+      page_count: none
+      landing_page: none
+  - table: fernwood_dw.raw_crm.contacts
+    set: dev
+    columns:
+      contact_id: none
+      customer_id: none
+      email: email (customer)
+      full_name: name (customer)
+      date_of_birth: date_of_birth (customer)
+      loyalty_id: none
+      loyalty_tier: none
+      loyalty_joined_at: none
+  - table: fernwood_dw.raw_hr.employees
+    set: heldout
+    columns:
+      employee_id: none
+      full_name: name (employee)
+      work_email: email (employee)
+      personal_email: personal_email (employee)
+      home_address: address (employee)
+      department: none
+      job_title: none
+      annual_salary: salary (employee)
+      joining_date: joining_date (employee)
+      termination_date: termination_date (employee)
+      national_id_last4: government_id (employee)
+  - table: fernwood_dw.raw_marketing.campaigns
+    set: dev
+    columns:
+      campaign_id: none
+      campaign_name: none
+      channel: none
+      start_date: none
+      end_date: none
+      budget_usd: none
+  - table: fernwood_dw.raw_marketing.email_events
+    set: dev
+    columns:
+      event_id: none
+      recipient_email: email (customer)
+      campaign_id: none
+      event_type: none
+      event_at: none
+  - table: fernwood_dw.raw_payments.transactions
+    set: dev
+    columns:
+      transaction_id: none
+      order_id: none
+      card_last4: payment_card (customer)
+      card_brand: none
+      billing_postal_code: address (customer)
+      amount_usd: none
+      payment_status: none
+      processed_at: none
+  - table: fernwood_dw.raw_storefront.customers
+    set: heldout
+    columns:
+      customer_id: none
+      email: email (customer)
+      first_name: name (customer)
+      last_name: name (customer)
+      phone: phone (customer)
+      marketing_opt_in: none
+      created_at: none
+      middle_name: name (customer)
+  - table: fernwood_dw.raw_storefront.order_items
+    set: dev
+    columns:
+      order_item_id: none
+      order_id: none
+      product_id: none
+      quantity: none
+      unit_price_usd: none
+  - table: fernwood_dw.raw_storefront.orders
+    set: dev
+    columns:
+      order_id: none
+      customer_id: none
+      order_ts: none
+      status: none
+      subtotal_usd: none
+      discount_usd: none
+      shipping_address: address (customer)
+      shipping_country: none
+      currency: none
+  - table: fernwood_dw.raw_storefront.products
+    set: heldout
+    columns:
+      product_id: none
+      sku: none
+      product_name: none
+      category: none
+      list_price_usd: none
+      email_template_id: none
+    traps:
+      product_name: "values look like person names"
+  - table: fernwood_dw.raw_stores.pos_transactions
+    set: dev
+    columns:
+      pos_txn_id: none
+      store_id: none
+      loyalty_id: none
+      amount_usd: none
+      transacted_at: none
+      cashier_employee_id: none
+  - table: fernwood_dw.raw_warehouse.inventory_snapshots
+    set: dev
+    columns:
+      snapshot_id: none
+      snapshot_date: none
+      sku: none
+      warehouse_id: none
+      on_hand_qty: none
+  - table: fernwood_dw.raw_web.page_views
+    set: dev
+    columns:
+      view_id: none
+      session_id: none
+      anonymous_id: none
+      customer_id: none
+      page_path: none
+      ip_address: ip_address (customer)
+      user_agent: none
+      viewed_at: none
