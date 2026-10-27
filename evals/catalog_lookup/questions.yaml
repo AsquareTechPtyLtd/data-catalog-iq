@@ -1,0 +1,546 @@
+# Answer key for agent 1 (catalog_lookup). Read only by the eval scorer, never
+# given to the agent.
+#
+# Per question:
+#   set: dev | negative | heldout
+#   expected.status: answered | needs_clarification | insufficient_context | out_of_scope
+#   expected.tables: FQNs the response must include (answered only)
+#   expected.mentions: each item must appear in the answer or a fact claim
+#     (case-insensitive); a list item means "any one of these"
+#   expected.escalation: true when the answer must refer to Data Strategy
+#   expected.clarification_options: FQNs the clarification must offer
+#   expected.relations: lineage links the facts' `relations` must include
+#     ({upstream, downstream, kind: direct | indirect})
+#   expected.forbidden_tables: FQNs the response must NOT include (filter traps)
+#   slices: extra metric groupings (e.g. lineage, filter)
+#
+# Lineage expectations come from the dbt manifest (depends_on) and the data
+# contracts, not from catalog.db, so the eval also checks ingestion.
+# Filter expectations come from the contracts (owners), the Collibra export (PI,
+# sensitivity), the dbt manifest (consumers) and the table blueprint
+# (certification, data category), also not from catalog.db.
+
+questions:
+  # --- dev ------------------------------------------------------------------------
+  - id: D1
+    set: dev
+    question: Who owns dim_customers?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_customers]
+      mentions: [Maya Okafor]
+
+  - id: D2
+    set: dev
+    question: Who owns raw_storefront.customers?
+    expected:
+      status: answered
+      tables: [fernwood_dw.raw_storefront.customers]
+      mentions: [Carlos Mendes, Samuel Adeyemi]
+
+  - id: D3
+    set: dev
+    question: Who owns the loyalty table?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_loyalty_members]
+      mentions: [Maya Okafor]
+
+  - id: D4
+    set: dev
+    question: Who owns mart_web_sessions?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_web_sessions]
+      mentions:
+        - [no data contract, no contract, not have a data contract, not have a contract, without a contract]
+      escalation: true
+
+  - id: D5
+    set: dev
+    question: Who owns stg_storefront__customers?
+    expected:
+      status: answered
+      tables: [fernwood_dw.staging.stg_storefront__customers]
+      mentions: [Carlos Mendes, Samuel Adeyemi, raw_storefront.customers]
+
+  - id: D6
+    set: dev
+    question: Who owns int_web_sessions?
+    expected:
+      status: answered
+      tables: [fernwood_dw.intermediate.int_web_sessions]
+      mentions:
+        - [no owner, not have an owner, without an owner]
+      escalation: true
+
+  - id: D7
+    set: dev
+    question: Why isn't raw_helpdesk.tickets certified?
+    expected:
+      status: answered
+      tables: [fernwood_dw.raw_helpdesk.tickets]
+      mentions:
+        - subject
+        - body
+        - [not reviewed, not been reviewed, awaiting review, suggested]
+
+  - id: D8
+    set: dev
+    question: What is the retention for dim_products?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_products]
+      mentions:
+        - DC-009
+        - [not defined, undefined, no retention period, not been defined]
+
+  - id: D9
+    set: dev
+    question: Does dim_products contain email data?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_products]
+      mentions:
+        - [no pi, no confirmed pi, no personal, not contain email, not contain any email, no email]
+
+  - id: D10
+    set: dev
+    question: Tell me about the customers table
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_customers]
+      mentions: [dim_customers, raw_storefront.customers]
+
+  # --- dev: lineage ---------------------------------------------------------------
+  - id: L1
+    set: dev
+    slices: [lineage]
+    question: What consumes dim_customers?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_customers, fernwood_dw.marts.customer_lifetime_value, fernwood_dw.marts.mart_marketing_audience,
+               fernwood_dw.marts.mart_campaign_performance, fernwood_dw.marts.mart_loyalty_members, fernwood_dw.marts.mart_support_ticket_summary]
+      mentions: [customer_lifetime_value, mart_marketing_audience, mart_campaign_performance,
+                 mart_loyalty_members, mart_support_ticket_summary, [churn_model, churn model, Churn Prediction Model]]
+
+  - id: L2
+    set: dev
+    slices: [lineage]
+    question: Where does dim_customers come from?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_customers]
+      mentions: [int_customer_identity, int_customer_order_stats, int_orders_enriched,
+                 stg_crm__contacts, stg_storefront__customers, stg_storefront__orders,
+                 stg_storefront__order_items, stg_payments__transactions,
+                 raw_crm.contacts, raw_storefront.customers, raw_storefront.orders,
+                 raw_storefront.order_items, raw_payments.transactions]
+      relations:
+        - {upstream: fernwood_dw.intermediate.int_customer_identity, downstream: fernwood_dw.marts.dim_customers, kind: direct}
+        - {upstream: fernwood_dw.intermediate.int_customer_order_stats, downstream: fernwood_dw.marts.dim_customers, kind: direct}
+
+  - id: L3
+    set: dev
+    slices: [lineage]
+    question: What breaks if raw_storefront.customers changes?
+    expected:
+      status: answered
+      tables: [fernwood_dw.raw_storefront.customers, fernwood_dw.marts.dim_customers]
+      mentions: [dim_customers, customer_lifetime_value, mart_marketing_audience, mart_campaign_performance,
+                 mart_loyalty_members, mart_support_ticket_summary, legacy_customer_export, deprecated,
+                 [churn_model, churn model, Churn Prediction Model],
+                 [email_audience_sync, Email Audience Sync],
+                 [loyalty_dashboard, Loyalty Program Dashboard],
+                 [support_quality_dashboard, Support Quality Dashboard]]
+
+  - id: L4
+    set: dev
+    slices: [lineage]
+    question: Show the path from raw_crm.contacts to the loyalty dashboard
+    expected:
+      status: answered
+      tables: [fernwood_dw.raw_crm.contacts]
+      mentions: [stg_crm__contacts, int_customer_identity, dim_customers, mart_loyalty_members]
+      relations:
+        - {upstream: fernwood_dw.raw_crm.contacts, downstream: fernwood_dw.staging.stg_crm__contacts, kind: direct}
+        - {upstream: fernwood_dw.staging.stg_crm__contacts, downstream: fernwood_dw.marts.mart_loyalty_members, kind: direct}
+        - {upstream: fernwood_dw.staging.stg_crm__contacts, downstream: fernwood_dw.intermediate.int_customer_identity, kind: direct}
+        - {upstream: fernwood_dw.intermediate.int_customer_identity, downstream: fernwood_dw.marts.dim_customers, kind: direct}
+        - {upstream: fernwood_dw.marts.dim_customers, downstream: fernwood_dw.marts.mart_loyalty_members, kind: direct}
+        - {upstream: fernwood_dw.marts.mart_loyalty_members, downstream: exposure.fernwood.loyalty_dashboard, kind: direct}
+
+  - id: L5
+    set: dev
+    slices: [lineage]
+    question: What is mart_loyalty_members built from?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_loyalty_members, fernwood_dw.marts.dim_customers, fernwood_dw.staging.stg_crm__contacts,
+               fernwood_dw.staging.stg_stores__pos_transactions]
+      mentions: [dim_customers, stg_crm__contacts, stg_stores__pos_transactions]
+      relations:
+        - {upstream: fernwood_dw.marts.dim_customers, downstream: fernwood_dw.marts.mart_loyalty_members, kind: direct}
+        - {upstream: fernwood_dw.staging.stg_crm__contacts, downstream: fernwood_dw.marts.mart_loyalty_members, kind: direct}
+        - {upstream: fernwood_dw.staging.stg_stores__pos_transactions, downstream: fernwood_dw.marts.mart_loyalty_members, kind: direct}
+
+  - id: L6
+    set: dev
+    slices: [lineage]
+    question: Who owns the models that consume dim_customers?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_customers, fernwood_dw.marts.customer_lifetime_value, fernwood_dw.marts.mart_marketing_audience,
+               fernwood_dw.marts.mart_campaign_performance, fernwood_dw.marts.mart_loyalty_members, fernwood_dw.marts.mart_support_ticket_summary]
+      mentions: [Maya Okafor, Hannah Lindqvist, Aisha Karim]
+
+  - id: L7
+    set: dev
+    slices: [lineage]
+    question: Which dashboards depend on fct_orders?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.fct_orders]
+      mentions: [[exec_revenue_dashboard, Executive Revenue Dashboard],
+                 [inventory_replenishment_report, Inventory Replenishment Report]]
+
+  - id: L8
+    set: dev
+    slices: [lineage]
+    question: Does dim_customers feed the loyalty dashboard directly?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_customers, fernwood_dw.marts.mart_loyalty_members]
+      mentions: [mart_loyalty_members, [not directly, not direct, indirectly, indirect, through, via]]
+      relations:
+        - {upstream: fernwood_dw.marts.dim_customers, downstream: fernwood_dw.marts.mart_loyalty_members, kind: direct}
+        - {upstream: fernwood_dw.marts.mart_loyalty_members, downstream: exposure.fernwood.loyalty_dashboard, kind: direct}
+
+  # --- negative (abstention slice) ------------------------------------------------
+  - id: N1
+    set: negative
+    question: Who owns the Kafka clickstream table?
+    expected:
+      status: insufficient_context
+
+  - id: N2
+    set: negative
+    question: What's the weather?
+    expected:
+      status: out_of_scope
+
+  - id: N3
+    set: negative
+    question: Delete the legacy table
+    expected:
+      status: out_of_scope
+
+  - id: N4
+    set: negative
+    slices: [lineage]
+    question: What consumes the Kafka clickstream table?
+    expected:
+      status: insufficient_context
+
+  - id: N5
+    set: negative
+    slices: [lineage]
+    question: Drop dim_customers and everything downstream of it
+    expected:
+      status: out_of_scope
+
+  - id: N6
+    set: negative
+    slices: [lineage]
+    question: What consumes mart_web_sessions?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_web_sessions]
+      mentions: [[nothing, no downstream, no consumers, not consumed, no tables, no models, none, not used]]
+      escalation: true
+
+  # --- held-out (score rarely) ----------------------------------------------------
+  - id: H1
+    set: heldout
+    question: Who owns raw_returns.return_requests?
+    expected:
+      status: answered
+      tables: [fernwood_dw.raw_returns.return_requests]
+      mentions:
+        - [no data contract, no contract, not have a data contract, not have a contract, without a contract]
+      escalation: true
+
+  - id: H2
+    set: heldout
+    question: Who owns int_customer_identity?
+    expected:
+      status: answered
+      tables: [fernwood_dw.intermediate.int_customer_identity]
+      mentions: [Maya Okafor, dim_customers]
+
+  - id: H3
+    set: heldout
+    question: Why isn't mart_email_engagement certified?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_email_engagement]
+      mentions:
+        - DC-006
+        - [candidate, not approved, not yet approved]
+
+  - id: H4
+    set: heldout
+    question: Which data category does mart_loyalty_members belong to, and what retention does that bring?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_loyalty_members]
+      mentions:
+        - DC-002
+        - "24"
+
+  - id: H5
+    set: heldout
+    question: Is the fct_orders contract up to date?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.fct_orders]
+      mentions: [payment_status]
+
+  - id: H6
+    set: heldout
+    slices: [lineage]
+    question: What breaks if raw_web.page_views changes?
+    expected:
+      status: answered
+      tables: [fernwood_dw.raw_web.page_views, fernwood_dw.marts.mart_web_sessions]
+      mentions: [mart_web_sessions, [no owner, no data contract, no contract, not have an owner, without an owner]]
+      escalation: true
+
+  - id: H7
+    set: heldout
+    slices: [lineage]
+    question: Show the path from raw_payments.transactions to the executive revenue dashboard
+    expected:
+      status: answered
+      tables: [fernwood_dw.raw_payments.transactions]
+      mentions: [stg_payments__transactions, int_orders_enriched, fct_orders, fct_payments, mart_finance_daily_revenue]
+      relations:
+        - {upstream: fernwood_dw.raw_payments.transactions, downstream: fernwood_dw.staging.stg_payments__transactions, kind: direct}
+        - {upstream: fernwood_dw.staging.stg_payments__transactions, downstream: fernwood_dw.intermediate.int_orders_enriched, kind: direct}
+        - {upstream: fernwood_dw.intermediate.int_orders_enriched, downstream: fernwood_dw.marts.fct_orders, kind: direct}
+        - {upstream: fernwood_dw.marts.fct_orders, downstream: exposure.fernwood.exec_revenue_dashboard, kind: direct}
+        - {upstream: fernwood_dw.marts.fct_orders, downstream: fernwood_dw.marts.mart_finance_daily_revenue, kind: direct}
+        - {upstream: fernwood_dw.marts.mart_finance_daily_revenue, downstream: exposure.fernwood.exec_revenue_dashboard, kind: direct}
+        - {upstream: fernwood_dw.staging.stg_payments__transactions, downstream: fernwood_dw.marts.fct_payments, kind: direct}
+        - {upstream: fernwood_dw.marts.fct_payments, downstream: fernwood_dw.marts.mart_finance_daily_revenue, kind: direct}
+
+  - id: H8
+    set: heldout
+    slices: [lineage]
+    question: What feeds the churn model?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_customers, fernwood_dw.marts.customer_lifetime_value]
+      mentions: [dim_customers, customer_lifetime_value]
+      relations:
+        - {upstream: fernwood_dw.marts.dim_customers, downstream: exposure.fernwood.churn_model, kind: direct}
+        - {upstream: fernwood_dw.marts.customer_lifetime_value, downstream: exposure.fernwood.churn_model, kind: direct}
+
+  - id: H9
+    set: heldout
+    slices: [lineage]
+    question: Who owns the tables feeding mart_marketing_audience?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_marketing_audience, fernwood_dw.marts.dim_customers, fernwood_dw.marts.customer_lifetime_value,
+               fernwood_dw.staging.stg_storefront__customers]
+      mentions: [Maya Okafor, [Carlos Mendes, Samuel Adeyemi]]
+      relations:
+        - {upstream: fernwood_dw.marts.dim_customers, downstream: fernwood_dw.marts.mart_marketing_audience, kind: direct}
+        - {upstream: fernwood_dw.marts.customer_lifetime_value, downstream: fernwood_dw.marts.mart_marketing_audience, kind: direct}
+        - {upstream: fernwood_dw.staging.stg_storefront__customers, downstream: fernwood_dw.marts.mart_marketing_audience, kind: direct}
+
+  # --- filter (cross-table) -------------------------------------------------------
+  - id: F1
+    set: dev
+    slices: [filter]
+    question: Which certified tables contain customer email data, who owns them, and what downstream models consume them?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_customers, fernwood_dw.marts.mart_loyalty_members, fernwood_dw.marts.mart_marketing_audience,
+               fernwood_dw.raw_crm.contacts, fernwood_dw.raw_marketing.email_events, fernwood_dw.raw_storefront.customers]
+      mentions: [Maya Okafor, Hannah Lindqvist, Samuel Adeyemi, Carlos Mendes,
+                 [churn_model, churn model, Churn Prediction Model],
+                 [loyalty_dashboard, loyalty dashboard, Loyalty Program Dashboard],
+                 [email_audience_sync, email audience sync, Email Audience Sync]]
+      forbidden_tables: [fernwood_dw.raw_hr.employees, fernwood_dw.marts.dim_employees, fernwood_dw.marts.dim_products,
+                         fernwood_dw.raw_helpdesk.tickets]
+
+  - id: F2
+    set: dev
+    slices: [filter]
+    question: Which tables are uncertified?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.legacy_customer_export, fernwood_dw.marts.mart_email_engagement,
+               fernwood_dw.marts.mart_support_ticket_summary, fernwood_dw.marts.mart_web_sessions,
+               fernwood_dw.raw_helpdesk.tickets, fernwood_dw.raw_returns.return_requests, fernwood_dw.raw_web.page_views]
+      mentions: [["7", seven], deprecated]
+      escalation: true
+
+  - id: F3
+    set: dev
+    slices: [filter]
+    question: Which tables have no data contract?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_web_sessions, fernwood_dw.raw_returns.return_requests]
+      escalation: true
+      forbidden_tables: [fernwood_dw.staging.stg_web__page_views, fernwood_dw.intermediate.int_web_sessions]
+
+  - id: F4
+    set: dev
+    slices: [filter]
+    question: Which tables hold Highly Confidential data?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_employees, fernwood_dw.marts.fct_payments, fernwood_dw.marts.mart_loyalty_members,
+               fernwood_dw.raw_crm.contacts, fernwood_dw.raw_hr.employees, fernwood_dw.raw_payments.transactions]
+      forbidden_tables: [fernwood_dw.staging.stg_crm__contacts, fernwood_dw.intermediate.int_customer_identity]
+
+  - id: F5
+    set: dev
+    slices: [filter]
+    question: What does Maya Okafor own?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.customer_lifetime_value, fernwood_dw.marts.dim_customers,
+               fernwood_dw.marts.legacy_customer_export, fernwood_dw.marts.mart_loyalty_members, fernwood_dw.raw_crm.contacts]
+      mentions: [Maya Okafor, deprecated]
+
+  - id: F6
+    set: dev
+    slices: [filter]
+    question: Which tables use DC-001?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_customers, fernwood_dw.marts.legacy_customer_export,
+               fernwood_dw.marts.mart_marketing_audience, fernwood_dw.raw_crm.contacts,
+               fernwood_dw.raw_storefront.customers]
+      forbidden_tables: [fernwood_dw.raw_storefront.orders, fernwood_dw.raw_marketing.email_events]
+      mentions: [DC-001]
+
+  - id: F7
+    set: dev
+    slices: [filter]
+    question: Which tables have suggested PI awaiting review?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_support_ticket_summary, fernwood_dw.raw_helpdesk.tickets]
+
+  - id: F8
+    set: dev
+    slices: [filter]
+    question: Which dashboards use customer email?
+    expected:
+      status: answered
+      mentions: [[loyalty_dashboard, loyalty dashboard, Loyalty Program Dashboard],
+                 [support_quality_dashboard, support quality dashboard, Support Quality Dashboard]]
+
+  - id: F9
+    set: dev
+    slices: [filter]
+    question: Which tables have no retention period defined?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_products, fernwood_dw.marts.mart_email_engagement, fernwood_dw.marts.mart_inventory_health,
+               fernwood_dw.raw_storefront.products, fernwood_dw.raw_warehouse.inventory_snapshots]
+
+  - id: FN1
+    set: negative
+    slices: [filter]
+    question: Which support tables hold Highly Confidential data?
+    expected:
+      status: answered
+      mentions: [[no tables, none, no support tables, not any, no table]]
+      forbidden_tables: [fernwood_dw.raw_helpdesk.tickets, fernwood_dw.marts.mart_support_ticket_summary]
+
+  - id: FN2
+    set: negative
+    slices: [filter]
+    question: Which tables contain customer salary data?
+    expected:
+      status: answered
+      mentions: [[no tables, none, no customer salary, not any, no table]]
+      forbidden_tables: [fernwood_dw.raw_hr.employees, fernwood_dw.marts.dim_employees]
+
+  - id: FN3
+    set: negative
+    slices: [filter]
+    question: Delete all uncertified tables.
+    expected:
+      status: out_of_scope
+
+  - id: FN4
+    set: negative
+    slices: [filter]
+    question: Which tables contain customer email?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.dim_customers, fernwood_dw.marts.legacy_customer_export, fernwood_dw.marts.mart_loyalty_members,
+               fernwood_dw.marts.mart_marketing_audience, fernwood_dw.marts.mart_support_ticket_summary,
+               fernwood_dw.raw_crm.contacts, fernwood_dw.raw_helpdesk.tickets, fernwood_dw.raw_marketing.email_events,
+               fernwood_dw.raw_storefront.customers]
+      mentions: [contact_email, [awaiting review, not yet classified, unclassified, pending review]]
+      forbidden_tables: [fernwood_dw.raw_returns.return_requests, fernwood_dw.marts.mart_email_engagement,
+                         fernwood_dw.raw_hr.employees, fernwood_dw.marts.dim_products]
+
+  - id: H10
+    set: heldout
+    slices: [filter]
+    question: Which certified tables hold payment card data and what consumes them?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.fct_payments, fernwood_dw.raw_payments.transactions]
+      mentions: [Grace Whitfield, Wei Zhang, mart_finance_daily_revenue,
+                 [exec_revenue_dashboard, exec revenue dashboard, Executive Revenue Dashboard]]
+
+  - id: H11
+    set: heldout
+    slices: [filter]
+    question: Which tables have no owner?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_web_sessions, fernwood_dw.raw_returns.return_requests]
+      escalation: true
+
+  - id: H12
+    set: heldout
+    slices: [filter]
+    question: Which staging models hold customer email?
+    expected:
+      status: answered
+      tables: [fernwood_dw.staging.stg_crm__contacts, fernwood_dw.staging.stg_helpdesk__tickets,
+               fernwood_dw.staging.stg_storefront__customers]
+      forbidden_tables: [fernwood_dw.staging.stg_marketing__email_events, fernwood_dw.staging.stg_hr__employees]
+
+  - id: H13
+    set: heldout
+    slices: [filter]
+    question: Which tables hold hashed customer email?
+    expected:
+      status: answered
+      tables: [fernwood_dw.marts.mart_email_engagement]
+      forbidden_tables: [fernwood_dw.raw_marketing.email_events, fernwood_dw.raw_storefront.customers]
+
+  - id: H14
+    set: heldout
+    slices: [filter]
+    question: Which certified tables does Samuel Adeyemi own?
+    expected:
+      status: answered
+      tables: [fernwood_dw.raw_crm.contacts, fernwood_dw.raw_marketing.campaigns, fernwood_dw.raw_marketing.email_events,
+               fernwood_dw.raw_payments.transactions, fernwood_dw.raw_storefront.customers, fernwood_dw.raw_storefront.order_items,
+               fernwood_dw.raw_storefront.orders, fernwood_dw.raw_stores.pos_transactions, fernwood_dw.raw_warehouse.inventory_snapshots]
+      mentions: [Samuel Adeyemi]
+      forbidden_tables: [fernwood_dw.raw_web.page_views, fernwood_dw.raw_helpdesk.tickets]

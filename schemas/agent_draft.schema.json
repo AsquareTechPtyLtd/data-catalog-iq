@@ -1,0 +1,152 @@
+{
+  "$defs": {
+    "Clarification": {
+      "additionalProperties": false,
+      "properties": {
+        "question": {
+          "description": "Question to ask the user.",
+          "minLength": 1,
+          "title": "Question",
+          "type": "string"
+        },
+        "options": {
+          "description": "Candidate table FQNs to choose from.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "title": "Options",
+          "type": "array"
+        }
+      },
+      "required": [
+        "question",
+        "options"
+      ],
+      "title": "Clarification",
+      "type": "object"
+    },
+    "Fact": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "description": "One factual statement used in the answer.",
+          "minLength": 1,
+          "title": "Claim",
+          "type": "string"
+        },
+        "citations": {
+          "description": "Citation ids that support the claim, copied exactly from tool results (e.g. 'contract:data/sources/contracts/marts.dim_customers.yaml').",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Citations",
+          "type": "array"
+        },
+        "relations": {
+          "description": "Lineage links the claim states (one per link: a path or a table built from several sources has several). Empty for claims that are not about lineage.",
+          "items": {
+            "$ref": "#/$defs/Relation"
+          },
+          "title": "Relations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "claim",
+        "citations"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "Relation": {
+      "additionalProperties": false,
+      "description": "A lineage link stated by a fact, so it can be checked against the tool's edges.",
+      "properties": {
+        "upstream": {
+          "description": "Table FQN or exposure id the data comes from.",
+          "minLength": 1,
+          "title": "Upstream",
+          "type": "string"
+        },
+        "downstream": {
+          "description": "Table FQN or exposure id the data flows into.",
+          "minLength": 1,
+          "title": "Downstream",
+          "type": "string"
+        },
+        "kind": {
+          "description": "direct: downstream is loaded straight from upstream (one edge). indirect: connected through other tables.",
+          "enum": [
+            "direct",
+            "indirect"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "upstream",
+        "downstream",
+        "kind"
+      ],
+      "title": "Relation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "What the LLM returns at the end of the agent loop.",
+  "properties": {
+    "status": {
+      "description": "answered: the question is answered from tool results (including 'no owner is on record'). needs_clarification: several tables match and the user must choose. insufficient_context: the catalog has no data to answer. out_of_scope: not a data catalog question.",
+      "enum": [
+        "answered",
+        "needs_clarification",
+        "insufficient_context",
+        "out_of_scope"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "answer": {
+      "description": "Concise plain-English answer for the user.",
+      "minLength": 1,
+      "title": "Answer",
+      "type": "string"
+    },
+    "facts": {
+      "description": "Every factual claim in the answer, with citations.",
+      "items": {
+        "$ref": "#/$defs/Fact"
+      },
+      "title": "Facts",
+      "type": "array"
+    },
+    "tables": {
+      "description": "FQNs of the tables the answer is about.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Tables",
+      "type": "array"
+    },
+    "clarification": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Clarification"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "status",
+    "answer"
+  ],
+  "title": "AgentDraft",
+  "type": "object"
+}

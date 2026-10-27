@@ -1,0 +1,399 @@
+{
+  "$defs": {
+    "Citation": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "contract",
+            "collibra",
+            "dbt",
+            "catalog"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "ref"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "Clarification": {
+      "additionalProperties": false,
+      "properties": {
+        "question": {
+          "description": "Question to ask the user.",
+          "minLength": 1,
+          "title": "Question",
+          "type": "string"
+        },
+        "options": {
+          "description": "Candidate table FQNs to choose from.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "title": "Options",
+          "type": "array"
+        }
+      },
+      "required": [
+        "question",
+        "options"
+      ],
+      "title": "Clarification",
+      "type": "object"
+    },
+    "Escalation": {
+      "additionalProperties": false,
+      "properties": {
+        "team": {
+          "title": "Team",
+          "type": "string"
+        },
+        "email": {
+          "title": "Email",
+          "type": "string"
+        },
+        "slack": {
+          "title": "Slack",
+          "type": "string"
+        }
+      },
+      "required": [
+        "team",
+        "email",
+        "slack"
+      ],
+      "title": "Escalation",
+      "type": "object"
+    },
+    "Fact": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "description": "One factual statement used in the answer.",
+          "minLength": 1,
+          "title": "Claim",
+          "type": "string"
+        },
+        "citations": {
+          "description": "Citation ids that support the claim, copied exactly from tool results (e.g. 'contract:data/sources/contracts/marts.dim_customers.yaml').",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Citations",
+          "type": "array"
+        },
+        "relations": {
+          "description": "Lineage links the claim states (one per link: a path or a table built from several sources has several). Empty for claims that are not about lineage.",
+          "items": {
+            "$ref": "#/$defs/Relation"
+          },
+          "title": "Relations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "claim",
+        "citations"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "GuardrailEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "part": {
+          "enum": [
+            "input",
+            "tool",
+            "output"
+          ],
+          "title": "Part",
+          "type": "string"
+        },
+        "check": {
+          "description": "Check that fired, e.g. bad_args, unsupported_claim.",
+          "title": "Check",
+          "type": "string"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "attempt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Draft attempt, for output checks.",
+          "title": "Attempt"
+        }
+      },
+      "required": [
+        "part",
+        "check",
+        "detail"
+      ],
+      "title": "GuardrailEvent",
+      "type": "object"
+    },
+    "Guardrails": {
+      "additionalProperties": false,
+      "properties": {
+        "attempts": {
+          "description": "Drafts the LLM produced (2 = retried once).",
+          "minimum": 1,
+          "title": "Attempts",
+          "type": "integer"
+        },
+        "events": {
+          "items": {
+            "$ref": "#/$defs/GuardrailEvent"
+          },
+          "title": "Events",
+          "type": "array"
+        },
+        "outcome": {
+          "enum": [
+            "passed",
+            "passed_after_retry",
+            "refused"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        }
+      },
+      "required": [
+        "attempts",
+        "outcome"
+      ],
+      "title": "Guardrails",
+      "type": "object"
+    },
+    "Relation": {
+      "additionalProperties": false,
+      "description": "A lineage link stated by a fact, so it can be checked against the tool's edges.",
+      "properties": {
+        "upstream": {
+          "description": "Table FQN or exposure id the data comes from.",
+          "minLength": 1,
+          "title": "Upstream",
+          "type": "string"
+        },
+        "downstream": {
+          "description": "Table FQN or exposure id the data flows into.",
+          "minLength": 1,
+          "title": "Downstream",
+          "type": "string"
+        },
+        "kind": {
+          "description": "direct: downstream is loaded straight from upstream (one edge). indirect: connected through other tables.",
+          "enum": [
+            "direct",
+            "indirect"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "upstream",
+        "downstream",
+        "kind"
+      ],
+      "title": "Relation",
+      "type": "object"
+    },
+    "TableRef": {
+      "additionalProperties": false,
+      "properties": {
+        "fqn": {
+          "title": "Fqn",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fqn",
+        "name",
+        "url"
+      ],
+      "title": "TableRef",
+      "type": "object"
+    },
+    "ToolCall": {
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "title": "Tool",
+          "type": "string"
+        },
+        "args": {
+          "additionalProperties": true,
+          "title": "Args",
+          "type": "object"
+        },
+        "result_status": {
+          "title": "Result Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool",
+        "args",
+        "result_status"
+      ],
+      "title": "ToolCall",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Final response returned to users, the API, the UI and other agents.",
+  "properties": {
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "agent": {
+      "description": "Agent that produced the response, e.g. catalog_lookup.",
+      "title": "Agent",
+      "type": "string"
+    },
+    "question": {
+      "title": "Question",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "answered",
+        "needs_clarification",
+        "insufficient_context",
+        "out_of_scope"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "answer": {
+      "minLength": 1,
+      "title": "Answer",
+      "type": "string"
+    },
+    "facts": {
+      "items": {
+        "$ref": "#/$defs/Fact"
+      },
+      "title": "Facts",
+      "type": "array"
+    },
+    "tables": {
+      "items": {
+        "$ref": "#/$defs/TableRef"
+      },
+      "title": "Tables",
+      "type": "array"
+    },
+    "escalation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Escalation"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Who to contact when a table has no data contract or no owner."
+    },
+    "clarification": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Clarification"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "citations": {
+      "description": "Details for every cited id.",
+      "items": {
+        "$ref": "#/$defs/Citation"
+      },
+      "title": "Citations",
+      "type": "array"
+    },
+    "confidence": {
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "evidence": {
+      "description": "Tool calls made, in order.",
+      "items": {
+        "$ref": "#/$defs/ToolCall"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "guardrails": {
+      "$ref": "#/$defs/Guardrails",
+      "description": "What the guardrails checked, blocked or retried."
+    }
+  },
+  "required": [
+    "agent",
+    "question",
+    "status",
+    "answer",
+    "confidence",
+    "guardrails"
+  ],
+  "title": "AgentResponse",
+  "type": "object"
+}

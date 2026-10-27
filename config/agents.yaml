@@ -1,0 +1,15 @@
+# LLM settings per agent. Secrets are not set here: API keys come from .env.
+# Providers: anthropic, gemini; later litellm (OpenAI, Ollama).
+# Gemini: gemini-3.5-flash (free tier is 20 requests/day, too few for an eval).
+
+catalog_lookup:
+  provider: anthropic
+  model: claude-haiku-5-5
+
+pi_classifier:
+  provider: anthropic
+  model: claude-haiku-5-5
+
+data_category_recommender:
+  provider: anthropic
+  model: claude-haiku-5-5
