@@ -1098,6 +1098,11 @@
         "Layer": "Source",
         "Business Domain": "customer",
         "Description": "Customer accounts from the e-commerce storefront, loaded daily."
+      },
+      "relations": {
+        "represents": [
+          "DC-001"
+        ]
       }
     },
     {
@@ -1144,9 +1149,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.customers"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -1173,9 +1175,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.customers"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -1202,9 +1201,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.customers"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -1231,9 +1227,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.customers"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -1302,9 +1295,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.customers"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -1320,6 +1310,11 @@
         "Layer": "Source",
         "Business Domain": "finance",
         "Description": "Orders placed on the storefront, including shipping address."
+      },
+      "relations": {
+        "represents": [
+          "DC-008"
+        ]
       }
     },
     {
@@ -1340,9 +1335,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -1385,9 +1377,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -1409,9 +1398,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -1433,9 +1419,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -1457,9 +1440,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -1486,9 +1466,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.orders"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -1546,6 +1523,11 @@
         "Layer": "Source",
         "Business Domain": "finance",
         "Description": "Order lines: product, quantity and price for each order."
+      },
+      "relations": {
+        "represents": [
+          "DC-008"
+        ]
       }
     },
     {
@@ -1566,9 +1548,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.order_items"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -1590,9 +1569,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.order_items"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -1635,9 +1611,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.order_items"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -1659,9 +1632,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.order_items"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -1677,6 +1647,11 @@
         "Layer": "Source",
         "Business Domain": "supply_chain",
         "Description": "Product catalog from the storefront."
+      },
+      "relations": {
+        "represents": [
+          "DC-009"
+        ]
       }
     },
     {
@@ -1697,9 +1672,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -1721,9 +1693,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -1745,9 +1714,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -1769,9 +1735,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -1793,9 +1756,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_storefront.products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -1836,6 +1796,11 @@
         "Layer": "Source",
         "Business Domain": "finance",
         "Description": "Card payment transactions from the payments service."
+      },
+      "relations": {
+        "represents": [
+          "DC-003"
+        ]
       }
     },
     {
@@ -1877,9 +1842,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_payments.transactions"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -1906,9 +1868,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_payments.transactions"
-        ],
-        "represents": [
-          "DC-003"
         ]
       }
     },
@@ -1930,9 +1889,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_payments.transactions"
-        ],
-        "represents": [
-          "DC-003"
         ]
       }
     },
@@ -1959,9 +1915,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_payments.transactions"
-        ],
-        "represents": [
-          "DC-003"
         ]
       }
     },
@@ -1983,9 +1936,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_payments.transactions"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -2007,9 +1957,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_payments.transactions"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -2046,6 +1993,11 @@
         "Layer": "Source",
         "Business Domain": "customer",
         "Description": "CRM contacts and loyalty program membership."
+      },
+      "relations": {
+        "represents": [
+          "DC-001"
+        ]
       }
     },
     {
@@ -2113,9 +2065,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_crm.contacts"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -2142,9 +2091,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_crm.contacts"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -2171,9 +2117,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_crm.contacts"
-        ],
-        "represents": [
-          "DC-002"
         ]
       }
     },
@@ -2195,9 +2138,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_crm.contacts"
-        ],
-        "represents": [
-          "DC-002"
         ]
       }
     },
@@ -2219,9 +2159,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_crm.contacts"
-        ],
-        "represents": [
-          "DC-002"
         ]
       }
     },
@@ -2243,9 +2180,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_crm.contacts"
-        ],
-        "represents": [
-          "DC-002"
         ]
       }
     },
@@ -2261,6 +2195,11 @@
         "Layer": "Source",
         "Business Domain": "support",
         "Description": "Customer support tickets from the helpdesk tool."
+      },
+      "relations": {
+        "represents": [
+          "DC-004"
+        ]
       }
     },
     {
@@ -2281,9 +2220,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_helpdesk.tickets"
-        ],
-        "represents": [
-          "DC-004"
         ]
       }
     },
@@ -2310,9 +2246,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_helpdesk.tickets"
-        ],
-        "represents": [
-          "DC-004"
         ]
       }
     },
@@ -2339,9 +2272,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_helpdesk.tickets"
-        ],
-        "represents": [
-          "DC-004"
         ]
       }
     },
@@ -2365,9 +2295,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_helpdesk.tickets"
-        ],
-        "represents": [
-          "DC-004"
         ]
       }
     },
@@ -2391,9 +2318,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_helpdesk.tickets"
-        ],
-        "represents": [
-          "DC-004"
         ]
       }
     },
@@ -2493,6 +2417,11 @@
         "Layer": "Source",
         "Business Domain": "marketing",
         "Description": "Email campaign delivery and engagement events."
+      },
+      "relations": {
+        "represents": [
+          "DC-007"
+        ]
       }
     },
     {
@@ -2513,9 +2442,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.email_events"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -2542,9 +2468,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.email_events"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -2566,9 +2489,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.email_events"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -2590,9 +2510,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.email_events"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -2614,9 +2531,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.email_events"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -2632,6 +2546,11 @@
         "Layer": "Source",
         "Business Domain": "marketing",
         "Description": "Marketing campaign setup across channels."
+      },
+      "relations": {
+        "represents": [
+          "DC-007"
+        ]
       }
     },
     {
@@ -2652,9 +2571,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.campaigns"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -2676,9 +2592,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.campaigns"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -2700,9 +2613,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.campaigns"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -2724,9 +2634,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.campaigns"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -2748,9 +2655,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.campaigns"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -2772,9 +2676,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_marketing.campaigns"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -2790,6 +2691,11 @@
         "Layer": "Source",
         "Business Domain": "supply_chain",
         "Description": "Weekly stock-on-hand snapshots by warehouse."
+      },
+      "relations": {
+        "represents": [
+          "DC-009"
+        ]
       }
     },
     {
@@ -2810,9 +2716,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_warehouse.inventory_snapshots"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -2834,9 +2737,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_warehouse.inventory_snapshots"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -2858,9 +2758,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_warehouse.inventory_snapshots"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -2882,9 +2779,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_warehouse.inventory_snapshots"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -2906,9 +2800,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_warehouse.inventory_snapshots"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -2924,6 +2815,11 @@
         "Layer": "Source",
         "Business Domain": "finance",
         "Description": "In-store point-of-sale transactions."
+      },
+      "relations": {
+        "represents": [
+          "DC-008"
+        ]
       }
     },
     {
@@ -2944,9 +2840,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_stores.pos_transactions"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -3010,9 +2903,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_stores.pos_transactions"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -3034,9 +2924,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_stores.pos_transactions"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -3073,6 +2960,11 @@
         "Layer": "Source",
         "Business Domain": "people",
         "Description": "Employee records from the HR system."
+      },
+      "relations": {
+        "represents": [
+          "DC-012"
+        ]
       }
     },
     {
@@ -3119,9 +3011,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_hr.employees"
-        ],
-        "represents": [
-          "DC-010"
         ]
       }
     },
@@ -3148,9 +3037,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_hr.employees"
-        ],
-        "represents": [
-          "DC-010"
         ]
       }
     },
@@ -3177,9 +3063,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_hr.employees"
-        ],
-        "represents": [
-          "DC-010"
         ]
       }
     },
@@ -3206,9 +3089,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_hr.employees"
-        ],
-        "represents": [
-          "DC-010"
         ]
       }
     },
@@ -3230,9 +3110,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_hr.employees"
-        ],
-        "represents": [
-          "DC-012"
         ]
       }
     },
@@ -3254,9 +3131,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_hr.employees"
-        ],
-        "represents": [
-          "DC-012"
         ]
       }
     },
@@ -3283,9 +3157,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_hr.employees"
-        ],
-        "represents": [
-          "DC-011"
         ]
       }
     },
@@ -3312,9 +3183,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_hr.employees"
-        ],
-        "represents": [
-          "DC-012"
         ]
       }
     },
@@ -3341,9 +3209,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_hr.employees"
-        ],
-        "represents": [
-          "DC-012"
         ]
       }
     },
@@ -3370,9 +3235,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.raw_hr.employees"
-        ],
-        "represents": [
-          "DC-013"
         ]
       }
     },
@@ -3725,6 +3587,9 @@
         "related to": [
           "term_customer",
           "term_active_customer"
+        ],
+        "represents": [
+          "DC-001"
         ]
       }
     },
@@ -3772,9 +3637,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_customers"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -3801,9 +3663,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_customers"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -3830,9 +3689,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_customers"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -3875,9 +3731,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_customers"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -3899,9 +3752,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_customers"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -3923,9 +3773,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_customers"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -3962,6 +3809,11 @@
         "Layer": "Mart",
         "Business Domain": "supply_chain",
         "Description": "One row per product with catalog attributes."
+      },
+      "relations": {
+        "represents": [
+          "DC-009"
+        ]
       }
     },
     {
@@ -3982,9 +3834,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -4006,9 +3855,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -4030,9 +3876,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -4054,9 +3897,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -4078,9 +3918,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -4127,9 +3964,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_products"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -4151,6 +3985,9 @@
           "term_order",
           "term_gross_revenue",
           "term_net_revenue"
+        ],
+        "represents": [
+          "DC-008"
         ]
       }
     },
@@ -4172,9 +4009,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4217,9 +4051,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4241,9 +4072,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4265,9 +4093,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4289,9 +4114,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4313,9 +4135,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4337,9 +4156,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4361,9 +4177,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_orders"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4379,6 +4192,11 @@
         "Layer": "Mart",
         "Business Domain": "finance",
         "Description": "One row per order line with product category and line amount."
+      },
+      "relations": {
+        "represents": [
+          "DC-008"
+        ]
       }
     },
     {
@@ -4399,9 +4217,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_order_items"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4423,9 +4238,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_order_items"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4468,9 +4280,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_order_items"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4492,9 +4301,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_order_items"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4516,9 +4322,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_order_items"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4534,6 +4337,11 @@
         "Layer": "Mart",
         "Business Domain": "finance",
         "Description": "One row per payment transaction, including partial card details."
+      },
+      "relations": {
+        "represents": [
+          "DC-003"
+        ]
       }
     },
     {
@@ -4575,9 +4383,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_payments"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4604,9 +4409,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_payments"
-        ],
-        "represents": [
-          "DC-003"
         ]
       }
     },
@@ -4628,9 +4430,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_payments"
-        ],
-        "represents": [
-          "DC-003"
         ]
       }
     },
@@ -4657,9 +4456,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_payments"
-        ],
-        "represents": [
-          "DC-003"
         ]
       }
     },
@@ -4681,9 +4477,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_payments"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4705,9 +4498,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.fct_payments"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4748,6 +4538,9 @@
       "relations": {
         "related to": [
           "term_customer_lifetime_value"
+        ],
+        "represents": [
+          "DC-008"
         ]
       }
     },
@@ -4790,9 +4583,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.customer_lifetime_value"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4814,9 +4604,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.customer_lifetime_value"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4838,9 +4625,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.customer_lifetime_value"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -4861,6 +4645,9 @@
         "related to": [
           "term_audience_segment",
           "term_marketing_opt_in"
+        ],
+        "represents": [
+          "DC-001"
         ]
       }
     },
@@ -4908,9 +4695,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_marketing_audience"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -4937,9 +4721,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_marketing_audience"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -4961,9 +4742,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_marketing_audience"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -4985,9 +4763,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_marketing_audience"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5029,6 +4804,9 @@
         "related to": [
           "term_email_engagement_rate",
           "term_pseudonymized_data"
+        ],
+        "represents": [
+          "DC-006"
         ]
       }
     },
@@ -5055,9 +4833,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_email_engagement"
-        ],
-        "represents": [
-          "DC-006"
         ]
       }
     },
@@ -5079,9 +4854,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_email_engagement"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5103,9 +4875,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_email_engagement"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5127,9 +4896,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_email_engagement"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5151,9 +4917,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_email_engagement"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5175,9 +4938,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_email_engagement"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5197,6 +4957,9 @@
       "relations": {
         "related to": [
           "term_campaign_attribution"
+        ],
+        "represents": [
+          "DC-007"
         ]
       }
     },
@@ -5218,9 +4981,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_campaign_performance"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5242,9 +5002,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_campaign_performance"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5266,9 +5023,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_campaign_performance"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5290,9 +5044,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_campaign_performance"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5314,9 +5065,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_campaign_performance"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5338,9 +5086,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_campaign_performance"
-        ],
-        "represents": [
-          "DC-007"
         ]
       }
     },
@@ -5362,9 +5107,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_campaign_performance"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -5386,9 +5128,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_campaign_performance"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -5408,6 +5147,9 @@
       "relations": {
         "related to": [
           "term_loyalty_tier"
+        ],
+        "represents": [
+          "DC-002"
         ]
       }
     },
@@ -5455,9 +5197,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_loyalty_members"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -5484,9 +5223,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_loyalty_members"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -5513,9 +5249,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_loyalty_members"
-        ],
-        "represents": [
-          "DC-002"
         ]
       }
     },
@@ -5537,9 +5270,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_loyalty_members"
-        ],
-        "represents": [
-          "DC-002"
         ]
       }
     },
@@ -5561,9 +5291,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_loyalty_members"
-        ],
-        "represents": [
-          "DC-002"
         ]
       }
     },
@@ -5585,9 +5312,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_loyalty_members"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -5607,6 +5331,9 @@
       "relations": {
         "related to": [
           "term_first_response_time"
+        ],
+        "represents": [
+          "DC-004"
         ]
       }
     },
@@ -5628,9 +5355,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_support_ticket_summary"
-        ],
-        "represents": [
-          "DC-004"
         ]
       }
     },
@@ -5678,9 +5402,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_support_ticket_summary"
-        ],
-        "represents": [
-          "DC-004"
         ]
       }
     },
@@ -5707,9 +5428,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_support_ticket_summary"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -5733,9 +5451,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_support_ticket_summary"
-        ],
-        "represents": [
-          "DC-004"
         ]
       }
     },
@@ -5759,9 +5474,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_support_ticket_summary"
-        ],
-        "represents": [
-          "DC-004"
         ]
       }
     },
@@ -5825,9 +5537,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_support_ticket_summary"
-        ],
-        "represents": [
-          "DC-004"
         ]
       }
     },
@@ -5869,6 +5578,9 @@
         "related to": [
           "term_gross_revenue",
           "term_net_revenue"
+        ],
+        "represents": [
+          "DC-008"
         ]
       }
     },
@@ -5890,9 +5602,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_finance_daily_revenue"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -5914,9 +5623,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_finance_daily_revenue"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -5938,9 +5644,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_finance_daily_revenue"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -5962,9 +5665,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_finance_daily_revenue"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -5986,9 +5686,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_finance_daily_revenue"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -6010,9 +5707,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_finance_daily_revenue"
-        ],
-        "represents": [
-          "DC-008"
         ]
       }
     },
@@ -6033,6 +5727,9 @@
         "related to": [
           "term_sell_through_rate",
           "term_weeks_of_cover"
+        ],
+        "represents": [
+          "DC-009"
         ]
       }
     },
@@ -6054,9 +5751,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_inventory_health"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -6078,9 +5772,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_inventory_health"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -6102,9 +5793,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_inventory_health"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -6126,9 +5814,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_inventory_health"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -6150,9 +5835,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_inventory_health"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -6174,9 +5856,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.mart_inventory_health"
-        ],
-        "represents": [
-          "DC-009"
         ]
       }
     },
@@ -6192,6 +5871,11 @@
         "Layer": "Mart",
         "Business Domain": "people",
         "Description": "One row per employee for workforce reporting."
+      },
+      "relations": {
+        "represents": [
+          "DC-012"
+        ]
       }
     },
     {
@@ -6238,9 +5922,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_employees"
-        ],
-        "represents": [
-          "DC-010"
         ]
       }
     },
@@ -6267,9 +5948,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_employees"
-        ],
-        "represents": [
-          "DC-010"
         ]
       }
     },
@@ -6296,9 +5974,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_employees"
-        ],
-        "represents": [
-          "DC-010"
         ]
       }
     },
@@ -6320,9 +5995,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_employees"
-        ],
-        "represents": [
-          "DC-012"
         ]
       }
     },
@@ -6344,9 +6016,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_employees"
-        ],
-        "represents": [
-          "DC-012"
         ]
       }
     },
@@ -6373,9 +6042,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_employees"
-        ],
-        "represents": [
-          "DC-011"
         ]
       }
     },
@@ -6402,9 +6068,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_employees"
-        ],
-        "represents": [
-          "DC-012"
         ]
       }
     },
@@ -6431,9 +6094,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.dim_employees"
-        ],
-        "represents": [
-          "DC-012"
         ]
       }
     },
@@ -6594,6 +6254,11 @@
         "Layer": "Mart",
         "Business Domain": "customer",
         "Description": "Deprecated customer extract. Use dim_customers instead."
+      },
+      "relations": {
+        "represents": [
+          "DC-001"
+        ]
       }
     },
     {
@@ -6640,9 +6305,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.legacy_customer_export"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -6669,9 +6331,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.legacy_customer_export"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -6698,9 +6357,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.legacy_customer_export"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     },
@@ -6727,9 +6383,6 @@
       "relations": {
         "is part of": [
           "fernwood_dw.marts.legacy_customer_export"
-        ],
-        "represents": [
-          "DC-001"
         ]
       }
     }
