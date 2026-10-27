@@ -1,0 +1,35 @@
+[project]
+name = "catalog-iq"
+version = "0.1.0"
+description = "Grounded data governance Q&A over a synthetic data catalog"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=2.0",
+    "google-genai>=1.0",
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+catalog-iq = "catalog_iq.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+trace = [
+    "arize-phoenix-otel>=0.10",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

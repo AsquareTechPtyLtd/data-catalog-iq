@@ -1,0 +1,26 @@
+# Source registry for catalog ingestion (scripts/ingest_catalog.py).
+# Paths are relative to the repo root. In production these would point at
+# artifact stores (e.g. the latest dbt manifest uploaded by CI).
+
+warehouse:
+  database: fernwood_dw
+  path: data/warehouse/warehouse.db
+
+collibra:
+  export: data/sources/collibra_export.json
+
+contracts:
+  dir: data/sources/contracts
+
+dbt:
+  - project: fernwood
+    manifest: data/sources/dbt_manifest.json
+
+catalog:
+  path: data/catalog/catalog.db
+  base_url: https://catalog.fernwood.example
+
+# Who to refer users to when a table has no data contract. Contact details are
+# looked up from this Collibra user group.
+escalation:
+  user_group: Data Strategy

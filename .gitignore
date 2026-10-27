@@ -151,6 +151,8 @@ activemq-data/
 
 # Environments
 .env
+.env.*
+!.env.example
 .envrc
 .venv
 env/
@@ -228,3 +230,8 @@ data/raw/
 .idea/
 .DS_Store
 data/warehouse/*.db
+data/catalog/*.db
+data/catalog/*.db.tmp
+
+# Eval run outputs
+evals/*/runs/
