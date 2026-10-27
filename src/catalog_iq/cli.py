@@ -6,6 +6,7 @@
     catalog-iq                                           # interactive: one question per line
     catalog-iq recommend-pi raw_returns.return_requests  # PI Classifier: recommendations for review
     catalog-iq recommend-category raw_web.page_views          # Data Category Recommender: one data category for review
+    catalog-iq route "Who owns fct_orders and is it PI?" # the router's decision only (no agent runs)
 
 Each question is answered on its own (no chat memory). With
 PHOENIX_COLLECTOR_ENDPOINT set, every question is a trace in Phoenix.
@@ -130,6 +131,21 @@ def render_data_category(run: AgentRun, verbose: bool = False) -> str:
     return "\n".join(lines)
 
 
+def render_route(d) -> str:
+    lines = [f"status: {d.status} · routing confidence: {d.confidence} ({d.agreement} samples agree)"]
+    for r in d.routes:
+        lines += [f"  → {r.label}" + (f" · {r.table}" if r.table else "") + f"  ({r.reason})"]
+        if r.agent == "catalog_lookup" and r.request != d.request:
+            lines += [f"      asks: {r.request}"]
+    if d.alternative:
+        lines += [f"  or did you mean: {d.alternative.label}"]
+    if d.clarification:
+        lines += ["", d.clarification.question] + [f"  • {o.label}" for o in d.clarification.options]
+    if d.note:
+        lines += [f"note: {d.note}"]
+    return "\n".join(lines)
+
+
 def answer(question: str, as_json: bool, verbose: bool, conn, provider: Provider | None) -> int:
     error = check_question(question)
     if error:
@@ -154,7 +170,9 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
     data_category_cmd = sub.add_parser("recommend-category",
                                        help="data category recommendation for one table that has none")
     data_category_cmd.add_argument("table")
-    for p in (parser, ask_cmd, pi_cmd, data_category_cmd):
+    route_cmd = sub.add_parser("route", help="show which agent the router picks (no agent runs)")
+    route_cmd.add_argument("request")
+    for p in (parser, ask_cmd, pi_cmd, data_category_cmd, route_cmd):
         p.add_argument("--json", action="store_true", help="print the full AgentResponse as JSON")
         p.add_argument("--verbose", "-v", action="store_true", help="show tool calls, guardrails and tokens")
     args = parser.parse_args(argv)
@@ -165,6 +183,19 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
     try:
         if args.command == "ask":
             return answer(args.question, args.json, args.verbose, conn, provider)
+        if args.command == "route":
+            from catalog_iq.router import route
+            error = check_question(args.request)
+            if error:
+                print(error, file=sys.stderr)
+                return 2
+            try:
+                d = route(args.request, conn=conn, provider=provider).decision
+            except Exception as e:  # missing key, no credit, network: say so plainly
+                print(f"error: {type(e).__name__}: {e}", file=sys.stderr)
+                return 1
+            print(d.model_dump_json(indent=2) if args.json else render_route(d))
+            return 0
         if args.command in ("recommend-pi", "recommend-category"):
             agent, render_fn = ((recommend_pi, render_pi) if args.command == "recommend-pi"
                                 else (recommend_data_category, render_data_category))

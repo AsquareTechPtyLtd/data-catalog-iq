@@ -13,3 +13,7 @@ pi_classifier:
 data_category_recommender:
   provider: anthropic
   model: claude-haiku-5-5
+
+router:  # picks the agent; runs 3 times per request (routing confidence, R11)
+  provider: anthropic
+  model: claude-haiku-5-5

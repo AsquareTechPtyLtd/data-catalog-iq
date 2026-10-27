@@ -1,0 +1,23 @@
+# Route spec (router R8): what the router knows about this agent.
+label: Catalog Lookup
+purpose: >-
+  Answer questions about what the catalog already records: owners, stewards,
+  descriptions, certification, lineage (what feeds a table, what it feeds),
+  recorded PI, assigned data categories, retention, glossary terms, and lists of tables
+  matching filters.
+handles:
+  - who owns or stewards a table
+  - what feeds a table, or what a table feeds (lineage)
+  - which tables hold a kind of data, are certified, or belong to a domain
+  - which data category a table has, and the retention it brings (a lookup)
+  - whether a column is recorded as PI (a lookup)
+not_for:
+  - "recommend or classify PI for a table's columns (→ pi_classifier)"
+  - "recommend a data category for a table that has none (→ data_category_recommender)"
+needs:
+  table: none
+examples:
+  - Who owns dim_customers?
+  - What feeds mart_finance_daily_revenue?
+  - Which certified tables hold customer email?
+  - What retention does mart_loyalty_members have?

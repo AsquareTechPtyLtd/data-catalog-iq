@@ -1,0 +1,18 @@
+# Route spec (router R8): what the router knows about this agent.
+label: Data Category Recommender
+purpose: >-
+  Recommend one Data Category to categorize a table that has none, with the
+  retention and stewards it would bring, pending steward review.
+handles:
+  - which data category should a table use / belong to
+  - categorize a table under a data category
+  - suggest a data category for a table that has none
+not_for:
+  - "the data category a table already has, or its retention (→ catalog_lookup)"
+  - "PI for a table's columns (→ pi_classifier)"
+needs:
+  table: required
+examples:
+  - Which data category should mart_web_sessions use?
+  - Categorize return_requests under a data category
+  - Suggest a data category for page_views

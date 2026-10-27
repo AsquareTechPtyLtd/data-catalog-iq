@@ -1,0 +1,19 @@
+# Route spec (router R8): what the router knows about this agent.
+label: PI Classifier
+purpose: >-
+  Recommend personal-information (PI) classifications for one table's
+  columns that have no confirmed classification, pending steward review.
+handles:
+  - does a table hold personal data / PI
+  - classify a table's columns for PI
+  - which columns of a table are personal information
+not_for:
+  - "which tables hold a kind of PI across the catalog (→ catalog_lookup)"
+  - "the PI already recorded for a column (→ catalog_lookup)"
+  - "a data category for a table (→ data_category_recommender)"
+needs:
+  table: required
+examples:
+  - Does raw_crm.contacts have personal data?
+  - Classify the columns of page_views
+  - Which columns in return_requests are PI?

@@ -1,0 +1,83 @@
+# Router eval (R4): 38 labelled requests, 26 dev / 12 held-out.
+# Only the route is scored (agent, resolved table, clarify); no agent runs.
+# expect.routes: one entry per intent (order ignored); a table is the FQN the
+#   router must resolve (recommenders only). expect.clarify: true when the router
+#   must ask instead of routing. expect.rewrite_names: a follow-up's rewritten
+#   catalog_lookup question must name this table.
+# Held-out requests are run once, after the prompt is tuned on dev.
+
+# --- catalog_lookup (8) ---------------------------------------------------------------
+- {id: L1, set: dev, group: lookup, request: "Who owns dim_customers?", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: L2, set: dev, group: lookup, request: "What feeds mart_finance_daily_revenue?", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: L3, set: dev, group: lookup, request: "Which certified tables hold customer email addresses?", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: L4, set: dev, group: lookup, request: "Which dashboards depend on fct_orders?", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: L5, set: dev, group: lookup, request: "List the tables in the marketing domain", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: L6, set: dev, group: lookup, request: "What does the glossary term Active Customer mean?", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: L7, set: heldout, group: lookup, request: "Who is the steward for raw_hr.employees?", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: L8, set: heldout, group: lookup, request: "Is mart_inventory_health certified?", expect: {routes: [{agent: catalog_lookup}]}}
+
+# --- pi_classifier (6) ----------------------------------------------------------------
+- {id: P1, set: dev, group: pi, request: "Does raw_crm.contacts have personal data?", expect: {routes: [{agent: pi_classifier, table: fernwood_dw.raw_crm.contacts}]}}
+- {id: P2, set: dev, group: pi, request: "Classify the columns of page_views", expect: {routes: [{agent: pi_classifier, table: fernwood_dw.raw_web.page_views}]}}
+- {id: P3, set: dev, group: pi, request: "Which columns in return_requests are personal information?", expect: {routes: [{agent: pi_classifier, table: fernwood_dw.raw_returns.return_requests}]}}
+- {id: P4, set: dev, group: pi, request: "Run a PI scan on mart_web_sessions", expect: {routes: [{agent: pi_classifier, table: fernwood_dw.marts.mart_web_sessions}]}}
+- {id: P5, set: heldout, group: pi, request: "Is there anything sensitive about people in raw_helpdesk.tickets?", expect: {routes: [{agent: pi_classifier, table: fernwood_dw.raw_helpdesk.tickets}]}}
+- {id: P6, set: heldout, group: pi, request: "Tag the PII columns for mart_store_performance", expect: {routes: [{agent: pi_classifier, table: fernwood_dw.marts.mart_store_performance}]}}
+
+# --- data_category_recommender (6) --------------------------------------------------------------
+- {id: B1, set: dev, group: data_category, request: "Which data category should mart_web_sessions use?", expect: {routes: [{agent: data_category_recommender, table: fernwood_dw.marts.mart_web_sessions}]}}
+- {id: B2, set: dev, group: data_category, request: "Categorize return_requests under a data category", expect: {routes: [{agent: data_category_recommender, table: fernwood_dw.raw_returns.return_requests}]}}
+- {id: B3, set: dev, group: data_category, request: "Suggest a data category for raw_web.page_views", expect: {routes: [{agent: data_category_recommender, table: fernwood_dw.raw_web.page_views}]}}
+- {id: B4, set: dev, group: data_category, request: "mart_store_performance has no data category yet. What should it be?", expect: {routes: [{agent: data_category_recommender, table: fernwood_dw.marts.mart_store_performance}]}}
+- {id: B5, set: heldout, group: data_category, request: "What data category fits the page views table?", expect: {routes: [{agent: data_category_recommender, table: fernwood_dw.raw_web.page_views}]}}
+- {id: B6, set: heldout, group: data_category, request: "Recommend a data category for mart_web_sessions", expect: {routes: [{agent: data_category_recommender, table: fernwood_dw.marts.mart_web_sessions}]}}
+
+# --- traps (6): lookups that mention PI or a data category; misspelled or partial names ---------
+- {id: T1, set: dev, group: trap, request: "What retention does mart_loyalty_members have?", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: T2, set: dev, group: trap, request: "Which data category is dim_customers assigned to?", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: T3, set: dev, group: trap, request: "Which tables contain PI about employees?", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: T4, set: dev, group: trap, request: "Classify PI for mart_web_sesions", expect: {routes: [{agent: pi_classifier, table: fernwood_dw.marts.mart_web_sessions}]}}
+- {id: T5, set: heldout, group: trap, request: "Is contact_email in raw_crm.contacts recorded as PI?", expect: {routes: [{agent: catalog_lookup}]}}
+- {id: T6, set: heldout, group: trap, request: "Suggest a data category for the return requests table", expect: {routes: [{agent: data_category_recommender, table: fernwood_dw.raw_returns.return_requests}]}}
+
+# --- clarify (4): a recommender with no table, or a partial name matching several -----
+- {id: C1, set: dev, group: clarify, request: "Recommend a data category", expect: {clarify: true}}
+- {id: C2, set: dev, group: clarify, request: "Classify PI for the customer table", expect: {clarify: true}}
+- {id: C3, set: dev, group: clarify, request: "Can you scan for personal data?", expect: {clarify: true}}
+- {id: C4, set: heldout, group: clarify, request: "Which data category should the orders data use?", expect: {clarify: true}}
+
+# --- multi-intent (4, R9) -------------------------------------------------------------
+- {id: M1, set: dev, group: multi, request: "Who owns fct_orders and does it hold personal data?", expect: {routes: [{agent: catalog_lookup}, {agent: pi_classifier, table: fernwood_dw.marts.fct_orders}]}}
+- {id: M2, set: dev, group: multi, request: "Classify the PI in page_views and suggest a data category for it", expect: {routes: [{agent: pi_classifier, table: fernwood_dw.raw_web.page_views}, {agent: data_category_recommender, table: fernwood_dw.raw_web.page_views}]}}
+- {id: M3, set: dev, group: multi, request: "Who owns dim_products, and what feeds mart_inventory_health?", expect: {routes: [{agent: catalog_lookup}, {agent: catalog_lookup}]}}
+- {id: M4, set: heldout, group: multi, request: "What feeds mart_web_sessions, and which data category should it get?", expect: {routes: [{agent: catalog_lookup}, {agent: data_category_recommender, table: fernwood_dw.marts.mart_web_sessions}]}}
+
+# --- follow-ups (4, R10) --------------------------------------------------------------
+- id: F1
+  set: dev
+  group: followup
+  history:
+    - {request: "What feeds mart_web_sessions?", routes: [{agent: catalog_lookup}], summary: "mart_web_sessions is built from int_web_sessions, which reads raw_web.page_views."}
+  request: "And which data category should it use?"
+  expect: {routes: [{agent: data_category_recommender, table: fernwood_dw.marts.mart_web_sessions}]}
+- id: F2
+  set: dev
+  group: followup
+  history:
+    - {request: "What feeds mart_web_sessions?", routes: [{agent: catalog_lookup}], summary: "mart_web_sessions is built from int_web_sessions, which reads raw_web.page_views."}
+  request: "What about its owner?"
+  expect: {routes: [{agent: catalog_lookup}], rewrite_names: fernwood_dw.marts.mart_web_sessions}
+- id: F3
+  set: heldout
+  group: followup
+  history:
+    - {request: "Which data category should return_requests use?", routes: [{agent: data_category_recommender, table: fernwood_dw.raw_returns.return_requests}], summary: "Recommend DC-008 Order Transaction for return_requests, pending steward review."}
+  request: "Does it have any personal data?"
+  expect: {routes: [{agent: pi_classifier, table: fernwood_dw.raw_returns.return_requests}]}
+- id: F4
+  set: heldout
+  group: followup
+  history:
+    - {request: "Does raw_crm.contacts have personal data?", routes: [{agent: pi_classifier, table: fernwood_dw.raw_crm.contacts}], summary: "3 columns of raw_crm.contacts are recommended as PI."}
+  request: "Who is its data owner?"
+  expect: {routes: [{agent: catalog_lookup}], rewrite_names: fernwood_dw.raw_crm.contacts}
