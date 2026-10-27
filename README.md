@@ -65,12 +65,14 @@ agents.
 | PI Classifier (precision / recall) | 100% / 100% | 100% / 100% |
 | Data Category Recommender (exact match; precision of recommendations) | 83.3%; 88.7% | 79.2%; 100% |
 | Data Category Recommender, scale catalog of 5,013 data categories (exact match, all 30 tables) | 82.2% | |
-| Router, 38 requests × 3 runs (route and table accuracy) | 100% | 91.7% |
+| Router, 41 requests × 3 runs (route and table accuracy) | 100% | 100%* |
 
 The Data Category Recommender's held-out misses are manual reviews or "no fit",
-never a wrong data category. The router's one held-out miss is "the orders
-data": it resolves to the table named `orders` instead of asking which of
-`orders` and `fct_orders` was meant.
+never a wrong data category. \*The router's held-out score was 91.7% until a
+fix: "the orders data" resolved to the table named `orders` instead of asking
+which of `orders` and `fct_orders` was meant. The fix (a plain-word name that
+another table also matches now asks) was tested on new dev requests, but the
+held-out set is no longer unseen.
 Details and caveats are in the eval run summaries (`evals/*/runs/`, not
 committed).
 

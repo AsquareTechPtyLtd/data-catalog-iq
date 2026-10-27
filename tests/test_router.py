@@ -121,6 +121,17 @@ def test_partial_name_matching_several_tables_clarifies(conn, specs):
     assert all(o.routes[0].agent == "pi_classifier" and o.routes[0].table for o in out.clarification.options)
 
 
+def test_plain_word_name_shared_with_another_table_clarifies(conn, specs):
+    # "the orders data" shortened to "orders": raw_storefront.orders matches exactly, but fct_orders also fits
+    out, problems = check(conn, specs, plan(item("data_category_recommender", "orders")))
+    assert not problems and out.clarification
+    assert {o.routes[0].table for o in out.clarification.options} == {
+        "fernwood_dw.raw_storefront.orders", "fernwood_dw.marts.fct_orders"}
+    for written in ("raw_storefront.orders", "fct_orders", "contacts"):  # qualified, an identifier, no rival
+        out, _ = check(conn, specs, plan(item("pi_classifier", written)))
+        assert out.routes and not out.clarification
+
+
 def test_recommender_without_a_table_clarifies(conn, specs):
     out, problems = check(conn, specs, plan(item("data_category_recommender")))
     assert not problems and "Which table" in out.clarification.question

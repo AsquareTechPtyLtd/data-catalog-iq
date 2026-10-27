@@ -8,7 +8,8 @@ How it decides (agent-6-router.md):
   from the agents' route specs.
 - Code checks each plan: a recommender's table must resolve in the catalog
   (exact name, else a name search: one match is used, several → clarify with
-  the candidates, none → retry once with feedback); a catalog_lookup request
+  the candidates, none → retry once with feedback; a plain-word name such as
+  "orders" that another table also matches strongly clarifies too); a catalog_lookup request
   stays the user's question unless it is one part of a multi-part request or a
   follow-up, and a rewrite may name only tables from the request or the
   history; at most MAX_ROUTES routes (R9), duplicates dropped.
@@ -54,6 +55,7 @@ ROUTE_TOOL = "route"
 SAMPLES = 3
 MAX_LLM_CALLS = 3  # per sample: a route, a retry, a nudge
 NUDGE = f"Call the {ROUTE_TOOL} tool."
+RIVAL_MIN_SCORE = 0.7  # another table matching a plain-word name this well makes it ambiguous
 UNROUTABLE = "I couldn't match that to the catalog. Which table do you mean?"
 UNSURE = "I'm not sure which you'd like. Did you mean:"
 
@@ -126,9 +128,19 @@ def named_tables(text: str, names: dict[str, str]) -> set[str]:
 
 
 def _resolve_table(conn: sqlite3.Connection, table: str) -> tuple[str | None, list[str]]:
-    """(fqn, []) for one match; (None, candidates) for several; (None, []) for none."""
+    """(fqn, []) for one match; (None, candidates) for several; (None, []) for none.
+
+    A plain word ("orders") names a table exactly but is also how people say
+    "the orders data", so when another table matches it strongly (fct_orders)
+    the user is asked.
+    """
     row, error = _resolve(conn, table)
     if row:
+        if re.fullmatch(r"[a-z]+", table.strip().lower()):
+            rivals = [m["fqn"] for m in find_table(conn, table)["matches"]
+                      if m["fqn"] != row["fqn"] and m["score"] >= RIVAL_MIN_SCORE]
+            if rivals:
+                return None, [row["fqn"], *rivals]
         return row["fqn"], []
     if error["status"] == "ambiguous":
         return None, error["candidates"]

@@ -32,8 +32,8 @@ def r(agent, table=None, request="q"):
 
 def test_key_shape():
     keys = load_key(("dev", "heldout"))
-    assert len(keys) == 38 and sum(k.set == "dev" for k in keys) == 26
-    assert len({k.id for k in keys}) == 38
+    assert len(keys) == 41 and sum(k.set == "dev" for k in keys) == 29
+    assert len({k.id for k in keys}) == 41
     assert all(k.expect.clarify != bool(k.expect.routes) for k in keys)
 
 
