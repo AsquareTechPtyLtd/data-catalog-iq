@@ -1,0 +1,109 @@
+# Data Category Recommender answer key: the true data category per table. Only the scorer reads it, never the agent.
+# Generated from the Collibra export (Table 'represents' relations) and the table blueprint's
+# 'true: DC-xxx' values for tables with no data category yet.
+# open: tables with no data category, run as they are. dev / heldout: tables with a data category, run blind
+# (data category hidden on the table and its lineage neighbours).
+# acceptable: another data category a steward could defensibly choose (scored 'acceptable', not 'correct').
+tables:
+  - table: fernwood_dw.marts.mart_web_sessions
+    set: open
+    data_category: DC-005
+  - table: fernwood_dw.raw_returns.return_requests
+    set: open
+    data_category: DC-008
+    trap: "PI contact_email pulls toward DC-001; the table is about returns"
+  - table: fernwood_dw.raw_web.page_views
+    set: open
+    data_category: DC-005
+  - table: fernwood_dw.marts.customer_lifetime_value
+    set: dev
+    data_category: DC-008
+    acceptable: [DC-001]
+  - table: fernwood_dw.marts.dim_customers
+    set: dev
+    data_category: DC-001
+  - table: fernwood_dw.marts.dim_employees
+    set: dev
+    data_category: DC-012
+  - table: fernwood_dw.marts.dim_products
+    set: dev
+    data_category: DC-009
+  - table: fernwood_dw.marts.fct_order_items
+    set: dev
+    data_category: DC-008
+  - table: fernwood_dw.marts.fct_orders
+    set: dev
+    data_category: DC-008
+  - table: fernwood_dw.marts.mart_campaign_performance
+    set: dev
+    data_category: DC-007
+  - table: fernwood_dw.marts.mart_email_engagement
+    set: dev
+    data_category: DC-006
+    acceptable: [DC-007]
+    trap: "hashed email: DC-006 is a Candidate data category, still the true concept"
+  - table: fernwood_dw.marts.mart_inventory_health
+    set: dev
+    data_category: DC-009
+  - table: fernwood_dw.marts.mart_marketing_audience
+    set: dev
+    data_category: DC-001
+    acceptable: [DC-007]
+  - table: fernwood_dw.raw_crm.contacts
+    set: dev
+    data_category: DC-001
+    acceptable: [DC-002]
+    trap: "date_of_birth and loyalty words pull toward DC-002; the table is CRM contacts"
+  - table: fernwood_dw.raw_helpdesk.tickets
+    set: dev
+    data_category: DC-004
+  - table: fernwood_dw.raw_marketing.email_events
+    set: dev
+    data_category: DC-007
+    trap: "recipient_email pulls toward DC-001; the table is campaign engagement"
+  - table: fernwood_dw.raw_payments.transactions
+    set: dev
+    data_category: DC-003
+    acceptable: [DC-008]
+  - table: fernwood_dw.raw_storefront.customers
+    set: dev
+    data_category: DC-001
+  - table: fernwood_dw.raw_storefront.order_items
+    set: dev
+    data_category: DC-008
+  - table: fernwood_dw.raw_storefront.orders
+    set: dev
+    data_category: DC-008
+    trap: "PI shipping_address pulls toward DC-001; the table is about orders"
+  - table: fernwood_dw.raw_stores.pos_transactions
+    set: dev
+    data_category: DC-008
+  - table: fernwood_dw.raw_warehouse.inventory_snapshots
+    set: dev
+    data_category: DC-009
+  - table: fernwood_dw.marts.fct_payments
+    set: heldout
+    data_category: DC-003
+    acceptable: [DC-008]
+  - table: fernwood_dw.marts.legacy_customer_export
+    set: heldout
+    data_category: DC-001
+  - table: fernwood_dw.marts.mart_finance_daily_revenue
+    set: heldout
+    data_category: DC-008
+  - table: fernwood_dw.marts.mart_loyalty_members
+    set: heldout
+    data_category: DC-002
+  - table: fernwood_dw.marts.mart_support_ticket_summary
+    set: heldout
+    data_category: DC-004
+  - table: fernwood_dw.raw_hr.employees
+    set: heldout
+    data_category: DC-012
+    trap: "salary and national ID pull toward DC-011/013; the table is an employment record"
+  - table: fernwood_dw.raw_marketing.campaigns
+    set: heldout
+    data_category: DC-007
+  - table: fernwood_dw.raw_storefront.products
+    set: heldout
+    data_category: DC-009
