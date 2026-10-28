@@ -20,7 +20,8 @@ pytestmark = pytest.mark.skipif(not catalog_path().exists(),
 
 
 @pytest.fixture
-def spans():
+def spans(monkeypatch):
+    monkeypatch.setenv("TRACE_REDACTION", "off")  # these tests read real values; test_redaction covers scrubbing
     exporter = InMemorySpanExporter()
     provider = TracerProvider()
     provider.add_span_processor(SimpleSpanProcessor(exporter))

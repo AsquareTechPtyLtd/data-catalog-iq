@@ -28,6 +28,7 @@ from catalog_iq.cli import MAX_QUESTION_CHARS, check_question
 from catalog_iq.core.config import agent_config, load_env
 from catalog_iq.core.loop import AgentRun
 from catalog_iq.core.providers import Provider, make_provider
+from catalog_iq.core.redaction import redaction_scope
 from catalog_iq.core.tracing import span
 from catalog_iq.router import route, run_route
 from catalog_iq.router.schema import MAX_HISTORY, Route, RouteDecision, Turn
@@ -121,7 +122,8 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
         error = check_question(body.request)
         if error:
             raise HTTPException(422, error)
-        with span("ask", "CHAIN") as s:  # one trace: the router, then each agent it chose
+        # one Vault and one trace: the router, then each agent it chose
+        with redaction_scope(conn), span("ask", "CHAIN") as s:
             s.input({"request": body.request, "history": [t.model_dump() for t in body.history]})
             try:
                 rr = route(body.request, history=body.history, conn=conn, provider=provider_for("router"))

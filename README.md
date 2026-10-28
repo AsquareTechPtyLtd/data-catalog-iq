@@ -8,6 +8,9 @@ data categories, always pending a data steward's review.
 
 All metadata is **synthetic**, for a fictional retailer, Fernwood Outfitters.
 
+The demo is **unauthenticated on purpose** and meant to run locally. Don't connect
+a real catalog without the production controls in [SECURITY.md](SECURITY.md).
+
 ![Demo: a multi-part question routed to two agents, a follow-up, a clarification and a data category recommendation](docs/demo.gif)
 
 ## What it does
@@ -48,6 +51,10 @@ flowchart TB
 - **Routing confidence is measured, not self-reported:** the router runs 3
   times in parallel. All agree → run; a majority → run and offer the other
   reading ("Or did you mean …?"); no majority → ask.
+- **People's names and emails never reach the LLM or the traces.** They are
+  swapped for per-request tokens (`PERSON_3f9a2c1b`) at the provider boundary and
+  swapped back in the answer, so tools and guardrails still see real values.
+  See [SECURITY.md](SECURITY.md).
 - **No vector database.** Retrieval is metadata filters, lineage walks and
   SQLite FTS5 keyword search over data categories. A scale test with 5,013
   data categories kept recall@20 at 98.9% (the agent re-searches), so

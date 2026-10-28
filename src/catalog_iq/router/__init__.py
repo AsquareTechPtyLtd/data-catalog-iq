@@ -41,6 +41,7 @@ from catalog_iq.core.guardrails import MAX_ATTEMPTS
 from catalog_iq.core.loop import AgentRun, _chat, inline_refs
 from catalog_iq.core.providers import Provider, make_provider
 from catalog_iq.core.providers.base import LLMCall, ToolResult
+from catalog_iq.core.redaction import redaction_scope
 from catalog_iq.core.tracing import span
 from catalog_iq.router.schema import (
     MAX_HISTORY, MAX_ROUTES, Route, RouteClarification, RouteDecision, RouteItem, RouteOption, RoutePlan,
@@ -304,7 +305,7 @@ def route(request: str, history: list[Turn] | None = None, conn: sqlite3.Connect
             provider = make_provider(agent_config(AGENT))
         specs = load_specs()
         system = system_prompt(specs)
-        with span(AGENT, "CHAIN", agent=AGENT) as s:
+        with redaction_scope(conn), span(AGENT, "CHAIN", agent=AGENT) as s:
             s.input({"request": request, "history": [t.model_dump() for t in history]})
             db_lock = threading.Lock()
             with ThreadPoolExecutor(max_workers=samples) as pool:  # each thread keeps the trace context

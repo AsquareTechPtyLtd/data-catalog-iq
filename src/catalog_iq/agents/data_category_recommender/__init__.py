@@ -17,6 +17,7 @@ from catalog_iq.catalog.db import connect
 from catalog_iq.core.config import agent_config, load_env
 from catalog_iq.core.loop import AgentRun, run_agent
 from catalog_iq.core.providers import Provider, make_provider
+from catalog_iq.core.redaction import redaction_scope
 from catalog_iq.tools.data_category_evidence import data_category_evidence_tools
 
 AGENT = "data_category_recommender"
@@ -40,7 +41,8 @@ def recommend_data_category(table: str, conn: sqlite3.Connection | None = None, 
         tools = data_category_evidence_tools(blind)
         question = request(table)
         guard = DataCategoryGuard(conn, agent=AGENT, question=question, tools=tools, max_tool_calls=MAX_TOOL_CALLS)
-        return run_agent(question, conn, provider, PROMPT_PATH.read_text(), AGENT, guard=guard, tools=tools)
+        with redaction_scope(conn):
+            return run_agent(question, conn, provider, PROMPT_PATH.read_text(), AGENT, guard=guard, tools=tools)
     finally:
         if own_conn:
             conn.close()

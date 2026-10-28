@@ -11,6 +11,9 @@ Off by default. `setup_tracing()` turns it on when PHOENIX_COLLECTOR_ENDPOINT
 is set (e.g. http://localhost:6006) and the tracing packages are installed
 (pip install -e ".[trace]"). When off, `span()` yields a no-op, so the agent
 runs the same with or without Phoenix.
+
+Span attributes hold tokens, not people's names or emails (core.redaction), unless
+TRACE_REDACTION=off. With no redaction scope open, values are withheld rather than written.
 """
 
 import json
@@ -20,11 +23,14 @@ from dataclasses import asdict, is_dataclass
 
 from pydantic import BaseModel
 
+from catalog_iq.core.redaction import current_vault, trace_redaction
+
 # OpenInference attribute names (plain strings, so the semconv package stays optional)
 KIND = "openinference.span.kind"
 INPUT, INPUT_MIME = "input.value", "input.mime_type"
 OUTPUT, OUTPUT_MIME = "output.value", "output.mime_type"
 JSON_MIME = "application/json"
+WITHHELD = "[withheld: no redaction scope]"
 
 _tracer = None
 _provider = None
@@ -65,6 +71,15 @@ def _value(obj) -> str:
     return obj if isinstance(obj, str) else json.dumps(obj, default=default)
 
 
+def _scrub(value):
+    if not isinstance(value, (str, list)) or not trace_redaction():
+        return value
+    vault = current_vault()
+    if vault is None:
+        return WITHHELD if isinstance(value, str) else [WITHHELD]
+    return vault.tokenize(value)
+
+
 class _Span:
     """Thin wrapper so callers set inputs, outputs and attributes the same way traced or not."""
 
@@ -80,7 +95,7 @@ class _Span:
             is_str_list = isinstance(value, list) and all(isinstance(v, str) for v in value)
             if not isinstance(value, (str, bool, int, float)) and not is_str_list:
                 value = _value(value)
-            self._span.set_attribute(key.replace("__", "."), value)
+            self._span.set_attribute(key.replace("__", "."), _scrub(value))
 
     def input(self, value) -> None:
         self.set(**{INPUT: _value(value), INPUT_MIME: JSON_MIME})
