@@ -184,7 +184,13 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
         import uvicorn  # optional extra: pip install -e ".[api]"
 
         from catalog_iq.api import create_app
-        uvicorn.run(create_app(), host=args.host, port=args.port)
+        load_env()
+        if setup_tracing():
+            print("Tracing to Phoenix.")
+        try:
+            uvicorn.run(create_app(), host=args.host, port=args.port)
+        finally:
+            shutdown_tracing()
         return 0
 
     load_env()

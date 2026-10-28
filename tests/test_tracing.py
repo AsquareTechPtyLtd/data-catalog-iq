@@ -72,3 +72,17 @@ def test_off_by_default():
     with tracing.span("x", "CHAIN") as s:
         s.set(a=1)
         s.output({"b": 2})  # no-op, no error
+
+
+def test_api_ask_is_one_trace_with_the_router_and_the_agent(spans):
+    from test_api import client, lookup_agent, router_says
+    c = client(router=router_says({"agent": "catalog_lookup", "request": "Who owns dim_customers?",
+                                   "reason": "an owner lookup"}), catalog_lookup=lookup_agent())
+    assert c.post("/ask", json={"request": "Who owns dim_customers?"}).status_code == 200
+    got = spans.get_finished_spans()
+    root = got[-1]
+    assert root.name == "ask" and root.parent is None
+    assert len({s.context.trace_id for s in got}) == 1
+    children = {s.name for s in got if s.parent and s.parent.span_id == root.context.span_id}
+    assert children == {"router", "catalog_lookup"}
+    assert sum(s.name.startswith("router sample") for s in got) == 3
