@@ -14,28 +14,33 @@ Synchronous (R7): an answer takes ~5–10 s per route. Each request opens its
 own read-only catalog connection. API keys come only from .env.
 """
 
+import math
 import os
 import sqlite3
+import threading
 from pathlib import Path
 from typing import Literal
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from catalog_iq.catalog.db import catalog_path, connect
 from catalog_iq.cli import MAX_QUESTION_CHARS, check_question
-from catalog_iq.core.config import agent_config, load_env
+from catalog_iq.core.config import agent_config, load_env, number_setting
 from catalog_iq.core.loop import AgentRun
 from catalog_iq.core.providers import Provider, make_provider
 from catalog_iq.core.redaction import redaction_scope
 from catalog_iq.core.tracing import span
+from catalog_iq.ratelimit import BURST, PER_MINUTE, RateLimiter
 from catalog_iq.router import route, run_route
 from catalog_iq.router.schema import MAX_HISTORY, Route, RouteDecision, Turn
 from catalog_iq.router.specs import load_specs
 
 PAGE = Path(__file__).with_name("web") / "index.html"
 KEY_VARS = {"anthropic": "ANTHROPIC_API_KEY", "gemini": "GEMINI_API_KEY"}
+MAX_IN_FLIGHT = 4  # LLM requests at once per process; ~12 parallel router calls on one key
+RETRY_AFTER_S = 5
 
 
 class _Strict(BaseModel):
@@ -60,6 +65,9 @@ class Usage(_Strict):
     tokens: int
     seconds: float
     model: str | None
+    token_budget: int | None = Field(default=None, description="Tokens this run may spend (input + output).")
+    seconds_budget: float | None = Field(default=None, description="Seconds this run may take.")
+    stopped_by_budget: bool = Field(default=False, description="The run was cut short by its budget.")
 
 
 class Answer(_Strict):
@@ -74,13 +82,16 @@ class AskResponse(_Strict):
     router_usage: Usage | None = None
 
 
-def _usage(calls) -> Usage:
+def _usage(calls, budget=None) -> Usage:
     return Usage(llm_calls=len(calls), tokens=sum(c.input_tokens + c.output_tokens for c in calls),
                  seconds=round(sum(c.total_s for c in calls), 2),
-                 model=f"{calls[0].provider}/{calls[0].model}" if calls else None)
+                 model=f"{calls[0].provider}/{calls[0].model}" if calls else None,
+                 **({"token_budget": budget.tokens, "seconds_budget": budget.seconds,
+                     "stopped_by_budget": budget.stopped_by is not None} if budget else {}))
 
 
-def create_app(catalog: Path | None = None, providers: dict[str, Provider] | None = None) -> FastAPI:
+def create_app(catalog: Path | None = None, providers: dict[str, Provider] | None = None,
+               max_in_flight: int | None = None, limiter: RateLimiter | None = None) -> FastAPI:
     """`providers` (agent or "router" → Provider) replaces the configured ones, e.g. fakes in tests."""
     load_env()
     app = FastAPI(title="Data Catalog IQ", version="0.1.0",
@@ -95,6 +106,27 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
             made[agent] = make_provider(agent_config(agent))
         return made[agent]
 
+    limiter = limiter or RateLimiter(number_setting("RATE_LIMIT_PER_MINUTE", PER_MINUTE),
+                                     number_setting("RATE_LIMIT_BURST", BURST, int))
+    slots = threading.BoundedSemaphore(max_in_flight or number_setting("MAX_IN_FLIGHT", MAX_IN_FLIGHT, int))
+
+    def rate_limit(request: Request):
+        """Keyed on the connection's address; X-Forwarded-For is not trusted (anyone can set it)."""
+        wait = limiter.take(request.client.host if request.client else "unknown")
+        if wait:
+            raise HTTPException(429, "Too many questions from this client. Try again shortly.",
+                                headers={"Retry-After": str(math.ceil(wait))})
+
+    def llm_slot():
+        """A full gate answers 503 at once: waiting would only spend the request's budget."""
+        if not slots.acquire(blocking=False):
+            raise HTTPException(503, "Busy: too many questions in progress. Try again in a few seconds.",
+                                headers={"Retry-After": str(RETRY_AFTER_S)})
+        try:
+            yield
+        finally:
+            slots.release()
+
     def db():
         conn = connect(catalog)
         try:
@@ -107,7 +139,7 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
             run: AgentRun = run_route(r, conn, provider_for(r.agent))
         except Exception as e:  # missing key, no credit, network: say so plainly, never a key value
             raise HTTPException(503, f"{r.label} failed: {type(e).__name__}") from e
-        return Answer(route=r, response=run.response.model_dump(mode="json"), usage=_usage(run.llm_calls))
+        return Answer(route=r, response=run.response.model_dump(mode="json"), usage=_usage(run.llm_calls, run.budget))
 
     def direct(agent: str, table: str | None, request: str) -> Route:
         return Route(agent=agent, label=load_specs()[agent].label, table=table, table_as_written=table,
@@ -117,7 +149,9 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
     def page():
         return FileResponse(PAGE)
 
-    @app.post("/ask", response_model=AskResponse)
+    llm = [Depends(rate_limit), Depends(llm_slot)]  # LLM endpoints: rate limit, then the gate
+
+    @app.post("/ask", response_model=AskResponse, dependencies=llm)
     def ask_(body: AskRequest, conn: sqlite3.Connection = Depends(db)):
         error = check_question(body.request)
         if error:
@@ -132,9 +166,9 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
             answers = [answer(r, conn) for r in rr.decision.routes]  # one after another, never merged (R9)
             s.output({"status": rr.decision.status, "routes": [f"{r.agent}·{r.table or '-'}"
                                                                for r in rr.decision.routes]})
-            return AskResponse(decision=rr.decision, answers=answers, router_usage=_usage(rr.llm_calls))
+            return AskResponse(decision=rr.decision, answers=answers, router_usage=_usage(rr.llm_calls, rr.budget))
 
-    @app.post("/agents/catalog_lookup", response_model=AskResponse)
+    @app.post("/agents/catalog_lookup", response_model=AskResponse, dependencies=llm)
     def lookup(body: LookupRequest, conn: sqlite3.Connection = Depends(db)):
         error = check_question(body.request)
         if error:
@@ -148,7 +182,7 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
         return run
 
     for agent in ("pi_classifier", "data_category_recommender"):
-        app.post(f"/agents/{agent}", response_model=AskResponse, name=agent)(recommender(agent))
+        app.post(f"/agents/{agent}", response_model=AskResponse, name=agent, dependencies=llm)(recommender(agent))
 
     @app.get("/tables")
     def tables(conn: sqlite3.Connection = Depends(db)):

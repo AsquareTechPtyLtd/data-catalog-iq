@@ -37,6 +37,7 @@ from catalog_iq.agents.catalog_lookup import ask
 from catalog_iq.agents.pi_classifier import recommend_pi
 from catalog_iq.catalog.db import connect
 from catalog_iq.core.config import agent_config, load_env
+from catalog_iq.core.budget import Budget, BudgetExceeded, router_budget
 from catalog_iq.core.guardrails import MAX_ATTEMPTS
 from catalog_iq.core.loop import AgentRun, _chat, inline_refs
 from catalog_iq.core.providers import Provider, make_provider
@@ -71,6 +72,7 @@ RUNNERS = {
 class RouteRun:
     decision: RouteDecision
     llm_calls: list[LLMCall] = field(default_factory=list)
+    budget: Budget | None = None
 
 
 @dataclass
@@ -211,13 +213,22 @@ def check_plan(plan: RoutePlan, request: str, history: list[Turn], conn: sqlite3
 
 def _sample(request: str, history: list[Turn], conn: sqlite3.Connection, provider: Provider,
             specs: dict[str, RouteSpec], system: str, n: int,
-            db_lock: threading.Lock) -> tuple[_Outcome, list[LLMCall]]:
+            db_lock: threading.Lock, budget: Budget) -> tuple[_Outcome, list[LLMCall]]:
     with span(f"router sample {n}", "CHAIN") as s:
         messages = [{"role": "user", "text": user_message(request, history)}]
         tools = [route_tool()]
         calls, attempts, problems = [], 0, []
         for _ in range(MAX_LLM_CALLS):
-            reply = _chat(provider, system, messages, tools)
+            why = budget.exceeded()
+            if why:
+                problems = [f"budget: {budget.stop(why)}"]
+                break
+            try:
+                reply = _chat(provider, system, messages, tools)
+            except BudgetExceeded as e:
+                problems = [f"budget: {budget.stop(str(e))}"]
+                break
+            budget.spend(reply.usage)
             calls.append(reply.usage)
             messages.append({"role": "assistant", "reply": reply})
             call = next((c for c in reply.tool_calls if c.name == ROUTE_TOOL), None)
@@ -295,8 +306,9 @@ def _label(routes: list[Route]) -> str:
 
 
 def route(request: str, history: list[Turn] | None = None, conn: sqlite3.Connection | None = None,
-          provider: Provider | None = None, samples: int = SAMPLES) -> RouteRun:
+          provider: Provider | None = None, samples: int = SAMPLES, budget: Budget | None = None) -> RouteRun:
     history = (history or [])[-MAX_HISTORY:]
+    budget = budget or router_budget()  # shared by the parallel samples
     own_conn = conn is None
     conn = conn or connect()
     try:
@@ -308,15 +320,16 @@ def route(request: str, history: list[Turn] | None = None, conn: sqlite3.Connect
         with redaction_scope(conn), span(AGENT, "CHAIN", agent=AGENT) as s:
             s.input({"request": request, "history": [t.model_dump() for t in history]})
             db_lock = threading.Lock()
-            with ThreadPoolExecutor(max_workers=samples) as pool:  # each thread keeps the trace context
+            with budget.active(), ThreadPoolExecutor(max_workers=samples) as pool:  # threads keep the context
                 futures = [pool.submit(contextvars.copy_context().run, _sample, request, history, conn,
-                                       provider, specs, system, n, db_lock) for n in range(1, samples + 1)]
+                                       provider, specs, system, n, db_lock, budget)
+                           for n in range(1, samples + 1)]
                 results = [f.result() for f in futures]
             decision = decide(request, [o for o, _ in results])
             s.output(decision)
             s.set(metadata={"status": decision.status, "confidence": decision.confidence,
                             "agreement": decision.agreement})
-        return RouteRun(decision=decision, llm_calls=[c for _, calls in results for c in calls])
+        return RouteRun(decision=decision, llm_calls=[c for _, calls in results for c in calls], budget=budget)
     finally:
         if own_conn:
             conn.close()

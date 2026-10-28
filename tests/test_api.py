@@ -139,3 +139,61 @@ def test_tables_and_health_and_page(monkeypatch):
         "router", "catalog_lookup", "pi_classifier", "data_category_recommender"}
     assert "sk-" not in str(h)
     assert "Data Catalog IQ" in c.get("/").text
+
+
+def test_full_gate_answers_503_at_once_and_frees_the_slot():
+    release, started = threading.Event(), threading.Event()
+
+    class Blocking(Scripted):
+        def chat(self, system, messages, tools):
+            started.set()
+            release.wait(5)
+            return super().chat(system, messages, tools)
+
+    blocking = Blocking([("get_table", {"table": "dim_customers"})], lookup_agent().steps[-1])
+    c = TestClient(create_app(providers={"catalog_lookup": blocking}, max_in_flight=1))
+    first = {}
+    t = threading.Thread(target=lambda: first.update(r=c.post("/agents/catalog_lookup",
+                                                              json={"request": "Who owns dim_customers?"})))
+    t.start()
+    assert started.wait(5)
+    busy = c.post("/agents/catalog_lookup", json={"request": "Who owns dim_customers?"})
+    assert busy.status_code == 503 and busy.headers["retry-after"] == "5"
+    assert c.get("/tables").status_code == 200  # only LLM endpoints are gated
+    release.set()
+    t.join(5)
+    assert first["r"].status_code == 200
+    c2 = c.post("/agents/catalog_lookup", json={"request": "Who owns dim_customers?"})
+    assert c2.status_code != 503  # the slot was freed
+
+
+def test_rate_limit_answers_429_with_retry_after():
+    from catalog_iq.ratelimit import RateLimiter
+    from test_budget import Clock
+    c = TestClient(create_app(providers={"catalog_lookup": Scripted([], repeat=True)},
+                              limiter=RateLimiter(per_minute=10, burst=2, clock=Clock())))
+    codes = [c.post("/agents/catalog_lookup", json={"request": "Who owns dim_customers?"}).status_code
+             for _ in range(3)]
+    assert codes == [200, 200, 429]
+    r = c.post("/agents/catalog_lookup", json={"request": "Who owns dim_customers?"})
+    assert r.headers["retry-after"] == "6"
+    assert c.get("/tables").status_code == 200 and c.get("/health").status_code == 200
+
+
+def test_usage_reports_budgets():
+    c = client(router=router_says({"agent": "catalog_lookup", "request": "Who owns dim_customers?",
+                                   "reason": "an owner lookup"}), catalog_lookup=lookup_agent())
+    body = c.post("/ask", json={"request": "Who owns dim_customers?"}).json()
+    u, ru = body["answers"][0]["usage"], body["router_usage"]
+    assert (u["token_budget"], u["seconds_budget"], u["stopped_by_budget"]) == (100_000, 60.0, False)
+    assert (ru["token_budget"], ru["seconds_budget"], ru["stopped_by_budget"]) == (30_000, 20.0, False)
+    assert u["tokens"] == 240 and ru["tokens"] == 360
+
+
+def test_usage_flags_a_run_stopped_by_its_budget():
+    from catalog_iq.api import _usage
+    from catalog_iq.core.budget import Budget
+    b = Budget(seconds=60, tokens=100)
+    b.stop("token budget of 100 used (120)")
+    u = _usage([USAGE], b)
+    assert u.stopped_by_budget and u.token_budget == 100 and u.tokens == 120

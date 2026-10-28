@@ -5,8 +5,9 @@
 - Responses are streamed so time to first token can be measured.
 - The model's own message (reply.raw) is sent back unchanged in later turns,
   because Gemini needs its thought signatures returned.
-- Rate-limit and server errors are retried with backoff. A 429 that asks to
-  wait longer than MAX_WAIT_S (a daily quota) raises QuotaExhausted at once.
+- Rate-limit and server errors are retried with backoff by providers/retry.py,
+  within the run's time left. A 429 that asks to wait longer than MAX_WAIT_S
+  (a daily quota) raises QuotaExhausted at once.
 """
 
 import re
@@ -17,10 +18,10 @@ from google import genai
 from google.genai import errors, types
 
 from catalog_iq.core.providers.base import LLMCall, QuotaExhausted, Reply, ToolCallRequest
+from catalog_iq.core.providers.retry import TIMEOUT_S, with_retries
 
 RETRY_CODES = {429, 500, 503, 504}
 RETRY_DELAYS_S = (5, 20, 60)
-TIMEOUT_S = 90  # per request; without it a stalled call hangs the run
 MAX_WAIT_S = 60  # a 429 asking for a longer wait is a quota, not a burst limit
 RETRY_IN_RE = re.compile(r"retry in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", re.IGNORECASE)
 
@@ -44,16 +45,20 @@ class GeminiProvider:
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
         )
         contents = to_contents(messages)
-        for delay in (*self.retry_delays_s, None):
-            try:
-                return self._stream(contents, config)
-            except errors.APIError as e:
-                wait = retry_after_s(str(e)) if e.code == 429 else None
-                if wait is not None and wait > MAX_WAIT_S:
-                    raise QuotaExhausted(f"{self.model}: quota exhausted, retry in {wait / 3600:.1f}h") from e
-                if e.code not in RETRY_CODES or delay is None:
-                    raise
-                time.sleep(max(delay, wait or 0))
+
+        def attempt(timeout: float) -> Reply:
+            timed = config.model_copy(update={"http_options": types.HttpOptions(timeout=int(timeout * 1000))})
+            return self._stream(contents, timed)
+
+        def retry_wait(e: Exception) -> float | None:
+            if not isinstance(e, errors.APIError) or e.code not in RETRY_CODES:
+                return None
+            wait = retry_after_s(str(e)) if e.code == 429 else None
+            if wait is not None and wait > MAX_WAIT_S:
+                raise QuotaExhausted(f"{self.model}: quota exhausted, retry in {wait / 3600:.1f}h") from e
+            return wait or 0.0
+
+        return with_retries(attempt, retry_wait, self.retry_delays_s)
 
     def _stream(self, contents: list[types.Content], config: types.GenerateContentConfig) -> Reply:
         start = time.perf_counter()

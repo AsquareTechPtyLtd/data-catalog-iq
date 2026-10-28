@@ -55,6 +55,10 @@ flowchart TB
   swapped for per-request tokens (`PERSON_3f9a2c1b`) at the provider boundary and
   swapped back in the answer, so tools and guardrails still see real values.
   See [SECURITY.md](SECURITY.md).
+- **Every run has a budget.** Each agent run gets 60 s and 100k tokens, the
+  router 20 s and 30k; no LLM call starts past it and retries only wait if the
+  wait fits. The LLM endpoints allow 4 requests at once and 10 a minute per
+  client. See [SECURITY.md](SECURITY.md#limits).
 - **No vector database.** Retrieval is metadata filters, lineage walks and
   SQLite FTS5 keyword search over data categories. A scale test with 5,013
   data categories kept recall@20 at 98.9% (the agent re-searches), so
