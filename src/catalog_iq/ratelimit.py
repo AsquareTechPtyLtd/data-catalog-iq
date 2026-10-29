@@ -14,6 +14,7 @@ MAX_KEYS = 10_000  # past this, buckets that have refilled are dropped
 
 class RateLimiter:
     def __init__(self, per_minute: float = PER_MINUTE, burst: int = BURST, clock=time.monotonic):
+        self.per_minute = per_minute
         self.rate = per_minute / 60
         self.burst = burst
         self._clock = clock

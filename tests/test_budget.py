@@ -96,3 +96,64 @@ def test_bad_settings_fail_clearly(monkeypatch, raw, message):
     monkeypatch.setenv("AGENT_BUDGET_TOKENS", raw)
     with pytest.raises(ValueError, match=f"AGENT_BUDGET_TOKENS {message}"):
         agent_budget()
+
+
+# --- cancellation and what the user is told ---
+
+def test_cancel_stops_every_budget_and_retries():
+    import threading
+
+    from catalog_iq.core.budget import BudgetExceeded, cancellable
+    from catalog_iq.core.providers.retry import with_retries
+    event = threading.Event()
+    with cancellable(event):
+        b = Budget(seconds=60, tokens=1000)
+        assert b.exceeded() is None
+        event.set()
+        assert b.exceeded() == "client disconnected"
+        with pytest.raises(BudgetExceeded, match="client disconnected"):
+            with_retries(lambda timeout: "reply", lambda e: None, (1,))
+    assert Budget(seconds=60, tokens=1000).exceeded() is None  # outside the request
+
+
+def test_agent_stops_after_the_client_leaves(conn):
+    import threading
+
+    from catalog_iq.core.budget import cancellable
+    event = threading.Event()
+
+    class LeavesAfterFirstCall(FakeProvider):
+        def chat(self, system, messages, tools):
+            event.set()  # the client disconnects while this call runs
+            return super().chat(system, messages, tools)
+
+    with cancellable(event):
+        run = run_agent("Who owns dim_customers?", conn, LeavesAfterFirstCall(get(), get()), "system", "catalog_lookup")
+    assert len(run.llm_calls) == 1 and budget_event(run)[0].detail == "client disconnected"
+
+
+def test_budget_stop_says_which_limit(conn):
+    run = run_agent("Who owns dim_customers?", conn, FakeProvider(get(), get()), "system", "catalog_lookup",
+                    budget=Budget(seconds=60, tokens=200))
+    assert run.response.answer.startswith(
+        "I stopped before finishing: this question reached its limit of 200 tokens. I couldn't verify")
+    clock = Clock()
+    b = Budget(seconds=60, tokens=1000, clock=clock)
+    clock.now = 61
+    assert b.user_note() == "I stopped before finishing: this question reached its time limit of 60 seconds."
+
+
+def test_recommender_budget_stop_says_which_limit(conn, monkeypatch):
+    import catalog_iq.core.loop as loop
+    from catalog_iq.agents.pi_classifier import recommend_pi
+    monkeypatch.setattr(loop, "agent_budget", lambda: Budget(seconds=60, tokens=1))
+    columns = [("get_columns", {"table": "raw_crm.contacts"})]
+    run = recommend_pi("raw_crm.contacts", conn=conn, provider=FakeProvider(columns, []))
+    assert run.response.summary.startswith("I stopped before finishing: this question reached its limit of 1 tokens.")
+
+
+def test_router_budget_stop_says_so(conn):
+    provider = router_says({"agent": "catalog_lookup", "request": "Who owns dim_customers?", "reason": "owner"})
+    rr = route("Who owns dim_customers?", conn=conn, provider=provider, budget=Budget(seconds=20, tokens=0))
+    assert rr.decision.clarification.question == \
+        "I stopped before finishing: this question reached its limit of 0 tokens. Please ask again."

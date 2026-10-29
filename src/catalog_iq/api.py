@@ -14,20 +14,28 @@ Synchronous (R7): an answer takes ~5–10 s per route. Each request opens its
 own read-only catalog connection. API keys come only from .env.
 """
 
+import contextvars
+import json
 import math
 import os
+import queue
 import sqlite3
 import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import closing
 from pathlib import Path
 from typing import Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field
 
 from catalog_iq.catalog.db import catalog_path, connect
 from catalog_iq.cli import MAX_QUESTION_CHARS, check_question
 from catalog_iq.core.config import agent_config, load_env, number_setting
+from catalog_iq.core import progress
+from catalog_iq.core.budget import cancellable
 from catalog_iq.core.loop import AgentRun
 from catalog_iq.core.providers import Provider, make_provider
 from catalog_iq.core.redaction import redaction_scope
@@ -114,14 +122,19 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
         """Keyed on the connection's address; X-Forwarded-For is not trusted (anyone can set it)."""
         wait = limiter.take(request.client.host if request.client else "unknown")
         if wait:
-            raise HTTPException(429, "Too many questions from this client. Try again shortly.",
-                                headers={"Retry-After": str(math.ceil(wait))})
+            seconds = math.ceil(wait)
+            raise HTTPException(429, f"You've reached the limit of {limiter.per_minute:g} questions a minute. "
+                                     f"Try again in {seconds} second{'s' if seconds != 1 else ''}.",
+                                headers={"Retry-After": str(seconds)})
 
-    def llm_slot():
+    def take_slot():
         """A full gate answers 503 at once: waiting would only spend the request's budget."""
         if not slots.acquire(blocking=False):
             raise HTTPException(503, "Busy: too many questions in progress. Try again in a few seconds.",
                                 headers={"Retry-After": str(RETRY_AFTER_S)})
+
+    def llm_slot():
+        take_slot()
         try:
             yield
         finally:
@@ -151,28 +164,110 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
 
     llm = [Depends(rate_limit), Depends(llm_slot)]  # LLM endpoints: rate limit, then the gate
 
-    @app.post("/ask", response_model=AskResponse, dependencies=llm)
-    def ask_(body: AskRequest, conn: sqlite3.Connection = Depends(db)):
-        error = check_question(body.request)
-        if error:
-            raise HTTPException(422, error)
-        # one Vault and one trace: the router, then each agent it chose
+    def ask_steps(body: AskRequest, conn: sqlite3.Connection):
+        """The work of one /ask: yields the RouteRun, then (index, Answer or HTTPException) per route as
+        each finishes. Routes run in parallel, each with its own connection and budget; answers stay
+        separate (R9). One Vault, one cancel flag and one trace for the router and every agent."""
         with redaction_scope(conn), span("ask", "CHAIN") as s:
             s.input({"request": body.request, "history": [t.model_dump() for t in body.history]})
             try:
                 rr = route(body.request, history=body.history, conn=conn, provider=provider_for("router"))
             except Exception as e:
                 raise HTTPException(503, f"Router failed: {type(e).__name__}") from e
-            answers = [answer(r, conn) for r in rr.decision.routes]  # one after another, never merged (R9)
             s.output({"status": rr.decision.status, "routes": [f"{r.agent}·{r.table or '-'}"
                                                                for r in rr.decision.routes]})
-            return AskResponse(decision=rr.decision, answers=answers, router_usage=_usage(rr.llm_calls, rr.budget))
+            yield rr
+            routes = rr.decision.routes
+            if not routes:
+                return
+            with ThreadPoolExecutor(max_workers=len(routes)) as pool:  # each thread gets this request's context
+                futures = [pool.submit(contextvars.copy_context().run, run_one, i, r) for i, r in enumerate(routes)]
+                for f in as_completed(futures):
+                    yield f.result()
 
-    @app.post("/agents/catalog_lookup", response_model=AskResponse, dependencies=llm)
-    def lookup(body: LookupRequest, conn: sqlite3.Connection = Depends(db)):
+    def run_one(i: int, r: Route):
+        with progress.for_route(i):
+            progress.progress("agent", f"{r.label} started")
+            conn = connect(catalog)  # SQLite connections stay in the thread that opened them
+            try:
+                return i, answer(r, conn)
+            except HTTPException as e:
+                return i, e
+            finally:
+                conn.close()
+
+    def checked(body: AskRequest) -> None:
         error = check_question(body.request)
         if error:
             raise HTTPException(422, error)
+
+    @app.post("/ask", response_model=AskResponse, dependencies=llm)
+    def ask_(body: AskRequest, conn: sqlite3.Connection = Depends(db)):
+        checked(body)
+        with closing(ask_steps(body, conn)) as steps:  # closes the trace and Vault even when a route fails
+            rr = next(steps)
+            answers = {}
+            for i, a in steps:
+                if isinstance(a, HTTPException):
+                    raise a
+                answers[i] = a
+        return AskResponse(decision=rr.decision, answers=[answers[i] for i in sorted(answers)], router_usage=_usage(rr.llm_calls, rr.budget))
+
+    @app.post("/ask/stream", dependencies=[Depends(rate_limit)],
+              response_class=StreamingResponse, responses={200: {"content": {"application/x-ndjson": {}}}})
+    def ask_stream(body: AskRequest, request: Request):
+        """Newline-delimited JSON events as the work happens: progress, decision, answer (per route,
+        with its route_index), then done; error if something fails. Same work as POST /ask.
+        If the client disconnects, no further LLM call starts (a call already running finishes)."""
+        checked(body)
+        take_slot()  # a full gate is still a plain 503, before any event
+        events: queue.Queue = queue.Queue()
+        cancel = threading.Event()
+
+        def work():  # owns the slot and its own connection until the work ends, even if the client left
+            conn = connect(catalog)
+            try:
+                with cancellable(cancel), progress.attach(events.put), closing(ask_steps(body, conn)) as steps:
+                    rr = next(steps)
+                    events.put({"event": "decision", "decision": rr.decision.model_dump(mode="json"),
+                                "router_usage": _usage(rr.llm_calls, rr.budget).model_dump()})
+                    for i, a in steps:
+                        events.put({"event": "error", "route_index": i, "detail": a.detail}
+                                   if isinstance(a, HTTPException)
+                                   else {"event": "answer", "route_index": i, **a.model_dump(mode="json")})
+                    events.put({"event": "done"})
+            except HTTPException as e:
+                events.put({"event": "error", "detail": e.detail})
+            except Exception as e:
+                events.put({"event": "error", "detail": f"Failed: {type(e).__name__}"})
+            finally:
+                conn.close()
+                slots.release()
+                events.put(None)
+
+        threading.Thread(target=work, daemon=True, name="ask-stream").start()
+
+        def next_event():
+            try:
+                return events.get(timeout=1)
+            except queue.Empty:
+                return ...  # no event this second: check the client is still there
+
+        async def stream():
+            try:
+                while (event := await run_in_threadpool(next_event)) is not None:
+                    if event is ...:
+                        if await request.is_disconnected():
+                            return
+                        continue
+                    yield json.dumps(event) + "\n"
+            finally:  # done, disconnected, or the response could not be sent: stop the work
+                cancel.set()
+        return StreamingResponse(stream(), media_type="application/x-ndjson")
+
+    @app.post("/agents/catalog_lookup", response_model=AskResponse, dependencies=llm)
+    def lookup(body: LookupRequest, conn: sqlite3.Connection = Depends(db)):
+        checked(body)
         return AskResponse(decision=None, answers=[answer(direct("catalog_lookup", None, body.request), conn)])
 
     def recommender(agent: Literal["pi_classifier", "data_category_recommender"]):

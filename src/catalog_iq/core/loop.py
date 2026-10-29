@@ -22,6 +22,7 @@ from pydantic import BaseModel, ValidationError
 
 from catalog_iq.core.budget import Budget, BudgetExceeded, agent_budget
 from catalog_iq.core.guardrails import MAX_ATTEMPTS, Guard
+from catalog_iq.core.progress import describe_tool, progress, retry_reason
 from catalog_iq.core.providers.base import LLMCall, Provider, ToolResult
 from catalog_iq.core.response import AgentDraft, AgentResponse, GuardrailEvent
 from catalog_iq.core.tracing import llm_messages, span
@@ -101,8 +102,11 @@ def _run(question, conn, provider, system, agent, max_turns, guard, tools, budge
         return AgentRun(response=response, tool_results=guard.tool_results, llm_calls=llm_calls, budget=budget)
 
     def over_budget(why: str) -> AgentRun:
+        progress("budget", f"Stopped: {why}")
         guard.events.append(GuardrailEvent(part="output", check="budget", detail=budget.stop(why)))
-        return done(guard.refuse())
+        refusal = guard.refuse()
+        text = "answer" if "answer" in type(refusal).model_fields else "summary"
+        return done(refusal.model_copy(update={text: f"{budget.user_note()} {getattr(refusal, text)}"}))
 
     for _ in range(max_turns):
         why = budget.exceeded()
@@ -124,11 +128,14 @@ def _run(question, conn, provider, system, agent, max_turns, guard, tools, budge
             if call.name != FINAL_ANSWER:
                 results.append(ToolResult(call, _tool(guard, call)))
                 continue
+            progress("check", "Checking the answer against its sources")
             draft, problems = _check(guard, call)
             if not problems:
                 return done(guard.complete(draft))
             if guard.attempts >= MAX_ATTEMPTS:
+                progress("refused", "The answer failed its checks again, so it won't be shown")
                 return done(guard.refuse())
+            progress("retry", f"Trying again: {retry_reason([e.check for e in problems])}")
             results.append(ToolResult(call, {"status": "rejected", "feedback": guard.feedback(problems)}))
         messages.append({"role": "tool", "results": results})
 
@@ -151,6 +158,7 @@ def _chat(provider: Provider, system: str, messages: list[dict], tools: list[dic
 
 
 def _tool(guard: Guard, call) -> dict:
+    progress("tool", describe_tool(call.name, call.args))
     with span(f"tool:{call.name}", "TOOL", tool__name=call.name) as s:
         s.input(call.args)
         events_before = len(guard.events)

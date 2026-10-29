@@ -78,7 +78,8 @@ def test_multi_intent_returns_one_answer_per_route(monkeypatch):
     c = client(router=router_says({"agent": "catalog_lookup", "request": "Who owns fct_orders?", "reason": "x"},
                                   {"agent": "pi_classifier", "table": "fct_orders", "request": "q", "reason": "y"}))
     body = c.post("/ask", json={"request": "Who owns fct_orders and does it hold personal data?"}).json()
-    assert [a["response"]["agent"] for a in body["answers"]] == ["catalog_lookup", "pi_classifier"] == seen
+    assert [a["response"]["agent"] for a in body["answers"]] == ["catalog_lookup", "pi_classifier"]  # route order
+    assert sorted(seen) == ["catalog_lookup", "pi_classifier"]  # routes run in parallel, in any order
     assert body["answers"][1]["route"]["table"] == "fernwood_dw.marts.fct_orders"
 
 
@@ -177,6 +178,7 @@ def test_rate_limit_answers_429_with_retry_after():
     assert codes == [200, 200, 429]
     r = c.post("/agents/catalog_lookup", json={"request": "Who owns dim_customers?"})
     assert r.headers["retry-after"] == "6"
+    assert r.json()["detail"] == "You've reached the limit of 10 questions a minute. Try again in 6 seconds."
     assert c.get("/tables").status_code == 200 and c.get("/health").status_code == 200
 
 

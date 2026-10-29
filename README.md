@@ -26,7 +26,7 @@ a real catalog without the production controls in [SECURITY.md](SECURITY.md).
 
 ```mermaid
 flowchart TB
-    UI["Web page (HTML, served by FastAPI)"] -->|"POST /ask {request, history}"| API[FastAPI]
+    UI["Web page (HTML, served by FastAPI)"] -->|"POST /ask/stream {request, history}"| API[FastAPI]
     API --> R["Router: 3 parallel LLM samples<br/>agreement = routing confidence"]
     R -->|1-3 routes| CL[Catalog Lookup]
     R --> PI[PI Classifier]
@@ -59,6 +59,11 @@ flowchart TB
   router 20 s and 30k; no LLM call starts past it and retries only wait if the
   wait fits. The LLM endpoints allow 4 requests at once and 10 a minute per
   client. See [SECURITY.md](SECURITY.md#limits).
+- **The page shows where a question is.** `/ask/stream` sends each step as it
+  happens ("Walking the lineage of fct_orders upstream", "Trying again: a claim
+  wasn't in its cited source"), runs a question's parts in parallel, and stops
+  calling the LLM when the client leaves. One process answers 4 questions at once,
+  about 30 a minute; [load test](SECURITY.md#capacity).
 - **No vector database.** Retrieval is metadata filters, lineage walks and
   SQLite FTS5 keyword search over data categories. A scale test with 5,013
   data categories kept recall@20 at 98.9% (the agent re-searches), so
@@ -117,6 +122,7 @@ catalog-iq ask "..." --verbose                                          # tool c
 | Endpoint | Body | Returns |
 |---|---|---|
 | `POST /ask` | `{request, history?}` | `{decision, answers}`: the router's decision and one agent response per route |
+| `POST /ask/stream` | `{request, history?}` | the same as newline-delimited JSON events: `progress`, `decision`, one `answer` per route (with `route_index`, as each finishes), then `done` or `error` |
 | `POST /agents/catalog_lookup` | `{request}` | one agent, no router |
 | `POST /agents/pi_classifier` | `{table}` | one agent, no router |
 | `POST /agents/data_category_recommender` | `{table}` | one agent, no router |
@@ -144,7 +150,7 @@ Optional tracing to Arize Phoenix: `pip install -e ".[trace]"`, run
 
 ```
 data/sources/        synthetic Collibra-style export, ODCS contracts, dbt manifest
-scripts/             warehouse generator, catalog ingestion, data category scale-test catalog
+scripts/             warehouse generator, catalog ingestion, data category scale-test catalog, API load test
 src/catalog_iq/
   core/              agent loop, providers (Anthropic, Gemini), guardrails, citation checks, tracing
   tools/             read-only catalog tools

@@ -7,7 +7,7 @@ per-call timeout, as before.
 
 import time
 
-from catalog_iq.core.budget import BudgetExceeded, time_left
+from catalog_iq.core.budget import DISCONNECTED, BudgetExceeded, cancelled, time_left
 
 TIMEOUT_S = 90  # per attempt; without it a stalled call hangs the run
 
@@ -16,6 +16,8 @@ def with_retries(attempt, retry_wait, delays_s, sleep=time.sleep):
     """attempt(timeout_s) → reply. retry_wait(error) → seconds the server asked to wait (0 if it
     didn't say), or None when the error is not worth retrying."""
     for delay in (*delays_s, None):
+        if cancelled():
+            raise BudgetExceeded(DISCONNECTED)
         left = time_left()
         if left is not None and left <= 0:
             raise BudgetExceeded("no time left for an LLM call")

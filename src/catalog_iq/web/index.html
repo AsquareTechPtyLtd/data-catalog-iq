@@ -261,18 +261,47 @@ function remember(question, data) {
   while (history.length > MAX_HISTORY) history.shift();
 }
 
-async function post(path, body) {
-  const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+async function failure(res) {
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const detail = typeof data.detail === "string" ? data.detail : (data.detail || []).map((d) => d.msg).join("; ");
-    throw new Error(detail || `HTTP ${res.status}`);
-  }
-  return data;
+  const detail = typeof data.detail === "string" ? data.detail : (data.detail || []).map((d) => d.msg).join("; ");
+  const error = new Error(detail || `HTTP ${res.status}`);
+  error.limit = res.status === 429 || res.status === 503;  // a limit, not a fault: show the message as is
+  return error;
 }
 
+async function post(path, body) {
+  const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok) throw await failure(res);
+  return res.json();
+}
+
+// POST /ask/stream: one JSON event per line, handed to onEvent as each arrives
+async function postStream(path, body, onEvent) {
+  const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok) throw await failure(res);
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let nl;
+    while ((nl = buffer.indexOf("\n")) >= 0) {
+      const line = buffer.slice(0, nl).trim();
+      buffer = buffer.slice(nl + 1);
+      if (line) onEvent(JSON.parse(line));
+    }
+  }
+}
+
+const waiting = (text) => el("div", { class: "card sources" }, el("span", { class: "spinner" }), text);
+const setWaiting = (node, text) => { node.lastChild.textContent = text; };
+const routeName = (r) => `${r.label}${r.table ? " · " + short(r.table) : ` (“${r.request}”)`}`;
+const errorCard = (message, limit) => el("div", { class: "card error" }, limit ? message : `Something went wrong: ${message}`);
+
 function pending(text) {
-  const node = el("div", { class: "card sources" }, el("span", { class: "spinner" }), text);
+  const node = waiting(text);
   log.append(node);
   node.scrollIntoView({ behavior: "smooth", block: "end" });
   return node;
@@ -285,16 +314,39 @@ async function ask(question) {
   if (!question) return;
   document.getElementById("empty")?.remove();
   log.append(el("div", { class: "user" }, question));
-  const wait = pending("Routing and answering… (about 5–10 s per agent)");
+  const status = pending("Working out which agent should answer…");
+  const box = el("div", {});
+  const slots = [];    // one card per route: a spinner with its latest step, then the answer
+  const answers = [];
+  let decision = null;
+  const show = (node) => (status.isConnected ? status.replaceWith(node) : box.append(node));
   busy(true);
   try {
-    const data = await post("/ask", { request: question, history });
-    const node = renderDecision(data, question);
-    wait.replaceWith(node);
-    node.scrollIntoView({ behavior: "smooth", block: "start" });
-    if (data.answers.length) remember(question, data);
+    await postStream("/ask/stream", { request: question, history }, (e) => {
+      const slot = slots[e.route_index];
+      if (e.event === "progress") {
+        if (slot) setWaiting(slot, `${routeName(decision.routes[e.route_index])}: ${e.text}`);
+        else if (status.isConnected) setWaiting(status, e.text);
+      } else if (e.event === "decision") {
+        decision = e.decision;
+        if (decision.status === "clarify") return show(renderDecision({ decision, answers: [] }, question));
+        for (const r of decision.routes) slots.push(box.appendChild(waiting(`${routeName(r)}: starting…`)));
+        if (decision.alternative) box.append(el("div", { class: "sources" }, "Or did you mean: ", optionButtons([decision.alternative])));
+        if (decision.note) box.append(el("div", { class: "note" }, decision.note));
+        show(box);
+        box.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (e.event === "answer") {
+        answers[e.route_index] = e;
+        slot.replaceWith(renderAnswer(e, decision, question));
+      } else if (e.event === "error") {
+        if (slot) slot.replaceWith(errorCard(e.detail));
+        else show(errorCard(e.detail));
+      }
+    });
+    const done = answers.filter(Boolean);
+    if (done.length) remember(question, { answers: done });
   } catch (e) {
-    wait.replaceWith(el("div", { class: "card error" }, `Something went wrong: ${e.message}`));
+    show(errorCard(e.message, e.limit));
   } finally {
     busy(false);
     input.focus();
@@ -318,7 +370,7 @@ async function runOption(option) {
     node.scrollIntoView({ behavior: "smooth", block: "start" });
     remember(option.label, data);
   } catch (e) {
-    wait.replaceWith(el("div", { class: "card error" }, `Something went wrong: ${e.message}`));
+    wait.replaceWith(errorCard(e.message, e.limit));
   } finally {
     busy(false);
   }

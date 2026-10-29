@@ -41,6 +41,7 @@ from catalog_iq.core.budget import Budget, BudgetExceeded, router_budget
 from catalog_iq.core.guardrails import MAX_ATTEMPTS
 from catalog_iq.core.loop import AgentRun, _chat, inline_refs
 from catalog_iq.core.providers import Provider, make_provider
+from catalog_iq.core.progress import progress
 from catalog_iq.core.providers.base import LLMCall, ToolResult
 from catalog_iq.core.redaction import redaction_scope
 from catalog_iq.core.tracing import span
@@ -317,6 +318,7 @@ def route(request: str, history: list[Turn] | None = None, conn: sqlite3.Connect
             provider = make_provider(agent_config(AGENT))
         specs = load_specs()
         system = system_prompt(specs)
+        progress("routing", "Working out which agent should answer")
         with redaction_scope(conn), span(AGENT, "CHAIN", agent=AGENT) as s:
             s.input({"request": request, "history": [t.model_dump() for t in history]})
             db_lock = threading.Lock()
@@ -326,6 +328,9 @@ def route(request: str, history: list[Turn] | None = None, conn: sqlite3.Connect
                            for n in range(1, samples + 1)]
                 results = [f.result() for f in futures]
             decision = decide(request, [o for o, _ in results])
+            if budget.stopped_by and decision.status == "clarify" and decision.clarification:
+                decision = decision.model_copy(update={"clarification": decision.clarification.model_copy(
+                    update={"question": f"{budget.user_note()} Please ask again."})})
             s.output(decision)
             s.set(metadata={"status": decision.status, "confidence": decision.confidence,
                             "agreement": decision.agreement})

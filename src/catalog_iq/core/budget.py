@@ -9,6 +9,10 @@ Defaults are about twice the slowest question seen in evals (2026-10-28: 30.5 s,
 (AGENT_BUDGET_SECONDS, AGENT_BUDGET_TOKENS, ROUTER_BUDGET_SECONDS, ROUTER_BUDGET_TOKENS);
 evals use the same budgets as the app.
 The router's samples run in parallel and share one budget.
+
+A request can also be cancelled (`with cancellable(event):`, set when a streaming client
+disconnects): every budget in it then reports "client disconnected", so no further LLM
+call starts in any route or router sample. A call already running finishes.
 """
 
 import threading
@@ -33,6 +37,9 @@ def router_budget() -> "Budget":
                   number_setting("ROUTER_BUDGET_TOKENS", ROUTER_TOKENS, int))
 
 
+DISCONNECTED = "client disconnected"
+
+
 class BudgetExceeded(RuntimeError):
     """An LLM call (or its retry) does not fit in the run's time left."""
 
@@ -54,6 +61,8 @@ class Budget:
 
     def exceeded(self) -> str | None:
         """Why no further LLM call may start, or None."""
+        if cancelled():
+            return DISCONNECTED
         if self.elapsed_s() >= self.seconds:
             return f"time budget of {self.seconds:g} s used ({self.elapsed_s():.1f} s)"
         if self.used_tokens >= self.tokens:
@@ -63,6 +72,12 @@ class Budget:
     def stop(self, why: str) -> str:
         self.stopped_by = why
         return why
+
+    def user_note(self) -> str:
+        """The stop, in a sentence for the person who asked."""
+        if self.used_tokens >= self.tokens:
+            return f"I stopped before finishing: this question reached its limit of {self.tokens:,} tokens."
+        return f"I stopped before finishing: this question reached its time limit of {self.seconds:g} seconds."
 
     def left_s(self) -> float:
         return self.seconds - self.elapsed_s()
@@ -83,3 +98,20 @@ def time_left() -> float | None:
     """Seconds left in the active run's budget; None outside a run (no limit)."""
     b = _active.get()
     return None if b is None else b.left_s()
+
+
+_cancel: ContextVar[threading.Event | None] = ContextVar("request_cancel", default=None)
+
+
+@contextmanager
+def cancellable(event: threading.Event):
+    token = _cancel.set(event)
+    try:
+        yield
+    finally:
+        _cancel.reset(token)
+
+
+def cancelled() -> bool:
+    event = _cancel.get()
+    return event is not None and event.is_set()
