@@ -34,6 +34,7 @@ Data Strategy (N1).
 from catalog_iq.agents.data_category_recommender.schema import (
     CurrentDataCategory, DataCategoryDraft, DataCategoryRecommendation, DataCategoryResponse, Signal,
 )
+from catalog_iq.core.confidence import RETRIED, for_against, signal_reasons
 from catalog_iq.core.faithfulness import check_faithfulness
 from catalog_iq.core.guardrails import Guard
 from catalog_iq.core.response import Citation, Fact, GuardrailEvent, Guardrails, TableRef
@@ -43,6 +44,7 @@ from catalog_iq.tools.data_categories import get_data_category
 FAITHFULNESS_CHECKS = {"invalid_citation", "unsupported_claim", "answer_entity_not_in_facts"}
 CORROBORATING = {"neighbour", "data_category_domain", "domain_tables"}
 REFUSAL_REASON = "The recommendation could not be verified against the catalog; categorize this table manually."
+REFUSED = "Refused: the recommendation could not be verified after two attempts"
 CANDIDATE_FLAG = "{data_category_id} is {status}, not Approved: the table would not be certified with it."
 
 
@@ -62,8 +64,7 @@ def confidence(outcome: str, data_category_id: str | None, signals: list[dict], 
     if outcome == "no_fit":
         level = "low" if any(s["strong"] for s in signals) else "medium"
     else:
-        support = [s for s in signals if data_category_id in s["suggests"]]
-        contra = [s for s in signals if s["strong"] and data_category_id not in s["suggests"]]
+        support, contra = for_against(data_category_id, signals)
         definition = any(s["signal"] == "definition" for s in support)
         strong = [s for s in support if s["strong"]]
         corroborated = any(s["signal"] in CORROBORATING for s in support)
@@ -75,6 +76,18 @@ def confidence(outcome: str, data_category_id: str | None, signals: list[dict], 
     if retried and level == "high":
         level = "medium"
     return level
+
+
+def confidence_reasons(outcome: str, data_category_id: str | None, signals: list[dict],
+                       retried: bool = False) -> list[str]:
+    """The signals behind confidence(), in plain words."""
+    if outcome == "needs_manual_review":
+        return ["The model found the evidence too weak or conflicting to recommend"]
+    if outcome == "no_fit":
+        return (["No existing data category fits the table"]
+                + [f"Against: {s['detail']}" for s in signals if s["strong"]] + ([RETRIED] if retried else []))
+    support, contra = for_against(data_category_id, signals)
+    return signal_reasons(support, contra, retried, f"No signal suggests {data_category_id}")
 
 
 class DataCategoryGuard(Guard):
@@ -175,6 +188,7 @@ class DataCategoryGuard(Guard):
             extra = definition_signal(self.conn, result, chosen)  # beyond the catalog-wide top 3
             signals += [extra] if extra else []
         level = confidence(draft.outcome, draft.data_category_id, signals, retried=self.attempts > 1)
+        reasons = confidence_reasons(draft.outcome, draft.data_category_id, signals, retried=self.attempts > 1)
         status, note, rec = draft.outcome, None, None
         if draft.outcome == "recommended":
             rec = self._recommendation(draft.data_category_id)
@@ -188,7 +202,7 @@ class DataCategoryGuard(Guard):
                     f"({s['escalation_email']}, {s['escalation_slack']}) to propose one.")
         return self._data_category_response(result, draft.summary, outcome, status=status, recommendation=rec,
                                             considered=draft.considered, reason=draft.reason, note=note,
-                                            confidence=level, signals=signals,
+                                            confidence=level, reasons=reasons, signals=signals,
                                             cited=self._citations(draft, self._retrieved()))
 
     def refuse(self) -> DataCategoryResponse:
@@ -200,6 +214,7 @@ class DataCategoryGuard(Guard):
         return self._data_category_response(result, summary, "refused",
                                             status="needs_manual_review" if found else None,
                                             reason=REFUSAL_REASON if found else None, confidence="low",
+                                            reasons=[REFUSED],
                                             signals=result["signals"] if found else [],
                                             cited=result["table"]["sources"] if result else [])
 
@@ -213,7 +228,7 @@ class DataCategoryGuard(Guard):
 
     def _data_category_response(self, result: dict | None, summary: str, outcome: str, status: str | None = None,
                                 cited: list[str] = (), confidence: str | None = None, signals: list[dict] = (),
-                                **fields) -> DataCategoryResponse:
+                                reasons: list[str] | None = None, **fields) -> DataCategoryResponse:
         fqn = result["table"]["fqn"] if result else None
         current = None
         if result and result["status"] == "assigned":
@@ -222,12 +237,15 @@ class DataCategoryGuard(Guard):
         elif result and result["status"] == "not_applicable":
             current = CurrentDataCategory(data_category_id=None, inherits_from=result["inherits_from"])
         status = status or ("not_found" if result is None else result["status"])
+        if reasons is None:
+            reasons = (["The table was not found in the catalog"] if result is None
+                       else [f"No recommendation: {status.replace('_', ' ')}"])
         cited = list(dict.fromkeys(cited))
         return DataCategoryResponse(
             question=self.question, status=status, summary=summary, current=current,
             table=TableRef(fqn=fqn, name=fqn.split(".")[-1], url=f"{self.settings['base_url']}/table/{fqn}")
             if fqn else None,
-            confidence=confidence or ("low" if result is None else "high"),
+            confidence=confidence or ("low" if result is None else "high"), confidence_reasons=reasons,
             signals=[Signal(**s) for s in signals],
             citations=[Citation(id=cid, source=cid.split(":", 1)[0], ref=cid.split(":", 1)[1]) for cid in cited],
             evidence=self.evidence,

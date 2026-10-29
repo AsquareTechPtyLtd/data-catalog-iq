@@ -76,6 +76,7 @@ def check_correctness(response: AgentResponse, question: Question) -> CheckResul
         options = item if isinstance(item, list) else [item]
         if not any(_normalise(o) in text for o in options):
             reasons.append(f"missing_fact: {' | '.join(options)}")
+    reasons += [f"forbidden_mention: {m}" for m in exp.forbidden_mentions if _normalise(m) in text]
 
     stated = {(r.upstream, r.downstream, r.kind) for f in response.facts for r in f.relations}
     reasons += [f"missing_relation: {r.upstream} -> {r.downstream} ({r.kind})" for r in exp.relations
@@ -154,6 +155,7 @@ def summarize(results: list[QuestionResult]) -> dict:
             "agreement_rate": _rate(list(by_id.values()),
                                     lambda rs: len({(r.passed, r.status) for r in rs}) == 1),
             "calibration_high": _rate(high, lambda r: r.correctness.passed),
+            "high_but_wrong": sum(1 for r in high if not r.correctness.passed),  # what the badge must not do
             "retry_rate": _rate(results, lambda r: r.attempts > 1),
             "retry_success_rate": _rate(retried, lambda r: r.outcome == "passed_after_retry"),
             "refusal_rate": _rate(results, lambda r: r.outcome == "refused"),

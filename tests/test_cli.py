@@ -21,7 +21,7 @@ def test_text_output(capsys):
     assert cli.main(["ask", "Who owns dim_customers?"], provider=FakeProvider(get(), final(GOOD))) == 0
     out = capsys.readouterr().out
     assert out.startswith("dim_customers is owned by Maya Okafor.")
-    assert "status: answered · confidence: high" in out
+    assert "status: answered · evidence: high" in out and "why: Answered on the first attempt" in out
     assert "1. Owner of dim_customers: Maya Okafor  [1]" in out
     assert "[1] contract: data/sources/contracts/marts.dim_customers.yaml" in out
     assert "2 LLM calls" in out and "Tool calls" not in out

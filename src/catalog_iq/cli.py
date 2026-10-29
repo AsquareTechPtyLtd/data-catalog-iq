@@ -37,9 +37,14 @@ def check_question(question: str) -> str | None:
     return None
 
 
+def why(reasons: list[str]) -> list[str]:
+    """Evidence is how well the catalog supports an answer, not a guarantee it is right."""
+    return [f"  why: {'; '.join(reasons)}"] if reasons else []
+
+
 def render(run: AgentRun, verbose: bool = False) -> str:
     r = run.response
-    lines = [f"{r.answer}", "", f"status: {r.status} · confidence: {r.confidence}"]
+    lines = [f"{r.answer}", "", f"status: {r.status} · evidence: {r.confidence}", *why(r.confidence_reasons)]
     if r.clarification:
         lines += ["", r.clarification.question] + [f"  • {o}" for o in r.clarification.options]
     if r.tables:
@@ -71,7 +76,8 @@ def render(run: AgentRun, verbose: bool = False) -> str:
 
 def render_pi(run: AgentRun, verbose: bool = False) -> str:
     r = run.response
-    lines = [r.summary, "", f"status: {r.status} · {r.review_status.replace('_', ' ')}"]
+    lines = [r.summary, "", f"status: {r.status} · evidence: {r.confidence} · {r.review_status.replace('_', ' ')}",
+             *why(r.confidence_reasons)]
     if r.table:
         lines += [f"table: {r.table.fqn}  {r.table.url}"]
     if r.recommendations:
@@ -79,7 +85,7 @@ def render_pi(run: AgentRun, verbose: bool = False) -> str:
         for c in r.recommendations:
             what = f"PI: {c.pi_type} ({c.data_subject}), {c.sensitivity}" if c.recommendation == "pi" else \
                 "not PI" if c.recommendation == "not_pi" else "needs manual review"
-            lines += [f"  • {c.column}: {what} · {c.confidence} confidence (recorded: {c.recorded_status})",
+            lines += [f"  • {c.column}: {what} · evidence: {c.confidence} (recorded: {c.recorded_status})",
                       f"      {c.reason}"] + ([f"      note: {c.note}"] if c.note else [])
             if verbose:
                 lines += [f"      signal {s.signal} → {', '.join(s.suggests)}: {s.detail}" for s in c.signals]
@@ -98,7 +104,8 @@ def render_pi(run: AgentRun, verbose: bool = False) -> str:
 
 def render_data_category(run: AgentRun, verbose: bool = False) -> str:
     r = run.response
-    lines = [r.summary, "", f"status: {r.status} · confidence: {r.confidence} · {r.review_status.replace('_', ' ')}"]
+    lines = [r.summary, "", f"status: {r.status} · evidence: {r.confidence} · {r.review_status.replace('_', ' ')}",
+             *why(r.confidence_reasons)]
     if r.table:
         lines += [f"table: {r.table.fqn}  {r.table.url}"]
     if r.current:
@@ -133,7 +140,8 @@ def render_data_category(run: AgentRun, verbose: bool = False) -> str:
 
 
 def render_route(d) -> str:
-    lines = [f"status: {d.status} · routing confidence: {d.confidence} ({d.agreement} samples agree)"]
+    agree, n = d.agreement.split("/")
+    lines = [f"status: {d.status} · routing: {agree} of {n} samples agree ({d.confidence})"]
     for r in d.routes:
         lines += [f"  → {r.label}" + (f" · {r.table}" if r.table else "") + f"  ({r.reason})"]
         if r.agent == "catalog_lookup" and r.request != d.request:

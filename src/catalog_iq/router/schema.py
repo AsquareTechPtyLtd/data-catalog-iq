@@ -99,7 +99,8 @@ class RouteDecision(_Strict):
     request: str
     status: Literal["routed", "clarify"]
     routes: list[Route] = Field(default_factory=list)
-    confidence: Confidence = Field(description="Routing confidence: agreement of the samples (R11).")
+    confidence: Confidence = Field(description="Agreement of the routing samples (R11): high = all agree, medium = a "
+                                               "majority. Not a guarantee the route is right.")
     agreement: str = Field(description="e.g. 3/3")
     alternative: RouteOption | None = Field(default=None, description="medium: the minority plan, offered.")
     clarification: RouteClarification | None = None

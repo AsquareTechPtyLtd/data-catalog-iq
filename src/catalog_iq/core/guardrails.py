@@ -32,6 +32,8 @@ import json
 import sqlite3
 
 from catalog_iq.catalog.db import settings
+from catalog_iq.core.confidence import RETRIED
+from catalog_iq.core.progress import retry_reason
 from catalog_iq.core.faithfulness import Vocabulary, check_faithfulness, lineage_nodes
 from catalog_iq.core.response import (AgentDraft, AgentResponse, Citation, Escalation, GuardrailEvent,
                                       Guardrails, TableRef, ToolCall)
@@ -42,6 +44,7 @@ MAX_RESULT_CHARS = 20_000
 MAX_ATTEMPTS = 2       # first draft + one retry
 STRONG_MATCH = 0.7     # another find_table match this strong lowers confidence to medium
 
+REFUSED = "Refused: the answer could not be verified after two attempts"
 REFUSAL = ("I couldn't verify an answer to this from the data catalog, so I won't guess. "
            "Please contact the {team} team ({email}, {slack}).")
 
@@ -241,7 +244,7 @@ class Guard:
                                    **details.get(cid, {"id": cid})})
                        for cid in cited],  # compact citations carry only id (+ url); some ids are only inline
             escalation=Escalation(team=esc["team"], email=esc["email"], slack=esc["slack"]) if esc else None,
-            confidence=self._confidence(draft),
+            **self._confidence(draft),
             outcome="passed" if self.attempts <= 1 else "passed_after_retry")
 
     def refuse(self) -> AgentResponse:
@@ -253,7 +256,7 @@ class Guard:
                                   slack=s["escalation_slack"]),
             escalation=Escalation(team=s["escalation_team"], email=s["escalation_email"],
                                   slack=s["escalation_slack"]),
-            confidence="low", outcome="refused")
+            confidence="low", confidence_reasons=[REFUSED], outcome="refused")
 
     def _response(self, outcome: str, **fields) -> AgentResponse:
         return AgentResponse(
@@ -264,16 +267,32 @@ class Guard:
     def _table_ref(self, fqn: str) -> TableRef:
         return TableRef(fqn=fqn, name=fqn.split(".")[-1], url=f"{self.settings['base_url']}/table/{fqn}")
 
-    def _confidence(self, draft: AgentDraft) -> str:
+    def _confidence(self, draft: AgentDraft) -> dict:
+        """Evidence coverage and ambiguity, with the reasons: not answered → low; a retry or a table
+        picked over another plausible match → medium; else high."""
         if draft.status != "answered":
-            return "low"
+            return {"confidence": "low", "confidence_reasons": [f"Not answered: {draft.status.replace('_', ' ')}"]}
+        level, reasons = "high", ["Every claim was found in the tool result it cites"]
         if self.attempts > 1:
-            return "medium"
+            first = [e.check for e in self.events if e.part == "output" and e.attempt == 1]
+            level = "medium"
+            reasons.insert(0, f"{RETRIED}: {retry_reason(first)}")
+        else:
+            reasons.insert(0, "Answered on the first attempt")
+        searched = False
         for r in self.tool_results:
             matches = [m for m in r.get("matches", []) if "fqn" in m]  # exposure matches have ids
-            if not any(m["fqn"] in draft.tables for m in matches):
+            picked = [m["fqn"] for m in matches if m["fqn"] in draft.tables]
+            if not picked:
                 continue
-            others = [m for m in matches if m["fqn"] not in draft.tables and m["score"] >= STRONG_MATCH]
-            if r.get("status") == "ambiguous" or others:
-                return "medium"  # the table was picked over other plausible matches
-        return "high"
+            searched = True
+            others = [m["fqn"] for m in matches if m["fqn"] not in draft.tables and m["score"] >= STRONG_MATCH]
+            if r.get("status") == "ambiguous" or others:  # the table was picked over other plausible matches
+                level = "medium"
+                rivals = ", ".join(f.split(".")[-1] for f in others) or "other tables"
+                reasons.append(f"Chose {', '.join(f.split('.')[-1] for f in picked)} over {rivals}, which also matched")
+                break
+        else:
+            if searched:
+                reasons.append("No other table matched closely")
+        return {"confidence": level, "confidence_reasons": reasons}

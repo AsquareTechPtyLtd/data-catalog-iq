@@ -34,6 +34,9 @@ class Expected(_Strict):
         default_factory=list, description="Lineage links the facts' `relations` must include (same kind).")
     forbidden_tables: list[str] = Field(
         default_factory=list, description="FQNs the response must not include (traps a filter must exclude).")
+    forbidden_mentions: list[str] = Field(
+        default_factory=list, description="Text the answer and fact claims must not contain (a false premise, a "
+                                          "planted instruction, the value a counterfactual edit replaced).")
 
 
 class Question(_Strict):
@@ -41,6 +44,9 @@ class Question(_Strict):
     set: QuestionSet
     question: str
     slices: list[str] = Field(default_factory=list, description="Extra groupings for metrics, e.g. lineage.")
+    catalog_edits: list[str] = Field(
+        default_factory=list, description="SQL run on a temporary copy of catalog.db before asking (counterfactual "
+                                          "questions): the answer must follow the edited catalog.")
     expected: Expected
 
 

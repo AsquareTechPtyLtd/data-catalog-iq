@@ -78,6 +78,12 @@
   .empty { color: var(--muted); text-align: center; margin-top: 40px; }
   .banner { padding: 8px 12px; border-radius: 8px; font-size: 13.5px; margin-bottom: 10px; }
   .card .catalog { margin-top: 6px; }
+  details.why { display: inline-block; margin: 0; font-size: 12px; }
+  details.why > summary { list-style: none; cursor: pointer; }
+  details.why > summary::-webkit-details-marker { display: none; }
+  details.why[open] { display: block; flex-basis: 100%; }
+  details.why ul { margin: 4px 0 2px; color: var(--text); }
+  details.why p { margin: 2px 0 0; }
 </style>
 </head>
 <body>
@@ -135,6 +141,16 @@ const link = (text, url) => url && /^https?:\/\//.test(url)
   ? el("a", { href: url, target: "_blank", rel: "noopener noreferrer" }, text) : text;
 const short = (fqn) => (fqn || "").split(".").pop();
 
+// Evidence, not truth: how well the catalog supports this, computed by code. Click for the reasons.
+const EVIDENCE_MEANS = "How well the catalog evidence supports this, computed by code from what the tools returned. "
+  + "Not a guarantee that it is correct.";
+function evidenceBadge(level, reasons) {
+  return el("details", { class: "why" }, el("summary", { title: "Why this level?" }, badge(`evidence: ${level}`, level)),
+    reasons && reasons.length ? el("ul", {}, reasons.map((r) => el("li", {}, r))) : null,
+    el("p", {}, EVIDENCE_MEANS));
+}
+const agreeing = (d) => { const [a, n] = d.agreement.split("/"); return `routing: ${a} of ${n} agree`; };
+
 function citationsBlock(citations) {
   if (!citations || !citations.length) return null;
   return el("div", { class: "sources" }, el("b", {}, "Sources"),
@@ -154,7 +170,7 @@ function evidenceBlock(resp, usage) {
 function renderLookup(r, question) {
   const ids = new Map((r.citations || []).map((c, i) => [c.id, i + 1]));
   const out = [el("div", { class: "answer" }, r.answer),
-    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), badge(`confidence: ${r.confidence}`, r.confidence))];
+    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), evidenceBadge(r.confidence, r.confidence_reasons))];
   if (r.facts && r.facts.length) {
     out.push(el("ol", {}, r.facts.map((f) => el("li", {}, f.claim, " ",
       f.citations.map((c) => el("sup", {}, `[${ids.get(c)}]`))))));
@@ -177,16 +193,16 @@ function renderLookup(r, question) {
 
 function renderPI(r) {
   const out = [el("div", { class: "answer" }, r.summary),
-    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), badge(`confidence: ${r.confidence}`, r.confidence),
+    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), evidenceBadge(r.confidence, r.confidence_reasons),
       badge("pending steward review", "medium"), r.table ? el("span", { class: "chip" }, link(r.table.name, r.table.url)) : null)];
   if (r.recommendations && r.recommendations.length) {
     out.push(el("div", { class: "scroll" }, el("table", {},
-      el("tr", {}, ["Column", "Recommendation", "Confidence", "Reason"].map((h) => el("th", {}, h))),
+      el("tr", {}, ["Column", "Recommendation", "Evidence", "Reason"].map((h) => el("th", {}, h))),
       r.recommendations.map((c) => el("tr", {},
         el("td", {}, el("code", {}, c.column)),
         el("td", {}, c.recommendation === "pi" ? `PI: ${c.pi_type} (${c.data_subject}), ${c.sensitivity || ""}`
           : c.recommendation === "not_pi" ? "not PI" : "needs manual review"),
-        el("td", {}, badge(c.confidence, c.confidence)),
+        el("td", {}, evidenceBadge(c.confidence, c.confidence_reasons)),
         el("td", {}, c.reason, c.note ? el("div", { class: "note" }, c.note) : null))))));
   }
   out.push(citationsBlock(r.citations));
@@ -195,7 +211,7 @@ function renderPI(r) {
 
 function renderDataCategory(r) {
   const out = [el("div", { class: "answer" }, r.summary),
-    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), badge(`confidence: ${r.confidence}`, r.confidence),
+    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), evidenceBadge(r.confidence, r.confidence_reasons),
       badge("pending steward review", "medium"), r.table ? el("span", { class: "chip" }, link(r.table.name, r.table.url)) : null)];
   if (r.current) {
     out.push(el("div", {}, r.current.data_category_id ? `Current data category: ${r.current.data_category_id} ${r.current.name || ""}`
@@ -220,7 +236,7 @@ function renderDataCategory(r) {
 
 function routeChip(route, decision) {
   const parts = [el("span", { class: "chip" }, `→ ${route.label}${route.table ? " · " + short(route.table) : ""}`)];
-  if (decision) parts.push(badge(`routing: ${decision.confidence} (${decision.agreement})`, decision.confidence));
+  if (decision) parts.push(badge(agreeing(decision), decision.confidence));
   if (route.agent === "catalog_lookup" && decision && route.request !== decision.request) {
     parts.push(el("span", {}, `asked as: “${route.request}”`));
   }
@@ -270,7 +286,7 @@ function renderDecision(data, question) {
   const box = el("div", {});
   if (d && d.status === "clarify") {
     box.append(el("div", { class: "card" },
-      el("div", { class: "route" }, badge(`routing: ${d.confidence} (${d.agreement})`, d.confidence)),
+      el("div", { class: "route" }, badge(agreeing(d), d.confidence)),
       el("div", {}, d.clarification.question),
       d.clarification.options.length ? optionButtons(d.clarification.options) : null));
     return box;

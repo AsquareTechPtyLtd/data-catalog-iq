@@ -6,7 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from catalog_iq.agents.pi_classifier import recommend_pi
-from catalog_iq.agents.pi_classifier.guard import PIGuard, confidence
+from catalog_iq.agents.pi_classifier.guard import PIGuard, confidence, confidence_reasons
 from catalog_iq.agents.pi_classifier.schema import ColumnDraft, PIDraft
 from catalog_iq.catalog.db import catalog_path, connect
 from catalog_iq.core.providers.base import LLMCall, Reply, ToolCallRequest
@@ -125,6 +125,16 @@ def test_confidence(rec, cat, signals, expected):
 
 def test_retry_caps_confidence():
     assert confidence("not_pi", None, [], retried=True) == "medium"
+
+
+def test_confidence_reasons():
+    for_email = {"signal": "name", "suggests": ["email"], "strong": True, "detail": "column name suggests email"}
+    not_pi = {"signal": "identifier", "suggests": ["not_pi"], "strong": True, "detail": "a key or identifier column"}
+    assert confidence_reasons("pi", "email", [for_email, not_pi]) == [
+        "For: column name suggests email", "Against: a key or identifier column"]
+    assert confidence_reasons("pi", "name", []) == ["No signal suggests name"]
+    assert confidence_reasons("not_pi", None, [], retried=True) == [
+        "Nothing points to PI", "Needed a second attempt, so at most medium"]
 
 
 # --- guardrails -----------------------------------------------------------------------

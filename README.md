@@ -97,6 +97,15 @@ held-out set is no longer unseen.
 Details and caveats are in the eval run summaries (`evals/*/runs/`, not
 committed).
 
+Each answer's `evidence` level (`confidence` in the API) is computed by code and
+comes with its reasons; it says how well the catalog supports the answer, not
+that the answer is right. "High" was right in 77/78 and 32/32 lookups (dev /
+held-out). A grounding eval of false premises, planted instructions and
+counterfactual catalogs passed 42/48; read by hand, no answer marked high was
+wrong (the scorer flags 5 that quote a planted instruction in order to warn
+against it). Every agent's numbers are in
+[SECURITY.md](SECURITY.md#what-the-evidence-level-means).
+
 ## Quick start
 
 Requires Python 3.11+ and an Anthropic API key.
@@ -141,8 +150,9 @@ client sends up to 3 earlier turns as `history`.
 ## Evals and tests
 
 ```bash
-pytest                                   # 413 tests, no network
+pytest                                   # no network
 python -m catalog_iq.evals.run           # Catalog Lookup (dev + negative)
+python -m catalog_iq.evals.run --suite grounding --sets dev heldout   # false premises, planted text, counterfactuals
 python -m catalog_iq.evals.pi            # PI Classifier
 python -m catalog_iq.evals.data_category # Data Category Recommender (open + dev)
 python -m catalog_iq.evals.router        # Router (dev)
