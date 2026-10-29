@@ -101,5 +101,6 @@ def test_summarize():
     assert (s["accuracy"], s["lenient_accuracy"], s["precision"], s["flagged_rate"]) == (0.25, 0.5, 0.333, 0.25)
     assert s["calibration"] == {"high": 1.0, "medium": 0.5}
     assert s["retrieval_recall_at_20"] == 0.25 and s["truth_rank_1"] == 0.0
+    assert s["retrieval_mrr"] == 0.125  # one run ranked 2nd, three never retrieved
     assert s["traps"] == {KEY.table: "1/4"} and s["guardrails"]["retry_rate"] == 0.25
     assert KEY.table in s["errors_by_table"]

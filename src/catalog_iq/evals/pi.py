@@ -41,6 +41,7 @@ from catalog_iq.core.providers import make_provider
 from catalog_iq.core.providers.base import QuotaExhausted
 from catalog_iq.core.tracing import setup_tracing, shutdown_tracing, span
 from catalog_iq.evals.answer_key import EVALS_DIR
+from catalog_iq.evals.outcomes import outcome_mix, run_outcome
 from catalog_iq.evals.run import performance
 
 PISet = Literal["open", "dev", "heldout"]
@@ -143,7 +144,7 @@ def _ratio(a: int, b: int) -> float | None:
     return round(a / b, 3) if b else None
 
 
-def summarize(results: list[TableResult]) -> dict:
+def summarize(results: list[TableResult], errors: int = 0) -> dict:
     cols = [c for r in results for c in r.columns]
     n = Counter(c.outcome for c in cols)
     true_pi = sum(1 for c in cols if c.truth != "none")  # a missing true-PI column counts as missed
@@ -180,7 +181,8 @@ def summarize(results: list[TableResult]) -> dict:
                    for s in sorted({r.set for r in results})},
         "guardrails": {
             "retry_rate": _ratio(sum(r.attempts > 1 for r in results), len(results)),
-            "refusal_rate": _ratio(sum(r.outcome == "refused" for r in results), len(results)),
+            "outcomes": outcome_mix([run_outcome(r.outcome, "", r.guardrail_checks)
+                                      for r in results], errors),
             "trigger_rate": {k: _ratio(v, len(results)) for k, v in sorted(fired.items())},
         },
         "errors_by_table": {t: sorted({f"{c.column}: {c.got} (truth {c.truth})" for r in rs for c in r.columns
@@ -250,7 +252,7 @@ def main(argv: list[str] | None = None):
 
     summary = {"agent": AGENT, "provider": cfg["provider"], "model": cfg["model"], "sets": args.sets,
                "runs": args.runs, "tables": len(keys), "scored": len(results), "stopped": stopped,
-               "errors": errors, **summarize(results), "performance": performance(runs, wall)}
+               "errors": errors, **summarize(results, len(errors)), "performance": performance(runs, wall)}
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
     return out

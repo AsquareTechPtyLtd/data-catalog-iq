@@ -11,7 +11,8 @@ Two metrics, each fed by deterministic checks (no LLM judge):
 
 A question passes when both metrics pass. `summarize` turns the per-question
 results into rates, slices and derived metrics, including what the guardrails
-did (retries, refusals, checks that fired).
+did (retries, checks that fired), how each run ended and refusal accuracy
+(core of both: evals.outcomes).
 """
 
 import re
@@ -25,6 +26,7 @@ from catalog_iq.core.faithfulness import Vocabulary, check_faithfulness
 from catalog_iq.core.loop import AgentRun
 from catalog_iq.core.response import AgentResponse
 from catalog_iq.evals.answer_key import Question
+from catalog_iq.evals.outcomes import outcome_mix, refusal_accuracy, run_outcome
 
 
 class CheckResult(BaseModel):
@@ -39,6 +41,7 @@ class QuestionResult(BaseModel):
     slices: list[str] = []
     escalation_expected: bool
     status: str
+    expected_status: str
     confidence: str
     correctness: CheckResult
     faithfulness: CheckResult
@@ -51,6 +54,10 @@ class QuestionResult(BaseModel):
     @property
     def passed(self) -> bool:
         return self.correctness.passed and self.faithfulness.passed
+
+    @property
+    def run_outcome(self) -> str:
+        return run_outcome(self.outcome, self.status, self.guardrail_checks, answered={"answered"})
 
 
 def _normalise(text: str) -> str:
@@ -110,7 +117,7 @@ def score(run: AgentRun, question: Question, vocab: Vocabulary, run_number: int 
     return QuestionResult(
         id=question.id, set=question.set, run=run_number, slices=question.slices,
         escalation_expected=question.expected.escalation,
-        status=run.response.status, confidence=run.response.confidence,
+        status=run.response.status, expected_status=question.expected.status, confidence=run.response.confidence,
         correctness=check_correctness(run.response, question), faithfulness=faithfulness,
         claims=len(run.response.facts), unsupported_claims=unsupported,
         attempts=g.attempts, outcome=g.outcome,
@@ -130,7 +137,7 @@ def _rate(items: list, test: Callable) -> float | None:
     return round(sum(map(test, items)) / len(items), 3) if items else None
 
 
-def summarize(results: list[QuestionResult]) -> dict:
+def summarize(results: list[QuestionResult], errors: int = 0) -> dict:
     by_id: dict[str, list[QuestionResult]] = defaultdict(list)
     for r in results:
         by_id[r.id].append(r)
@@ -156,12 +163,15 @@ def summarize(results: list[QuestionResult]) -> dict:
                                     lambda rs: len({(r.passed, r.status) for r in rs}) == 1),
             "calibration_high": _rate(high, lambda r: r.correctness.passed),
             "high_but_wrong": sum(1 for r in high if not r.correctness.passed),  # what the badge must not do
-            "retry_rate": _rate(results, lambda r: r.attempts > 1),
-            "retry_success_rate": _rate(retried, lambda r: r.outcome == "passed_after_retry"),
-            "refusal_rate": _rate(results, lambda r: r.outcome == "refused"),
             "confidence_distribution": {c: _rate(results, lambda r, c=c: r.confidence == c)
                                         for c in ("high", "medium", "low")},
             "guardrail_trigger_rate": {check: round(n / len(results), 3) for check, n in sorted(fired.items())},
+        },
+        "outcomes": outcome_mix([r.run_outcome for r in results], errors),
+        "refusals": refusal_accuracy([(r.expected_status == "answered", r.run_outcome) for r in results]),
+        "reliability": {
+            "retry_rate": _rate(results, lambda r: r.attempts > 1),
+            "retry_success_rate": _rate(retried, lambda r: r.outcome == "passed_after_retry"),
         },
         "failures": {qid: sorted({reason for r in rs for reason in r.correctness.reasons + r.faithfulness.reasons})
                      for qid, rs in sorted(by_id.items()) if not all(r.passed for r in rs)},

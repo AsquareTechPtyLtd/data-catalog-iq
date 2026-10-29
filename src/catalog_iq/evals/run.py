@@ -18,6 +18,7 @@ import argparse
 import json
 import shutil
 import sqlite3
+import statistics
 import tempfile
 import time
 import traceback
@@ -47,7 +48,14 @@ def performance(runs: list[AgentRun], wall_s: list[float]) -> dict:
         "wall_s_per_question": round(sum(wall_s) / n, 2),
         "llm_s_per_question": round(sum(c.total_s for c in calls) / n, 2),
         "mean_tps": round(sum(c.output_tokens for c in calls) / sum(c.total_s for c in calls), 1) if calls else None,
+        "median_ttft_s": _median([c.ttft_s for c in calls]),
+        "median_tpot_ms": _median([c.tpot_s * 1000 if c.tpot_s is not None else None for c in calls]),
     }
+
+
+def _median(values: list[float | None]) -> float | None:
+    known = [v for v in values if v is not None]
+    return round(statistics.median(known), 3) if known else None
 
 
 def edited_catalog(edits: list[str], directory: Path) -> Path:
@@ -141,7 +149,7 @@ def main(argv: list[str] | None = None) -> Path:
     summary = {"agent": AGENT, "suite": args.suite, "provider": cfg["provider"], "model": cfg["model"], "sets": args.sets,
                "runs": args.runs, "questions": len(questions), "scored": len(results),
                "stopped": stopped, "errors": errors,
-               **summarize(results), "performance": performance(runs, wall)}
+               **summarize(results, len(errors)), "performance": performance(runs, wall)}
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
     return out

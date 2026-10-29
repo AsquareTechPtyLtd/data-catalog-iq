@@ -52,6 +52,7 @@ from catalog_iq.core.providers import make_provider
 from catalog_iq.core.providers.base import QuotaExhausted
 from catalog_iq.core.tracing import setup_tracing, shutdown_tracing, span
 from catalog_iq.evals.answer_key import EVALS_DIR
+from catalog_iq.evals.outcomes import outcome_mix, run_outcome
 from catalog_iq.evals.run import performance
 
 DataCategorySet = Literal["open", "dev", "heldout"]
@@ -142,7 +143,7 @@ def _ratio(a: int, b: int) -> float | None:
     return round(a / b, 3) if b else None
 
 
-def summarize(results: list[TableResult]) -> dict:
+def summarize(results: list[TableResult], errors: int = 0) -> dict:
     n = Counter(r.outcome for r in results)
     recommended = n["correct"] + n["acceptable"] + n["wrong"]
     traps: dict[str, list[bool]] = defaultdict(list)
@@ -169,6 +170,8 @@ def summarize(results: list[TableResult]) -> dict:
         "calibration": calibration,
         f"retrieval_recall_at_{RECALL_K}": _ratio(len(retrieved), len(results)),
         "truth_rank_1": _ratio(sum(1 for r in results if r.truth_rank == 1), len(results)),
+        "retrieval_mrr": round(sum(1 / r.truth_rank for r in results if r.truth_rank) / len(results), 3)
+                         if results else None,  # mean reciprocal rank; never retrieved counts as 0
         "targets_met": {"accuracy": (accuracy or 0) >= TARGETS["accuracy"],
                         "precision": (precision or 0) >= TARGETS["precision"]},
         "traps": {k: f"{sum(v)}/{len(v)}" for k, v in sorted(traps.items())},
@@ -176,7 +179,8 @@ def summarize(results: list[TableResult]) -> dict:
                    for s in sorted({r.set for r in results})},
         "guardrails": {
             "retry_rate": _ratio(sum(r.attempts > 1 for r in results), len(results)),
-            "refusal_rate": _ratio(n["refused"], len(results)),
+            "outcomes": outcome_mix([run_outcome("refused" if r.outcome == "refused" else "passed", "", r.guardrail_checks)
+                                      for r in results], errors),
             "trigger_rate": {k: _ratio(v, len(results)) for k, v in sorted(fired.items())},
         },
         "errors_by_table": {t: sorted({f"{r.got} ({r.outcome}, truth {r.truth})" for r in rs if not r.passed})
@@ -248,7 +252,7 @@ def main(argv: list[str] | None = None) -> Path:
                "runs": args.runs, "tables": len(keys), "catalog": str(args.catalog or "default"),
                "data_categories_in_catalog": data_category_count, "scored": len(results), "stopped": stopped,
                "errors": errors,
-               **summarize(results), "performance": performance(runs, wall)}
+               **summarize(results, len(errors)), "performance": performance(runs, wall)}
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
     return out
