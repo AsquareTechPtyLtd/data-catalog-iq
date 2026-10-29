@@ -64,6 +64,11 @@ flowchart TB
   wasn't in its cited source"), runs a question's parts in parallel, and stops
   calling the LLM when the client leaves. One process answers 4 questions at once,
   about 30 a minute; [load test](SECURITY.md#capacity).
+- **Every answer says how old the catalog is.** Ingestion publishes only a build
+  that passes its checks, logs every attempt and can roll back; each response
+  carries the catalog's version and `as_of` date, and the page warns when it is
+  over 7 days old or the last update failed. See
+  [SECURITY.md](SECURITY.md#catalog-freshness).
 - **No vector database.** Retrieval is metadata filters, lineage walks and
   SQLite FTS5 keyword search over data categories. A scale test with 5,013
   data categories kept recall@20 at 98.9% (the agent re-searches), so
@@ -102,7 +107,7 @@ pip install -e ".[api,dev]"
 cp .env.example .env               # then set ANTHROPIC_API_KEY in .env
 
 python scripts/generate_warehouse.py   # synthetic warehouse (gitignored)
-python scripts/ingest_catalog.py       # builds data/catalog/catalog.db (gitignored)
+python scripts/ingest_catalog.py       # builds data/catalog/catalog.db (gitignored); --rollback undoes the last publish
 
 catalog-iq serve                       # http://127.0.0.1:8000
 ```
@@ -121,13 +126,14 @@ catalog-iq ask "..." --verbose                                          # tool c
 
 | Endpoint | Body | Returns |
 |---|---|---|
-| `POST /ask` | `{request, history?}` | `{decision, answers}`: the router's decision and one agent response per route |
+| `POST /ask` | `{request, history?}` | `{decision, answers, catalog}`: the router's decision, one agent response per route, and the catalog's version and age |
 | `POST /ask/stream` | `{request, history?}` | the same as newline-delimited JSON events: `progress`, `decision`, one `answer` per route (with `route_index`, as each finishes), then `done` or `error` |
 | `POST /agents/catalog_lookup` | `{request}` | one agent, no router |
 | `POST /agents/pi_classifier` | `{table}` | one agent, no router |
 | `POST /agents/data_category_recommender` | `{table}` | one agent, no router |
 | `GET /tables` | | source and mart tables |
-| `GET /health` | | catalog loaded, providers configured |
+| `GET /catalog` | | catalog version, `as_of`, age, `stale`, last failed ingestion |
+| `GET /health` | | catalog loaded and fresh, providers configured |
 
 Interactive docs at `/docs` while the server runs. The API is stateless: the
 client sends up to 3 earlier turns as `history`.

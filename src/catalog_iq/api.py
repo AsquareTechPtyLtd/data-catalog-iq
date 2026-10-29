@@ -1,12 +1,14 @@
 """REST API (R5) and the web page (R6).
 
     catalog-iq serve                      # http://127.0.0.1:8000
-    POST /ask {request, history?}         → {decision, answers}: routed, one answer per route
-    POST /agents/catalog_lookup {request} → {decision: null, answers: [one]}: no router
+    POST /ask {request, history?}         → {decision, answers, catalog}: routed, one answer per route
+    POST /ask/stream {request, history?}  the same as newline-delimited JSON events
+    POST /agents/catalog_lookup {request} → {decision: null, answers: [one], catalog}: no router
     POST /agents/pi_classifier {table}
     POST /agents/data_category_recommender {table}
     GET  /tables                          table list for autocomplete
-    GET  /health                          catalog loaded, providers configured (never key values)
+    GET  /catalog                         catalog version, age, stale, failed ingestion
+    GET  /health                          catalog loaded and fresh, providers configured (never key values)
     GET  /                                the web page
 
 Stateless: the client sends up to 3 earlier turns as `history` (R10).
@@ -32,6 +34,7 @@ from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field
 
 from catalog_iq.catalog.db import catalog_path, connect
+from catalog_iq.catalog.freshness import CatalogInfo, catalog_info, catalog_version
 from catalog_iq.cli import MAX_QUESTION_CHARS, check_question
 from catalog_iq.core.config import agent_config, load_env, number_setting
 from catalog_iq.core import progress
@@ -82,12 +85,15 @@ class Answer(_Strict):
     route: Route
     response: dict = Field(description="The agent's own response JSON, unchanged.")
     usage: Usage
+    catalog_version: str = Field(description="The catalog build this answer read; differs from catalog.version "
+                                             "only if a new catalog was published mid-question.")
 
 
 class AskResponse(_Strict):
     decision: RouteDecision | None = Field(description="The router's decision; null for /agents/* calls.")
     answers: list[Answer]
     router_usage: Usage | None = None
+    catalog: CatalogInfo
 
 
 def _usage(calls, budget=None) -> Usage:
@@ -152,7 +158,8 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
             run: AgentRun = run_route(r, conn, provider_for(r.agent))
         except Exception as e:  # missing key, no credit, network: say so plainly, never a key value
             raise HTTPException(503, f"{r.label} failed: {type(e).__name__}") from e
-        return Answer(route=r, response=run.response.model_dump(mode="json"), usage=_usage(run.llm_calls, run.budget))
+        return Answer(route=r, response=run.response.model_dump(mode="json"), usage=_usage(run.llm_calls, run.budget),
+                      catalog_version=catalog_version(conn))
 
     def direct(agent: str, table: str | None, request: str) -> Route:
         return Route(agent=agent, label=load_specs()[agent].label, table=table, table_as_written=table,
@@ -211,7 +218,8 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
                 if isinstance(a, HTTPException):
                     raise a
                 answers[i] = a
-        return AskResponse(decision=rr.decision, answers=[answers[i] for i in sorted(answers)], router_usage=_usage(rr.llm_calls, rr.budget))
+        return AskResponse(decision=rr.decision, answers=[answers[i] for i in sorted(answers)],
+                           router_usage=_usage(rr.llm_calls, rr.budget), catalog=catalog_info(conn))
 
     @app.post("/ask/stream", dependencies=[Depends(rate_limit)],
               response_class=StreamingResponse, responses={200: {"content": {"application/x-ndjson": {}}}})
@@ -230,7 +238,8 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
                 with cancellable(cancel), progress.attach(events.put), closing(ask_steps(body, conn)) as steps:
                     rr = next(steps)
                     events.put({"event": "decision", "decision": rr.decision.model_dump(mode="json"),
-                                "router_usage": _usage(rr.llm_calls, rr.budget).model_dump()})
+                                "router_usage": _usage(rr.llm_calls, rr.budget).model_dump(),
+                                "catalog": catalog_info(conn).model_dump()})
                     for i, a in steps:
                         events.put({"event": "error", "route_index": i, "detail": a.detail}
                                    if isinstance(a, HTTPException)
@@ -268,12 +277,13 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
     @app.post("/agents/catalog_lookup", response_model=AskResponse, dependencies=llm)
     def lookup(body: LookupRequest, conn: sqlite3.Connection = Depends(db)):
         checked(body)
-        return AskResponse(decision=None, answers=[answer(direct("catalog_lookup", None, body.request), conn)])
+        return AskResponse(decision=None, answers=[answer(direct("catalog_lookup", None, body.request), conn)],
+                           catalog=catalog_info(conn))
 
     def recommender(agent: Literal["pi_classifier", "data_category_recommender"]):
         def run(body: TableRequest, conn: sqlite3.Connection = Depends(db)):
             r = direct(agent, body.table, f"{load_specs()[agent].label} for {body.table}")
-            return AskResponse(decision=None, answers=[answer(r, conn)])
+            return AskResponse(decision=None, answers=[answer(r, conn)], catalog=catalog_info(conn))
         return run
 
     for agent in ("pi_classifier", "data_category_recommender"):
@@ -285,6 +295,10 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
             "SELECT fqn, name, layer, domain, data_category_id FROM tables "
             "WHERE layer IN ('source', 'mart') ORDER BY fqn")]
 
+    @app.get("/catalog", response_model=CatalogInfo)
+    def catalog_(conn: sqlite3.Connection = Depends(db)):
+        return catalog_info(conn)
+
     @app.get("/health")
     def health():
         path = catalog or catalog_path()
@@ -293,7 +307,13 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
             cfg = agent_config(agent)
             agents[agent] = {"provider": cfg["provider"], "model": cfg["model"],
                              "configured": agent in injected or bool(os.environ.get(KEY_VARS.get(cfg["provider"], "")))}
-        ok = path.exists() and all(a["configured"] for a in agents.values())
-        return {"status": "ok" if ok else "degraded", "catalog": path.exists(), "agents": agents}
+        info = None
+        if path.exists():
+            with closing(connect(path)) as conn:
+                info = catalog_info(conn)
+        ok = (info is not None and not info.stale and info.failed_ingest is None
+              and all(a["configured"] for a in agents.values()))
+        return {"status": "ok" if ok else "degraded", "catalog": info.model_dump() if info else None,
+                "agents": agents}
 
     return app

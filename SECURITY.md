@@ -102,6 +102,30 @@ and not built:
   streamed) survives restarts and scales workers apart from the web tier. It needs a
   broker and a job store, so it belongs in production (below), not in a local demo.
 
+### Catalog freshness
+
+Answers are only as current as the metadata exports behind them. This covers the
+metadata's age, not whether a table's data meets its contract SLA.
+
+- **Publishing is gated.** `scripts/ingest_catalog.py` builds into a temporary file and
+  replaces `catalog.db` only if the build is a readable SQLite file, its core tables are not
+  empty, every dbt source and model is present, and it has not lost more than 20% of the
+  published tables (`--force` overrides). Otherwise the old catalog keeps serving.
+- **Every attempt is logged** in `data/catalog/ingest_log.jsonl`: published, unchanged,
+  failed (with the reason) or rolled back, with source hashes, counts, and what changed
+  (tables and columns added or removed, data categories reassigned).
+- **One step back.** The previous catalog is kept as `catalog.prev.db`;
+  `ingest_catalog.py --rollback` swaps the two (a second rollback rolls forward).
+- **Every response says how old it is.** A `catalog` block on `/ask`, the stream's `decision`
+  event, `/agents/*` and `GET /catalog`: the build's `version`, `built_at`, `as_of` (the
+  oldest source export), `age_days`, `stale` (older than 7 days) and `failed_ingest`. Each
+  answer carries the `catalog_version` it read. `/health` is `degraded` when the catalog is
+  stale or the last ingestion failed, and the page shows a banner.
+- **Stale warns, never refuses.** A week-old owner is usually still right; refusing would
+  hide every answer. The agents don't see the catalog's age.
+
+The synthetic exports are dated 2026-10-01, so the demo shows the stale banner.
+
 ## What production would need
 
 | Control | Why | Approach |
@@ -109,7 +133,7 @@ and not built:
 | Authentication and authorization | Catalog metadata is sensitive even without row values | SSO/OIDC or an API gateway in front; per-user dataset, domain and column entitlements enforced in the tool layer; the authorization decision recorded with each answer |
 | Data egress policy | Business metadata still reaches the LLM vendor | Vendor and region choice, zero-retention terms, field-level minimisation beyond names and emails, trace retention and encryption |
 | Cost and availability limits beyond one process | The limits above are per process and per IP | Rate limits and quotas per user at the gateway, daily spend caps in currency, circuit breakers and provider fallback, several processes behind a job queue (see [Capacity](#capacity)) |
-| Catalog freshness | A stale snapshot can look authoritative | Versioned, scheduled ingestion with validation and atomic publish; `catalog_version` and `as_of` on every response |
+| Catalog freshness beyond one snapshot | The demo's ingestion runs by hand and keeps one previous catalog | Scheduled or event-driven ingestion (dbt CI, Collibra webhooks), alerts on failed runs and drift, versioned snapshots in a managed read model, per-table freshness where the source records it (see [Catalog freshness](#catalog-freshness)) |
 | Operations | Tracing alone is not monitoring | Readiness and liveness checks, metrics and SLO alerts, request IDs; `/health` details restricted to operators |
 
 ## Reporting a problem

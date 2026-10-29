@@ -1,5 +1,6 @@
 """Tests for the REST API: routing, direct agent calls, tables, health and errors (no network)."""
 
+import shutil
 import threading
 
 import pytest
@@ -127,10 +128,13 @@ def test_agent_failure_is_a_503_without_details(monkeypatch):
     assert r.status_code == 503 and "secret" not in r.text and "RuntimeError" in r.text
 
 
-def test_tables_and_health_and_page(monkeypatch):
+def test_tables_and_health_and_page(monkeypatch, tmp_path):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    c = client(router=Scripted(), catalog_lookup=Scripted(), pi_classifier=Scripted(),
-               data_category_recommender=Scripted())
+    monkeypatch.setenv("CATALOG_MAX_AGE_HOURS", "100000")  # fresh; staleness is tested in test_freshness
+    db = tmp_path / "catalog.db"
+    shutil.copy(catalog_path(), db)  # away from the real ingest log
+    c = TestClient(create_app(catalog=db, providers=dict(
+        router=Scripted(), catalog_lookup=Scripted(), pi_classifier=Scripted(), data_category_recommender=Scripted())))
     tables = c.get("/tables").json()
     assert {"fqn": "fernwood_dw.raw_web.page_views", "name": "page_views", "layer": "source",
             "domain": "digital", "data_category_id": None} in tables
