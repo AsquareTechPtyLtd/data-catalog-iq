@@ -140,6 +140,9 @@ catalog-iq ask "..." --verbose                                          # tool c
 | `POST /agents/catalog_lookup` | `{request}` | one agent, no router |
 | `POST /agents/pi_classifier` | `{table}` | one agent, no router |
 | `POST /agents/data_category_recommender` | `{table}` | one agent, no router |
+| `POST /feedback` | `{answer_id, rating, reason?}` | rate one answer 👍 / 👎 (the page's buttons) |
+| `GET /feedback/summary` | | feedback rate, thumbs-up rate by agent, evidence level and outcome |
+| `GET /dashboard` | | metrics page: user feedback, and quality and reliability from the latest eval runs |
 | `GET /tables` | | source and mart tables |
 | `GET /catalog` | | catalog version, `as_of`, age, `stale`, last failed ingestion |
 | `GET /health` | | catalog loaded and fresh, providers configured |
@@ -158,6 +161,11 @@ python -m catalog_iq.evals.data_category # Data Category Recommender (open + dev
 python -m catalog_iq.evals.router        # Router (dev)
 # add --sets heldout once tuning is finished
 ```
+
+`/dashboard` shows the newest complete run of each eval and set, with quality
+(pass rate, faithfulness, false and missed refusals, recall@20, MRR, calibration)
+and reliability (how runs ended, retries, TTFT, TPOT, TPS, tokens) next to the
+live 👍 / 👎 feedback. `catalog-iq feedback` prints the feedback metrics.
 
 Optional tracing to Arize Phoenix: `pip install -e ".[trace]"`, run
 `phoenix serve`, set `PHOENIX_COLLECTOR_ENDPOINT` in `.env`.

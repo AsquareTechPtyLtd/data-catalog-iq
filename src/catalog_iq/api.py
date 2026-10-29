@@ -8,6 +8,8 @@
     POST /agents/data_category_recommender {table}
     POST /feedback {answer_id, rating, reason?}  thumbs up / down on one answer
     GET  /feedback/summary                feedback metrics
+    GET  /dashboard                       metrics page: feedback and the latest eval runs
+    GET  /dashboard/evals                 the eval numbers it shows
     GET  /tables                          table list for autocomplete
     GET  /catalog                         catalog version, age, stale, failed ingestion
     GET  /health                          catalog loaded and fresh, providers configured (never key values)
@@ -46,6 +48,7 @@ from catalog_iq.core.loop import AgentRun
 from catalog_iq.core.providers import Provider, make_provider
 from catalog_iq.core.redaction import redaction_scope
 from catalog_iq.core.tracing import span
+from catalog_iq.dashboard import eval_metrics
 from catalog_iq.feedback import FeedbackStore, Rating, Reason
 from catalog_iq.ratelimit import BURST, PER_MINUTE, RateLimiter
 from catalog_iq.router import route, run_route
@@ -53,6 +56,7 @@ from catalog_iq.router.schema import MAX_HISTORY, Route, RouteDecision, Turn
 from catalog_iq.router.specs import load_specs
 
 PAGE = Path(__file__).with_name("web") / "index.html"
+DASHBOARD = PAGE.with_name("dashboard.html")
 KEY_VARS = {"anthropic": "ANTHROPIC_API_KEY", "gemini": "GEMINI_API_KEY"}
 MAX_IN_FLIGHT = 4  # LLM requests at once per process; ~12 parallel router calls on one key
 RETRY_AFTER_S = 5
@@ -315,6 +319,15 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
     @app.get("/feedback/summary")
     def feedback_summary():
         return feedback.summary()
+
+    @app.get("/dashboard", include_in_schema=False)
+    def dashboard():
+        return FileResponse(DASHBOARD)
+
+    @app.get("/dashboard/evals")
+    def dashboard_evals():
+        """The newest complete run of each eval and set, with quality and reliability metrics."""
+        return eval_metrics()
 
     @app.get("/tables")
     def tables(conn: sqlite3.Connection = Depends(db)):
