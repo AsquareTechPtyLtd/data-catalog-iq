@@ -6,6 +6,8 @@
     POST /agents/catalog_lookup {request} → {decision: null, answers: [one], catalog}: no router
     POST /agents/pi_classifier {table}
     POST /agents/data_category_recommender {table}
+    POST /feedback {answer_id, rating, reason?}  thumbs up / down on one answer
+    GET  /feedback/summary                feedback metrics
     GET  /tables                          table list for autocomplete
     GET  /catalog                         catalog version, age, stale, failed ingestion
     GET  /health                          catalog loaded and fresh, providers configured (never key values)
@@ -23,6 +25,7 @@ import os
 import queue
 import sqlite3
 import threading
+import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import closing
 from pathlib import Path
@@ -43,6 +46,7 @@ from catalog_iq.core.loop import AgentRun
 from catalog_iq.core.providers import Provider, make_provider
 from catalog_iq.core.redaction import redaction_scope
 from catalog_iq.core.tracing import span
+from catalog_iq.feedback import FeedbackStore, Rating, Reason
 from catalog_iq.ratelimit import BURST, PER_MINUTE, RateLimiter
 from catalog_iq.router import route, run_route
 from catalog_iq.router.schema import MAX_HISTORY, Route, RouteDecision, Turn
@@ -82,11 +86,18 @@ class Usage(_Strict):
 
 
 class Answer(_Strict):
+    answer_id: str = Field(description="Send it to POST /feedback to rate this answer.")
     route: Route
     response: dict = Field(description="The agent's own response JSON, unchanged.")
     usage: Usage
     catalog_version: str = Field(description="The catalog build this answer read; differs from catalog.version "
                                              "only if a new catalog was published mid-question.")
+
+
+class FeedbackRequest(_Strict):
+    answer_id: str = Field(min_length=1, max_length=64)
+    rating: Rating
+    reason: Reason | None = Field(default=None, description="Why it was rated down (ignored for up).")
 
 
 class AskResponse(_Strict):
@@ -105,9 +116,11 @@ def _usage(calls, budget=None) -> Usage:
 
 
 def create_app(catalog: Path | None = None, providers: dict[str, Provider] | None = None,
-               max_in_flight: int | None = None, limiter: RateLimiter | None = None) -> FastAPI:
+               max_in_flight: int | None = None, limiter: RateLimiter | None = None,
+               feedback: FeedbackStore | None = None) -> FastAPI:
     """`providers` (agent or "router" → Provider) replaces the configured ones, e.g. fakes in tests."""
     load_env()
+    feedback = feedback or FeedbackStore()
     app = FastAPI(title="Data Catalog IQ", version="0.1.0",
                   description="Ask Fernwood Outfitters' synthetic data catalog; every answer is cited.")
     injected = dict(providers or {})
@@ -158,8 +171,13 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
             run: AgentRun = run_route(r, conn, provider_for(r.agent))
         except Exception as e:  # missing key, no credit, network: say so plainly, never a key value
             raise HTTPException(503, f"{r.label} failed: {type(e).__name__}") from e
-        return Answer(route=r, response=run.response.model_dump(mode="json"), usage=_usage(run.llm_calls, run.budget),
-                      catalog_version=catalog_version(conn))
+        a = Answer(answer_id=uuid.uuid4().hex, route=r, response=run.response.model_dump(mode="json"),
+                   usage=_usage(run.llm_calls, run.budget), catalog_version=catalog_version(conn))
+        try:
+            feedback.record_answer(a.answer_id, r.agent, a.response, a.usage.model, a.catalog_version)
+        except sqlite3.Error:
+            pass  # the answer still stands; it just can't be rated
+        return a
 
     def direct(agent: str, table: str | None, request: str) -> Route:
         return Route(agent=agent, label=load_specs()[agent].label, table=table, table_as_written=table,
@@ -288,6 +306,15 @@ def create_app(catalog: Path | None = None, providers: dict[str, Provider] | Non
 
     for agent in ("pi_classifier", "data_category_recommender"):
         app.post(f"/agents/{agent}", response_model=AskResponse, name=agent, dependencies=llm)(recommender(agent))
+
+    @app.post("/feedback", status_code=204)
+    def feedback_(body: FeedbackRequest):
+        if not feedback.rate(body.answer_id, body.rating, body.reason):
+            raise HTTPException(404, "No such answer to rate.")
+
+    @app.get("/feedback/summary")
+    def feedback_summary():
+        return feedback.summary()
 
     @app.get("/tables")
     def tables(conn: sqlite3.Connection = Depends(db)):

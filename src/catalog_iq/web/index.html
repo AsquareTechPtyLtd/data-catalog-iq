@@ -84,6 +84,12 @@
   details.why[open] { display: block; flex-basis: 100%; }
   details.why ul { margin: 4px 0 2px; color: var(--text); }
   details.why p { margin: 2px 0 0; }
+  .feedback { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; padding-top: 8px;
+              border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .feedback button { padding: 2px 9px; font-size: 13px; }
+  .feedback button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .feedback .options { margin: 0; flex-basis: 100%; }
+  .feedback [hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -269,11 +275,40 @@ function catalogLine(a, catalog) {
     : `Catalog as of ${day(catalog.as_of)}${catalog.stale ? " (out of date)" : ""}`);
 }
 
+// Thumbs up / down under each answer; a down vote asks why, from a fixed list (no free text is stored).
+const DOWN_REASONS = [["wrong", "Wrong"], ["incomplete", "Incomplete"],
+                      ["should_have_answered", "Should have answered"], ["not_helpful", "Not helpful"]];
+function feedbackBar(answerId) {
+  if (!answerId) return null;
+  const status = el("span", {});
+  const rate = async (rating, reason) => {
+    const res = await fetch("/feedback", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answer_id: answerId, rating, reason: reason || null }) }).catch(() => null);
+    status.textContent = res && res.ok ? "Thanks for the feedback." : "Feedback wasn't saved.";
+    return res && res.ok;
+  };
+  const choose = (button, others) => {
+    button.setAttribute("aria-pressed", "true");
+    for (const o of others) o.setAttribute("aria-pressed", "false");
+  };
+  const why = el("div", { class: "options", hidden: true });
+  const reasonButtons = DOWN_REASONS.map(([key, label]) => el("button", { type: "button", "aria-pressed": "false",
+    onclick: async (e) => { if (await rate("down", key)) choose(e.currentTarget, reasonButtons.filter((b) => b !== e.currentTarget)); } },
+    label));
+  why.append(...reasonButtons);
+  const up = el("button", { type: "button", "aria-pressed": "false", "aria-label": "Helpful", title: "Helpful",
+    onclick: async () => { if (await rate("up")) { choose(up, [down, ...reasonButtons]); why.hidden = true; } } }, "👍");
+  const down = el("button", { type: "button", "aria-pressed": "false", "aria-label": "Not helpful", title: "Not helpful",
+    onclick: async () => { if (await rate("down")) { choose(down, [up]); why.hidden = false; status.textContent = "What was wrong?"; } } }, "👎");
+  return el("div", { class: "feedback" }, "Was this helpful?", up, down, status, why);
+}
+
 function renderAnswer(a, decision, question, catalog) {
   const r = a.response;
   const body = a.route.agent === "pi_classifier" ? renderPI(r)
     : a.route.agent === "data_category_recommender" ? renderDataCategory(r) : renderLookup(r, question);
-  return el("div", { class: "card" }, routeChip(a.route, decision), body, catalogLine(a, catalog), evidenceBlock(r, a.usage));
+  return el("div", { class: "card" }, routeChip(a.route, decision), body, catalogLine(a, catalog), evidenceBlock(r, a.usage),
+    feedbackBar(a.answer_id));
 }
 
 function optionButtons(options) {

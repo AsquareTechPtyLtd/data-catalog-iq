@@ -14,6 +14,7 @@ PHOENIX_COLLECTOR_ENDPOINT set, every question is a trace in Phoenix.
 """
 
 import argparse
+import json
 import sys
 
 from catalog_iq.agents.data_category_recommender import recommend_data_category
@@ -181,6 +182,7 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
     data_category_cmd.add_argument("table")
     route_cmd = sub.add_parser("route", help="show which agent the router picks (no agent runs)")
     route_cmd.add_argument("request")
+    sub.add_parser("feedback", help="thumbs up / down metrics from the web page, as JSON")
     serve_cmd = sub.add_parser("serve", help="run the API and the web page")
     serve_cmd.add_argument("--host", default="127.0.0.1")
     serve_cmd.add_argument("--port", type=int, default=8000)
@@ -188,6 +190,10 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
         p.add_argument("--json", action="store_true", help="print the full AgentResponse as JSON")
         p.add_argument("--verbose", "-v", action="store_true", help="show tool calls, guardrails and tokens")
     args = parser.parse_args(argv)
+    if args.command == "feedback":
+        from catalog_iq.feedback import FeedbackStore
+        print(json.dumps(FeedbackStore().summary(), indent=2))
+        return 0
     if args.command == "serve":
         import uvicorn  # optional extra: pip install -e ".[api]"
 

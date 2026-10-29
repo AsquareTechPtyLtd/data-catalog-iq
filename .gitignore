@@ -236,3 +236,6 @@ data/catalog/ingest_log.jsonl
 
 # Eval run outputs
 evals/*/runs/
+
+# Ratings from the web page (no question or answer text)
+data/feedback/
