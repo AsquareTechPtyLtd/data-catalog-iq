@@ -24,22 +24,7 @@ a real catalog without the production controls in [SECURITY.md](SECURITY.md).
 
 ## Architecture
 
-```mermaid
-flowchart TB
-    UI["Web page (HTML, served by FastAPI)"] -->|"POST /ask/stream {request, history}"| API[FastAPI]
-    API --> R["Router: 3 parallel LLM samples<br/>agreement = routing confidence"]
-    R -->|1-3 routes| CL[Catalog Lookup]
-    R --> PI[PI Classifier]
-    R --> DC[Data Category Recommender]
-    R -->|"no table / several match"| Q[Clarifying question with choices]
-    subgraph agent["Each agent: own loop behind a provider interface"]
-        CL & PI & DC --> T["Read-only tools<br/>tables · lineage · filters · columns · data category search (FTS5)"]
-        T --> DB[("catalog.db (SQLite)")]
-        CL & PI & DC --> G["Guardrails: tool checks, citation checks,<br/>one retry, then refuse"]
-    end
-    G -->|"cited answer + confidence"| API
-    S["Synthetic sources:<br/>Collibra-style export · ODCS contracts · dbt manifest"] -->|scripts/ingest_catalog.py| DB
-```
+![Architecture: the router sends each question to one or more agents; code guardrails check every tool call and answer; names are swapped for tokens before anything reaches the LLM or the traces; an evaluation pipeline scores the same agents with code](docs/architecture.svg)
 
 - **The model never has the last word.** Each agent ends with a typed draft;
   code checks every cited id against what the tools returned, rejects claims
@@ -73,38 +58,6 @@ flowchart TB
   SQLite FTS5 keyword search over data categories. A scale test with 5,013
   data categories kept recall@20 at 98.9% (the agent re-searches), so
   embeddings weren't needed.
-
-## Results
-
-Haiku (`claude-haiku-5-5`) for every agent. Dev sets were used for tuning;
-held-out sets were run after tuning. Ground truth is never visible to the
-agents.
-
-| Eval | Dev | Held-out |
-|---|---|---|
-| Catalog Lookup (pass rate; refusals on unanswerable questions 100%) | 96.3% | 88.1% |
-| PI Classifier (precision / recall) | 100% / 100% | 100% / 100% |
-| Data Category Recommender (exact match; precision of recommendations) | 83.3%; 88.7% | 79.2%; 100% |
-| Data Category Recommender, scale catalog of 5,013 data categories (exact match, all 30 tables) | 82.2% | |
-| Router, 41 requests × 3 runs (route and table accuracy) | 100% | 100%* |
-
-The Data Category Recommender's held-out misses are manual reviews or "no fit",
-never a wrong data category. \*The router's held-out score was 91.7% until a
-fix: "the orders data" resolved to the table named `orders` instead of asking
-which of `orders` and `fct_orders` was meant. The fix (a plain-word name that
-another table also matches now asks) was tested on new dev requests, but the
-held-out set is no longer unseen.
-Details and caveats are in the eval run summaries (`evals/*/runs/`, not
-committed).
-
-Each answer's `evidence` level (`confidence` in the API) is computed by code and
-comes with its reasons; it says how well the catalog supports the answer, not
-that the answer is right. "High" was right in 77/78 and 32/32 lookups (dev /
-held-out). A grounding eval of false premises, planted instructions and
-counterfactual catalogs passed 42/48; read by hand, no answer marked high was
-wrong (the scorer flags 5 that quote a planted instruction in order to warn
-against it). Every agent's numbers are in
-[SECURITY.md](SECURITY.md#what-the-evidence-level-means).
 
 ## Quick start
 
@@ -162,11 +115,6 @@ python -m catalog_iq.evals.router        # Router (dev)
 # add --sets heldout once tuning is finished
 ```
 
-`/dashboard` shows the newest complete run of each eval and set, with quality
-(pass rate, faithfulness, false and missed refusals, recall@20, MRR, calibration)
-and reliability (how runs ended, retries, TTFT, TPOT, TPS, tokens) next to the
-live 👍 / 👎 feedback. `catalog-iq feedback` prints the feedback metrics.
-
 Optional tracing to Arize Phoenix: `pip install -e ".[trace]"`, run
 `phoenix serve`, set `PHOENIX_COLLECTOR_ENDPOINT` in `.env`.
 
@@ -184,6 +132,17 @@ src/catalog_iq/
   api.py, web/       FastAPI app and the web page
 evals/               questions and answer keys (run outputs are gitignored)
 ```
+
+## Dashboard
+
+`/dashboard` shows every metric on one page: live 👍 / 👎 feedback next to the
+newest complete run of each eval and set, split into quality and reliability.
+Every agent runs on Haiku (`claude-haiku-5-5`). Code scores each run against
+answer keys the agents never see, with no LLM judge; dev sets were used for
+tuning and held-out sets were run after it. What the evidence level means, and
+how often "high" was right, is in [SECURITY.md](SECURITY.md#what-the-evidence-level-means).
+
+![Dashboard: Catalog Lookup eval with how runs ended, quality metrics (pass rate, faithfulness, false and missed refusal, calibration) and reliability metrics](docs/dashboard.png)
 
 ## License
 
