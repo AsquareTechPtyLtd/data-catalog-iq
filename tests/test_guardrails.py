@@ -92,6 +92,24 @@ def test_tool_budget(conn, vocab):
     assert checks(guard.events) == ["tool_unknown", "tool_budget_exceeded"]
 
 
+def test_repeated_call_not_run_again(conn, vocab):
+    guard = Guard(conn, "catalog_lookup", "q", vocab=vocab, max_tool_calls=3)
+    first = guard.call("get_table", {"table": "dim_customers"})
+    again = guard.call("get_table", {"table": "dim_customers"})
+    assert again["status"] == "error" and "already called get_table" in again["error"]
+    assert checks(guard.events) == ["repeated_call"] and guard.tool_results == [first]
+    assert guard.call("get_table", {"table": "fct_orders"})["status"] == "found"   # other arguments run
+    result = guard.call("get_table", {"table": "dim_customers"})                  # repeats use up the budget
+    assert "Answer with the results you already have" in result["error"]
+
+
+def test_blocked_call_can_be_retried(conn, vocab):
+    guard = Guard(conn, "catalog_lookup", "q", vocab=vocab)
+    guard.call("get_table", {"table": "dim_customers", "sql": "x"})
+    assert guard.call("get_table", {"table": "dim_customers"})["status"] == "found"
+    assert checks(guard.events) == ["bad_args"]
+
+
 def test_large_result_trimmed(conn, vocab):
     guard = Guard(conn, "catalog_lookup", "q", vocab=vocab, max_result_chars=3500)  # full result ~4.8k
     result = guard.call("get_table", {"table": "raw_returns.return_requests"})

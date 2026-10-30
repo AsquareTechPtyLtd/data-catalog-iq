@@ -9,7 +9,8 @@ One Guard per question. The agent loop uses it like this:
     elif guard.attempts < MAX_ATTEMPTS:  send guard.feedback(problems) to the LLM, get a new draft
     else:  response = guard.refuse()
 
-Tool guardrail: this agent's call budget and its own subset of tools here; the
+Tool guardrail: this agent's call budget, its own subset of tools and repeated
+calls (same tool, same arguments: not run again, and counted against the budget) here; the
 rest (the tool exists, arguments match its schema, result size) in the MCP
 server the call goes through (mcp_server.py), which every caller shares. A
 blocked call returns an error to the LLM (so it can correct itself) instead of
@@ -29,6 +30,7 @@ recorded in AgentResponse.guardrails so it can be measured offline (eval) and
 online (trace).
 """
 
+import json
 import sqlite3
 
 from catalog_iq.catalog.db import settings
@@ -67,6 +69,7 @@ class Guard:
         self.evidence: list[ToolCall] = []
         self.events: list[GuardrailEvent] = []
         self.attempts = 0
+        self.calls_run: set[str] = set()      # tool calls that ran, to refuse repeats
 
     # --- tool guardrail ---------------------------------------------------------------
 
@@ -82,6 +85,10 @@ class Guard:
                                f"Unknown tool '{name}'. Available: {', '.join(self.tools)}.")
         if not isinstance(args, dict):
             return self._block(name, args, "bad_args", "arguments must be an object")
+        key = json.dumps([name, args], sort_keys=True, default=str)
+        if key in self.calls_run:
+            return self._block(name, args, "repeated_call",
+                               f"You already called {name} with these arguments; use that result.")
 
         reply = self.catalog.call(name, args)
         if reply.blocked:
@@ -91,6 +98,7 @@ class Guard:
                                               detail=f"{name}: {reply.trimmed_from} > "
                                                      f"{self.catalog.catalog.max_result_chars} characters"))
         result = reply.result
+        self.calls_run.add(key)
         self.tool_results.append(result)
         self.evidence.append(ToolCall(tool=name, args=args, result_status=result.get("status", "")))
         return result

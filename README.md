@@ -49,6 +49,24 @@ a real catalog without the production controls in [SECURITY.md](SECURITY.md).
 - **The router asks when unsure.** It runs 3 times in parallel: all agree → run;
   a majority → run and offer the other reading; no majority → ask.
 
+### Execution guardrails
+
+- **Tool allowlist:** each agent can call only its own tools (Catalog Lookup five,
+  PI Classifier one, Data Category Recommender three), and the MCP server only its
+  nine. Any other tool is refused and the model is told which ones exist.
+- **Arguments are checked before a tool runs:** required, known, the right type,
+  within limits, non-empty and from the allowed values. The model never writes SQL;
+  values are always passed to queries separately.
+- **Read-only by construction:** every tool only reads, and the catalog database
+  opens read-only, so no call can change data and nothing needs an approval step.
+- **No runaway loops:** a repeated call (same tool, same arguments) is detected
+  and not run again; the model is told to use the result it already has, and the
+  repeat still counts against the budget. A run stops at 8 LLM calls, 6 tool calls,
+  2 answer attempts or its time and token budget, whichever comes first, and is
+  refused rather than left running.
+- **Bounded results:** trimmed to a size limit (with citations kept whole), and a
+  rate limit on tool calls. Every blocked call is recorded and traced.
+
 ### Output guardrails
 
 - **The model never has the last word.** Code checks every cited id against what
