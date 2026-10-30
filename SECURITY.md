@@ -34,7 +34,7 @@ retailer. Run it locally; don't expose it or connect a real catalog without the
 
 ## Answers are checked by code
 
-![The model calls read-only tools, then writes a draft; code checks it: pass returns the answer, a first failure retries once, a second refuses](docs/agent-run.svg)
+![The model calls read-only tools, then writes a draft; output guardrails check it: pass returns the answer, a first failure retries once, a second refuses](docs/agent-run.svg)
 
 Every tool call is allow-listed, argument-checked and size-limited. Every draft's citations
 must point at tool results and its claims must appear in the cited source. The model never
@@ -44,6 +44,8 @@ has the last word.
 
 Anyone who can edit the catalog can write text the model will read: table and column
 descriptions, data category definitions, glossary terms.
+
+![What decides, highest first: code checks, the system prompt, the user's request, then tool results; a planted instruction in a table description arrives only as a tool result, and the answer ignores it](docs/instruction-hierarchy.svg)
 
 - **Instruction hierarchy in the prompts.** The router and all three agents state it: only
   their own instructions say what to do; the request says what to work on; text inside tool

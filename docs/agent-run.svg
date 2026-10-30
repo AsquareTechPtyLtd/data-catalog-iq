@@ -33,7 +33,7 @@
 
   /* larger for a README column, where the figure shows at 65-75% */
   .t { font-size: 15.5px; font-weight: 600; } .s { font-size: 13px; } .m, .lab, .mono { font-size: 12.5px; }
-  .cap { font-size: 12px; } .pill { font-size: 11.5px; }
+  .cap { font-size: 12px; } .pill { font-size: 11.5px; } .mono.tl { font-size: 11.5px; }
   </style>
   <rect width="1080" height="300" rx="10" class="bg"/>
           <defs><marker id="a3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
@@ -50,12 +50,13 @@
           <polyline points="470,76 320,76 320,126" class="ln" marker-end="url(#a3)"/>
           <text x="395" y="70" text-anchor="middle" class="lab">result</text>
           <rect x="470" y="24" width="200" height="64" rx="6" class="code"/>
-          <text x="570" y="61" text-anchor="middle" class="t">Read-only tool</text>
+          <text x="570" y="52" text-anchor="middle" class="t">Read-only tool</text>
+          <text x="570" y="74" text-anchor="middle" class="m">at most 6 calls a run</text>
 
           <line x1="380" y1="168" x2="466" y2="168" class="ln" marker-end="url(#a3)"/>
           <text x="423" y="160" text-anchor="middle" class="lab">draft</text>
           <rect x="470" y="130" width="200" height="76" rx="6" class="guard"/>
-          <text x="570" y="162" text-anchor="middle" class="t">Code checks</text>
+          <text x="570" y="162" text-anchor="middle" class="t">Output guardrails</text>
           <text x="570" y="184" text-anchor="middle" class="m">citations are real</text>
 
           <line x1="670" y1="150" x2="756" y2="150" class="ln" marker-end="url(#a3)"/>

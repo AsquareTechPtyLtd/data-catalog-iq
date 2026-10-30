@@ -65,6 +65,8 @@ a real catalog without the production controls in [SECURITY.md](SECURITY.md).
   but on a 5,013-category catalog it ranks slightly worse, and a cross-encoder
   re-ranker made both worse. The retrieval eval says which, without an LLM.
 
+![Tool use and hybrid retrieval: the Data Category Recommender fetches table facts with a tool call, and search_data_categories ranks category definitions with BM25 keywords, optionally merged with local embeddings by reciprocal rank fusion and re-ranked by a cross-encoder; output guardrails require the choice to come from the search](docs/rag.svg)
+
 ## Quick start
 
 Requires Python 3.11+ and an Anthropic API key.
