@@ -214,7 +214,9 @@ answer keys the agents never see, with no LLM judge; dev sets were used for
 tuning and held-out sets were run after it. What the evidence level means, and
 how often "high" was right, is in [SECURITY.md](SECURITY.md#what-the-evidence-level-means).
 
-![Dashboard: user feedback (answers given, feedback rate, thumbs-up rate, high evidence rated down, and breakdowns by evidence level, agent and outcome) above the latest eval runs](docs/dashboard.png)
+![Dashboard: user feedback (answers given, feedback rate, thumbs-up rate, high evidence rated down, and breakdowns by evidence level, agent and outcome) above the Catalog Lookup eval's quality and reliability metrics](docs/dashboard.png)
+
+The [full page](docs/dashboard-full.png) adds the Grounding, PI Classifier, Data Category Recommender and Router evals.
 
 ## License
 
