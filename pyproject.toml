@@ -23,6 +23,9 @@ dev = [
 trace = [
     "arize-phoenix-otel>=0.10",
 ]
+hybrid = [
+    "fastembed>=0.9",
+]
 api = [
     "fastapi>=0.110",
     "uvicorn>=0.29",

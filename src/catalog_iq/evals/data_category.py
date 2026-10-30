@@ -54,6 +54,7 @@ from catalog_iq.core.tracing import setup_tracing, shutdown_tracing, span
 from catalog_iq.evals.answer_key import EVALS_DIR
 from catalog_iq.evals.outcomes import outcome_mix, run_outcome
 from catalog_iq.evals.run import performance
+from catalog_iq.tools.retrieval import retriever
 
 DataCategorySet = Literal["open", "dev", "heldout"]
 TARGETS = {"accuracy": 0.80, "precision": 0.90}
@@ -250,6 +251,7 @@ def main(argv: list[str] | None = None) -> Path:
 
     summary = {"agent": AGENT, "provider": cfg["provider"], "model": cfg["model"], "sets": args.sets,
                "runs": args.runs, "tables": len(keys), "catalog": str(args.catalog or "default"),
+               "retriever": retriever(),
                "data_categories_in_catalog": data_category_count, "scored": len(results), "stopped": stopped,
                "errors": errors,
                **summarize(results, len(errors)), "performance": performance(runs, wall)}

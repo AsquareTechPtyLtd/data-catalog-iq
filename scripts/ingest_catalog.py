@@ -853,10 +853,20 @@ def build(cfg: dict, db_path: Path, run_id: str, hashes: list) -> dict:
     prov += [("term", t, "collibra", t) for t in collibra["terms"]]
     prov += [("exposure", e["unique_id"], "dbt", e["unique_id"]) for e in exposures]
     conn.executemany("INSERT INTO provenance VALUES (?,?,?,?)", prov)
+    vectors = embed_data_categories(conn)
     conn.commit()
     conn.close()
     return {"tables": len(tables), "columns": sum(len(c) for c in columns.values()),
-            "edges": len(edges), "gaps": len(gaps)}
+            "edges": len(edges), "gaps": len(gaps), "data_category_vectors": vectors}
+
+
+def embed_data_categories(conn: sqlite3.Connection) -> int:
+    """Vectors for hybrid retrieval (RETRIEVER=hybrid) when the .[hybrid] extra is installed; else none."""
+    import importlib.util
+    if importlib.util.find_spec("fastembed") is None:
+        return 0
+    from catalog_iq.tools.retrieval import write_vectors
+    return write_vectors(conn)
 
 
 # --- Publish: gates, drift, run log, rollback -------------------------------------
@@ -907,6 +917,11 @@ def check_gates(build_path: Path, published: Path, expected_fqns: set[str], forc
                 if not conn.execute(f"SELECT count(*) FROM {table}").fetchone()[0]:
                     raise GateFailed(f"{table} is empty")
             fqns = {r[0] for r in conn.execute("SELECT fqn FROM tables")}
+            if conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'data_category_vectors'").fetchone():
+                vectors, categories = (conn.execute(f"SELECT count(*) FROM {t}").fetchone()[0]
+                                       for t in ("data_category_vectors", "data_categories"))
+                if vectors != categories:
+                    raise GateFailed(f"{vectors} data category vectors for {categories} data categories")
     except sqlite3.Error as e:
         raise GateFailed(f"not a readable catalog: {e}") from e
     missing = sorted(expected_fqns - fqns)

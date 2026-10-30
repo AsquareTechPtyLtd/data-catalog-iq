@@ -1,0 +1,85 @@
+# Retrieval-only paraphrase set: tables described without the words of their data category.
+# Written 2026-10-30, before any hybrid retrieval run, and not changed after.
+# Each table is invented (not in the catalog); the query is built from its name, description and
+# column names the same way get_data_category_evidence builds one (table_text). Words were chosen
+# to avoid every word (after stemming) of the 13 data categories' names, definitions and glossary
+# terms, so keyword search has little to go on. Scored by catalog_iq.evals.retrieval only.
+tables:
+  - {name: patron_directory, data_category: DC-001,
+     description: "Everybody who bought from the shop and how to reach them: mailbox, mobile and home street.",
+     columns: [patron_ref, mobile, mailbox, street, town, zip]}
+  - {name: client_reachability, data_category: DC-001,
+     description: "Means of getting hold of our clients: telephone, inbox and mailing location.",
+     columns: [client_ref, telephone, inbox, mailing_location]}
+  - {name: rewards_member_profile, data_category: DC-002,
+     description: "Extra particulars about people in the rewards scheme: birthday, age band and gender.",
+     columns: [member_ref, birthday, age_band, gender]}
+  - {name: rewards_club_extras, data_category: DC-002,
+     description: "Optional profile answers from rewards club members: birthday, household size and interests.",
+     columns: [member_ref, birthday, household_size, interests]}
+  - {name: checkout_tender, data_category: DC-003,
+     description: "How people settled at checkout: tender type, masked PAN, expiry month and invoice zip.",
+     columns: [tender_type, masked_pan, expiry_month, invoice_zip]}
+  - {name: settlement_instruments, data_category: DC-003,
+     description: "Credit and debit instruments presented at the till, truncated to the final few numerals.",
+     columns: [instrument_kind, issuer, final_numerals]}
+  - {name: help_centre_cases, data_category: DC-004,
+     description: "Complaints and questions raised with our service agents, with the case thread and who raised it.",
+     columns: [case_ref, complaint_text, agent, raised_by, resolved_ts]}
+  - {name: chat_transcripts, data_category: DC-004,
+     description: "Live chat conversations between clients and the care team.",
+     columns: [chat_ref, transcript, care_agent, started_ts]}
+  - {name: clickstream, data_category: DC-005,
+     description: "Every tap and scroll visitors make on the e-shop, with browser and approximate location.",
+     columns: [visitor_cookie, url_path, referrer, user_agent, geo_hint]}
+  - {name: site_visits_log, data_category: DC-005,
+     description: "Visits to our internet storefront: landing URL, referrer, user agent and visitor cookie.",
+     columns: [visit_ref, landing_url, referrer, user_agent, visitor_cookie]}
+  - {name: anonymised_newsletter_reactions, data_category: DC-006,
+     description: "How newsletter readers reacted, indexed by a scrambled reader token instead of who they are.",
+     columns: [reader_token_sha256, newsletter_ref, reacted_ts, link_followed]}
+  - {name: masked_promo_reactions, data_category: DC-006,
+     description: "Reactions to promotional mailings linked by a digest of the recipient, never the raw identity.",
+     columns: [recipient_digest, mailing_ref, reacted_ts]}
+  - {name: promo_initiatives, data_category: DC-007,
+     description: "Advertising pushes we ran: medium, spend, impressions, conversions and credited income.",
+     columns: [initiative_ref, medium, spend, impressions, conversions, credited_income]}
+  - {name: ad_flight_results, data_category: DC-007,
+     description: "Results of each paid advertising flight by medium: spend, reach and conversions.",
+     columns: [flight_ref, medium, spend, reach, conversions]}
+  - {name: checkout_baskets, data_category: DC-008,
+     description: "Every basket people paid for, in shops or via the app, with item totals and refunds.",
+     columns: [basket_ref, item_qty, item_total, refund_amt]}
+  - {name: till_receipts, data_category: DC-008,
+     description: "Receipts printed at tills and for app checkouts: items, quantities, totals and give-backs.",
+     columns: [receipt_ref, sku, qty, total, refunded]}
+  - {name: merchandise_on_hand, data_category: DC-009,
+     description: "How many units of each article sit in each distribution centre.",
+     columns: [article_ref, sku, units_on_hand, dc_site]}
+  - {name: item_master, data_category: DC-009,
+     description: "Master list of articles we carry: style, colour, size and supplier.",
+     columns: [article_ref, style, colour, size, supplier]}
+  - {name: staff_directory, data_category: DC-010,
+     description: "How to reach colleagues: office mailbox, private mailbox and extension.",
+     columns: [colleague_ref, office_mailbox, private_mailbox, extension]}
+  - {name: workforce_reachability, data_category: DC-010,
+     description: "Means of getting hold of people in our workforce: mobile and mailbox.",
+     columns: [worker_ref, mobile, mailbox]}
+  - {name: remuneration, data_category: DC-011,
+     description: "What each staff member earns: base wage, bonus and allowances.",
+     columns: [staff_ref, base_wage, bonus, allowance]}
+  - {name: earnings_history, data_category: DC-011,
+     description: "Wage and bonus history for each worker.",
+     columns: [worker_ref, wage, bonus, effective_from]}
+  - {name: staff_tenure, data_category: DC-012,
+     description: "The start and leave day of each colleague, and the division they sit in.",
+     columns: [colleague_ref, start_day, leave_day, division]}
+  - {name: hr_lifecycle, data_category: DC-012,
+     description: "Hire, transfer and exit events across the workforce.",
+     columns: [worker_ref, event, effective_day, division]}
+  - {name: staff_tax_refs, data_category: DC-013,
+     description: "State-assigned tax and social security references kept for staff, masked to the final few characters.",
+     columns: [staff_ref, ssn_masked, tax_ref]}
+  - {name: worker_passport_checks, data_category: DC-013,
+     description: "Passport and visa document references on file for workers.",
+     columns: [worker_ref, passport_ref, visa_ref]}

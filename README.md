@@ -58,10 +58,12 @@ a real catalog without the production controls in [SECURITY.md](SECURITY.md).
   carries the catalog's version and `as_of` date, and the page warns when it is
   over 7 days old or the last update failed. See
   [SECURITY.md](SECURITY.md#catalog-freshness).
-- **No vector database.** Retrieval is metadata filters, lineage walks and
-  SQLite FTS5 keyword search over data categories. A scale test with 5,013
-  data categories kept recall@20 at 98.9% (the agent re-searches), so
-  embeddings weren't needed.
+- **No vector database, and hybrid search only where it is measured to help.**
+  Retrieval is metadata filters, lineage walks and keyword search (SQLite FTS5,
+  BM25) over data categories. `RETRIEVER=hybrid` adds local embeddings fused
+  with BM25: on tables described in other words it lifts top-1 from 8% to 96%,
+  but on a 5,013-category catalog it ranks slightly worse, and a cross-encoder
+  re-ranker made both worse. The retrieval eval says which, without an LLM.
 
 ## Quick start
 
@@ -133,6 +135,7 @@ python -m catalog_iq.evals.run --suite grounding --sets dev heldout   # false pr
 python -m catalog_iq.evals.pi            # PI Classifier
 python -m catalog_iq.evals.data_category # Data Category Recommender (open + dev)
 python -m catalog_iq.evals.router        # Router (dev)
+python -m catalog_iq.evals.retrieval     # data category search: BM25 vs hybrid, no LLM (needs .[hybrid])
 # add --sets heldout once tuning is finished
 ```
 

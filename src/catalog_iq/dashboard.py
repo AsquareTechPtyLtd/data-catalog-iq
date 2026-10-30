@@ -40,7 +40,7 @@ def _size(summary: dict) -> int:
 
 
 def latest_runs(suite: str, evals_dir: Path = EVALS_DIR) -> list[tuple[Path, dict]]:
-    """Per set combination and catalog, the newest run that finished and covered the whole set.
+    """Per set combination, catalog and retriever, the newest run that finished and covered the whole set.
 
     Runs of a few --ids or --slices are left out: they have fewer questions than the full run.
     A set combination is also left out once a newer run on the same catalog covers one of its sets
@@ -51,12 +51,13 @@ def latest_runs(suite: str, evals_dir: Path = EVALS_DIR) -> list[tuple[Path, dic
         s = json.loads(summary_path.read_text())
         if s.get("agent") != EVALS[suite][1] or s.get("stopped") or not s.get("scored"):
             continue
-        groups.setdefault((tuple(s.get("sets") or ()), s.get("catalog", "default")), []).append((summary_path.parent, s))
+        groups.setdefault((tuple(s.get("sets") or ()), s.get("catalog", "default"), s.get("retriever", "bm25")),
+                          []).append((summary_path.parent, s))
     picked = []
     for runs in groups.values():
         full = max(_size(s) for _, s in runs)
         picked.append(max((r for r in runs if _size(r[1]) == full), key=lambda r: r[0].name))
-    key = lambda r: (set(r[1].get("sets") or ()), r[1].get("catalog", "default"))
+    key = lambda r: (set(r[1].get("sets") or ()), (r[1].get("catalog", "default"), r[1].get("retriever", "bm25")))
     return sorted([r for r in picked if not any(o[0].name > r[0].name and key(o)[1] == key(r)[1] and key(o)[0] & key(r)[0]
                                                for o in picked)], key=lambda r: r[0].name, reverse=True)
 
@@ -152,6 +153,7 @@ def eval_metrics(evals_dir: Path = EVALS_DIR) -> list[dict]:
             catalog = s.get("catalog", "default")
             out.append({"eval": label, "suite": suite, "run": run_dir.name, "sets": s.get("sets") or [],
                         "catalog": None if catalog == "default" else f"{s.get('data_categories_in_catalog')} data categories",
+                        "retriever": s.get("retriever") if suite == "data_category_recommender" else None,
                         "model": s.get("model"), "size": _size(s), "runs_each": s.get("runs"), "scored": s.get("scored"),
                         "quality": quality(suite, s), "outcomes": outcomes, "reliability": rel,
                         "caveat": CAVEATS.get(suite)})

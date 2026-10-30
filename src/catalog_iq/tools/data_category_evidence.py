@@ -101,7 +101,7 @@ def signals(conn: sqlite3.Connection, t: sqlite3.Row, columns: list[dict], neigh
                                f"{n['direction']} {n['fqn']} ({hops}) has {n['data_category_id']}",
                                [*n["sources"], data_category_cite(n["data_category_id"])], strong=True))
     text = table_text(t["name"], t["description"], columns)
-    matches = [b for b in search_data_categories(conn, text)["data_categories"] if b["matched"]][:DEFINITION_TOP]
+    matches = [b for b in search_data_categories(conn, text, retriever="bm25")["data_categories"] if b["matched"]][:DEFINITION_TOP]
     for b in matches:
         out.append(_signal("definition", [b["data_category_id"]],
                            f"table name, description and column names match {b['data_category_id']} {b['name']} "

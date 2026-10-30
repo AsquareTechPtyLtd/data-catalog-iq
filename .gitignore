@@ -233,6 +233,7 @@ data/warehouse/*.db
 data/catalog/*.db
 data/catalog/*.db.tmp
 data/catalog/ingest_log.jsonl
+data/models/
 
 # Eval run outputs
 evals/*/runs/

@@ -158,7 +158,8 @@ function renderFeedback(f) {
 // ---- evals ----
 function runName(r) {
   const sets = r.sets.map((s) => (s === "heldout" ? "held-out" : s)).join(" + ");
-  return r.catalog ? `${sets} · ${r.catalog}` : sets;
+  const parts = [sets, r.catalog, r.retriever && r.retriever !== "bm25" ? `${r.retriever} search` : null];
+  return parts.filter(Boolean).join(" · ");
 }
 
 function metricTable(runs, part, title) {
