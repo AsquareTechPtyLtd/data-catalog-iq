@@ -6,6 +6,16 @@ cited, verified by code before it is shown, and refused when the catalog
 cannot support it. Two agents also *recommend* PI classifications and
 data categories, always pending a data steward's review.
 
+Questions it answers:
+
+- "Who owns fct_orders and does it hold personal data?"
+- "Where is sales data?"
+- "Who owns revenue data?"
+- "What feeds mart_finance_daily_revenue?"
+- "Which data category is fct_orders assigned, and how long is it kept?"
+- "Does raw_crm.contacts have personal data?" (recommends PI classifications)
+- "Which data category should mart_web_sessions use?" (recommends one, with its retention and stewards)
+
 All metadata is **synthetic**, for a fictional retailer, Fernwood Outfitters.
 
 The demo is **unauthenticated on purpose** and meant to run locally. Don't connect
