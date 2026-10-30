@@ -27,9 +27,9 @@ a real catalog without the production controls in [SECURITY.md](SECURITY.md).
 ![Architecture: the router sends each question to one or more agents; code guardrails check every tool call and answer; names are swapped for tokens before anything reaches the LLM or the traces; an evaluation pipeline scores the same agents with code](docs/architecture.svg)
 
 - **The catalog tools are an MCP server.** The agents call all nine tools
-  through it in-process, and Claude Desktop or any other MCP client can call
-  each one on its own. Every caller gets the same checks; outside callers get
-  tokens instead of people's names. See [below](#catalog-tools-over-mcp).
+  through it in-process, and any other MCP client (a desktop app, an IDE,
+  another team's agent) can call each one on its own. Every caller gets the
+  same checks; outside callers get tokens instead of people's names. See [below](#catalog-tools-over-mcp).
 - **The model never has the last word.** Each agent ends with a typed draft;
   code checks every cited id against what the tools returned, rejects claims
   that aren't in the cited source, retries once with the problems listed, then
@@ -114,8 +114,8 @@ client sends up to 3 earlier turns as `history`.
 `catalog-iq mcp` serves the nine read-only tools to one MCP client over stdio:
 `find_table`, `get_table`, `get_lineage`, `trace_path`, `filter_tables`,
 `get_columns`, `get_data_category_evidence`, `search_data_categories` and
-`get_data_category`. Every result carries citation ids. For Claude Desktop, add
-this to `claude_desktop_config.json`:
+`get_data_category`. Every result carries citation ids. For a client that starts MCP
+servers from a config file, add:
 
 ```json
 {"mcpServers": {"catalog-iq": {"command": "/path/to/data-catalog-iq/.venv/bin/catalog-iq", "args": ["mcp"]}}}
@@ -162,7 +162,7 @@ evals/               questions and answer keys (run outputs are gitignored)
 
 `/dashboard` shows every metric on one page: live 👍 / 👎 feedback next to the
 newest complete run of each eval and set, split into quality and reliability.
-Every agent runs on Haiku (`claude-haiku-5-5`). Code scores each run against
+Every agent runs on the same small, fast model. Code scores each run against
 answer keys the agents never see, with no LLM judge; dev sets were used for
 tuning and held-out sets were run after it. What the evidence level means, and
 how often "high" was right, is in [SECURITY.md](SECURITY.md#what-the-evidence-level-means).
