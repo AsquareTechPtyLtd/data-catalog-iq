@@ -9,7 +9,8 @@ retailer. Run it locally; don't expose it or connect a real catalog without the
 | Risk | Control |
 |---|---|
 | People's names leak to the LLM vendor | Names and emails become per-request tokens before any LLM call or trace ([below](#names-never-reach-the-model)) |
-| The model changes or queries data freely | `catalog.db` opens read-only; agents call allow-listed tools with schema-checked arguments, never SQL |
+| The model changes or queries data freely | `catalog.db` opens read-only; every tool call goes through one MCP server that checks the tool and its arguments, never SQL |
+| An outside MCP client sees people's names | It gets per-session tokens, in tool listings and results ([below](#catalog-tools-over-mcp)) |
 | The model makes things up | Code checks every citation and claim; one retry, then a refusal ([below](#answers-are-checked-by-code)) |
 | A recommendation is taken as a decision | PI and data category recommendations always await a data steward |
 | Runaway cost or load | Time and token budgets per run, 4 requests in flight, 10 a minute per client ([Limits](#limits)) |
@@ -37,6 +38,19 @@ retailer. Run it locally; don't expose it or connect a real catalog without the
 Every tool call is allow-listed, argument-checked and size-limited. Every draft's citations
 must point at tool results and its claims must appear in the cited source. The model never
 has the last word.
+
+## Catalog tools over MCP
+
+The nine tools sit behind one MCP server (`mcp_server.py`). Our agents call it
+in-process; `catalog-iq mcp` serves outside clients such as Claude Desktop over stdio.
+
+- **Every caller:** the tool must exist, arguments must match its schema, and results are
+  trimmed to 20k characters with citations kept. A blocked call is an MCP tool error.
+- **Our agents also:** only their own tools, at most 6 calls a run, and the answer checks.
+- **Outside callers also:** names and emails become tokens in results and in tool
+  listings (`filter_tables` lists owners), with no way back; 60 calls a minute; an
+  entitlement hook, allow-all in the demo. Their LLM writes the answer, so nothing checks it.
+- Eval-only options (blind mode, edited catalogs) are start-up options, never tool arguments.
 
 ## Limits
 
@@ -89,7 +103,8 @@ read by hand, none is: all 5 quote the planted instruction in order to warn agai
 ## What production would need
 
 - **Authentication:** SSO at a gateway; per-user dataset, domain and column entitlements
-  enforced in the tool layer.
+  enforced in the MCP server's hook, the same for MCP clients as for people. MCP over
+  HTTP with OAuth instead of stdio.
 - **Data egress:** vendor and region choice, zero-retention terms, less metadata sent.
 - **Limits beyond one process:** per-user quotas and spend caps, provider fallback, workers
   behind a job queue.

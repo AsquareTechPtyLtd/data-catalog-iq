@@ -60,12 +60,16 @@ def _summary(b: sqlite3.Row, cites: _Citations) -> dict:
 
 
 def search_data_categories(conn: sqlite3.Connection, query: str, domain: str | None = None,
-                           k: int = K_DEFAULT) -> dict:
-    """Data categories whose name, definition or glossary terms match any word of `query`, best first."""
+                           k: int = K_DEFAULT, data_category_id: str | None = None) -> dict:
+    """Data categories whose name, definition or glossary terms match any word of `query`, best first.
+
+    With `data_category_id`, only that one: whether it matches at all, at any rank.
+    """
     k = max(1, min(int(k), K_MAX))
+    only = data_category_id.strip().upper() if data_category_id else None
     cites = _Citations(settings(conn)["base_url"])
     rows = {r["data_category_id"]: r for r in conn.execute("SELECT * FROM data_categories ORDER BY data_category_id")
-            if domain is None or _domain(r["domain"]) == domain}
+            if (domain is None or _domain(r["domain"]) == domain) and only in (None, r["data_category_id"])}
     q = fts_query(query)
     hits = [] if q is None else [r["data_category_id"] for r in conn.execute(
         f"SELECT data_category_id FROM data_category_search WHERE data_category_search MATCH ? "
@@ -113,6 +117,7 @@ SEARCH_SCHEMA = {
         "query": {"type": "string", "description": "Words describing the data, e.g. 'website page views sessions'"},
         "domain": {"type": "string", "enum": DOMAINS, "description": "Only data categories of this governance domain"},
         "k": {"type": "integer", "minimum": 1, "maximum": K_MAX, "default": K_DEFAULT},
+        "data_category_id": {"type": "string", "description": "Only this data category (e.g. DC-005): does it match?"},
     },
     "required": ["query"],
 }

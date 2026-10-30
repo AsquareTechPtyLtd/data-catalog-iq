@@ -38,8 +38,7 @@ from catalog_iq.core.confidence import RETRIED, for_against, signal_reasons
 from catalog_iq.core.faithfulness import check_faithfulness
 from catalog_iq.core.guardrails import Guard
 from catalog_iq.core.response import Citation, Fact, GuardrailEvent, Guardrails, TableRef
-from catalog_iq.tools.data_category_evidence import definition_signal
-from catalog_iq.tools.data_categories import get_data_category
+from catalog_iq.tools.data_category_evidence import definition_query, definition_signal
 
 FAITHFULNESS_CHECKS = {"invalid_citation", "unsupported_claim", "answer_entity_not_in_facts"}
 CORROBORATING = {"neighbour", "data_category_domain", "domain_tables"}
@@ -185,8 +184,9 @@ class DataCategoryGuard(Guard):
         signals = list(result["signals"])
         chosen = draft.data_category_id
         if chosen and not any(s["signal"] == "definition" and chosen in s["suggests"] for s in signals):
-            extra = definition_signal(self.conn, result, chosen)  # beyond the catalog-wide top 3
-            signals += [extra] if extra else []
+            check = self.catalog.call("search_data_categories",  # beyond the catalog-wide top 3
+                                      {"query": definition_query(result), "data_category_id": chosen}).result
+            signals += [definition_signal(chosen)] if check.get("matched") else []
         level = confidence(draft.outcome, draft.data_category_id, signals, retried=self.attempts > 1)
         reasons = confidence_reasons(draft.outcome, draft.data_category_id, signals, retried=self.attempts > 1)
         status, note, rec = draft.outcome, None, None
@@ -219,7 +219,7 @@ class DataCategoryGuard(Guard):
                                             cited=result["table"]["sources"] if result else [])
 
     def _recommendation(self, data_category_id: str) -> DataCategoryRecommendation:
-        b = get_data_category(self.conn, data_category_id)["data_category"]
+        b = self.catalog.call("get_data_category", {"data_category_id": data_category_id}).result["data_category"]
         flags = ([] if b["status"] == "Approved"
                  else [CANDIDATE_FLAG.format(data_category_id=data_category_id, status=b["status"])])
         return DataCategoryRecommendation(data_category_id=b["data_category_id"], name=b["name"], status=b["status"],

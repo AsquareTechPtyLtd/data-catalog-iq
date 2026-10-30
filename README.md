@@ -26,6 +26,10 @@ a real catalog without the production controls in [SECURITY.md](SECURITY.md).
 
 ![Architecture: the router sends each question to one or more agents; code guardrails check every tool call and answer; names are swapped for tokens before anything reaches the LLM or the traces; an evaluation pipeline scores the same agents with code](docs/architecture.svg)
 
+- **The catalog tools are an MCP server.** The agents call all nine tools
+  through it in-process, and Claude Desktop or any other MCP client can call
+  each one on its own. Every caller gets the same checks; outside callers get
+  tokens instead of people's names. See [below](#catalog-tools-over-mcp).
 - **The model never has the last word.** Each agent ends with a typed draft;
   code checks every cited id against what the tools returned, rejects claims
   that aren't in the cited source, retries once with the problems listed, then
@@ -103,6 +107,23 @@ catalog-iq ask "..." --verbose                                          # tool c
 Interactive docs at `/docs` while the server runs. The API is stateless: the
 client sends up to 3 earlier turns as `history`.
 
+## Catalog tools over MCP
+
+`catalog-iq mcp` serves the nine read-only tools to one MCP client over stdio:
+`find_table`, `get_table`, `get_lineage`, `trace_path`, `filter_tables`,
+`get_columns`, `get_data_category_evidence`, `search_data_categories` and
+`get_data_category`. Every result carries citation ids. For Claude Desktop, add
+this to `claude_desktop_config.json`:
+
+```json
+{"mcpServers": {"catalog-iq": {"command": "/path/to/data-catalog-iq/.venv/bin/catalog-iq", "args": ["mcp"]}}}
+```
+
+The client's own LLM writes the answer, so it gets cited facts but not the
+agents' answer checks. People's names and emails come back as tokens
+(`PERSON_3f9a2c1b`) that stay the same within a session. See
+[SECURITY.md](SECURITY.md#catalog-tools-over-mcp).
+
 ## Evals and tests
 
 ```bash
@@ -126,6 +147,7 @@ scripts/             warehouse generator, catalog ingestion, data category scale
 src/catalog_iq/
   core/              agent loop, providers (Anthropic, Gemini), guardrails, citation checks, tracing
   tools/             read-only catalog tools
+  mcp_server.py      the tools as one MCP server: checks for every caller, tokens for outside callers
   agents/            catalog_lookup, pi_classifier, data_category_recommender (prompt, schema, guard, route spec)
   router/            routing, route specs, sample agreement
   evals/             runners and scoring

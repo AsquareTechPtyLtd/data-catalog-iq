@@ -183,6 +183,7 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
     route_cmd = sub.add_parser("route", help="show which agent the router picks (no agent runs)")
     route_cmd.add_argument("request")
     sub.add_parser("feedback", help="thumbs up / down metrics from the web page, as JSON")
+    sub.add_parser("mcp", help="serve the nine catalog tools to one MCP client over stdio (names become tokens)")
     serve_cmd = sub.add_parser("serve", help="run the API and the web page")
     serve_cmd.add_argument("--host", default="127.0.0.1")
     serve_cmd.add_argument("--port", type=int, default=8000)
@@ -193,6 +194,20 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
     if args.command == "feedback":
         from catalog_iq.feedback import FeedbackStore
         print(json.dumps(FeedbackStore().summary(), indent=2))
+        return 0
+    if args.command == "mcp":
+        from contextlib import redirect_stdout
+
+        from catalog_iq.mcp_server import serve_stdio
+        with redirect_stdout(sys.stderr):  # stdout carries the MCP messages only
+            load_env()
+            setup_tracing()
+        conn = connect()
+        try:
+            serve_stdio(conn)
+        finally:
+            conn.close()
+            shutdown_tracing()
         return 0
     if args.command == "serve":
         import uvicorn  # optional extra: pip install -e ".[api]"

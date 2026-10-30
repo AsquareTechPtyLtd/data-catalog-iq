@@ -100,6 +100,16 @@ def current_vault() -> Vault | None:
 
 
 @contextmanager
+def vault_scope(vault: Vault):
+    """Make `vault` the current one: the MCP server's per-session vault for an outside caller's tool call."""
+    token = _current.set(vault)
+    try:
+        yield vault
+    finally:
+        _current.reset(token)
+
+
+@contextmanager
 def redaction_scope(conn: sqlite3.Connection):
     """Open a Vault for this request, or reuse the one already open. Does nothing when both switches are off."""
     if _current.get() is not None or not (llm_redaction() or trace_redaction()):

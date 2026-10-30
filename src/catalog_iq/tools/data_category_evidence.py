@@ -34,7 +34,7 @@ from collections import deque
 from functools import partial
 
 from catalog_iq.catalog.db import settings
-from catalog_iq.tools.data_categories import DATA_CATEGORY_TOOLS, fts_query, search_data_categories
+from catalog_iq.tools.data_categories import DATA_CATEGORY_TOOLS, search_data_categories
 from catalog_iq.tools.tables import _Citations, _resolve
 
 DEFINITION_TOP = 3
@@ -68,19 +68,20 @@ def table_text(name: str, description: str | None, columns: list[dict]) -> str:
     return " ".join(words)
 
 
-def definition_signal(conn: sqlite3.Connection, evidence: dict, data_category_id: str) -> dict | None:
-    """A definition signal for one chosen data category, if the table's words match it at any rank.
+def definition_query(evidence: dict) -> str:
+    """The words of an evidence result's table, to search for one chosen data category.
 
     The evidence's definition signals are the top DEFINITION_TOP of the whole
     catalog; in a catalog of thousands, distractors crowd a right data category out of
-    those, so the guard checks the chosen one directly.
+    those, so the guard asks search_data_categories about the chosen one directly
+    and adds definition_signal when it matches.
     """
     t = evidence["table"]
-    q = fts_query(table_text(t["fqn"].split(".")[-1], t["description"], evidence["columns"]))
-    if q is None or conn.execute("SELECT 1 FROM data_category_search "
-                                 "WHERE data_category_search MATCH ? AND data_category_id = ?",
-                                 (q, data_category_id)).fetchone() is None:
-        return None
+    return table_text(t["fqn"].split(".")[-1], t["description"], evidence["columns"])
+
+
+def definition_signal(data_category_id: str) -> dict:
+    """A definition signal for one chosen data category the table's words match at any rank."""
     return _signal("definition", [data_category_id],
                    f"table name, description and column names match {data_category_id}'s definition "
                    "(checked for the chosen data category)", [f"collibra:{data_category_id}"])
