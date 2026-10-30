@@ -107,6 +107,9 @@ def main() -> None:
         for b in rows])
     conn.executemany("INSERT INTO data_category_search VALUES (?,?,?,?)",
                      [(b["data_category_id"], b["name"], b["definition"], "") for b in rows])
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'data_category_vectors'").fetchone():
+        from catalog_iq.tools.retrieval import write_vectors  # the copy has the 13 real ones only: embed all
+        write_vectors(conn)
     conn.commit()
     total = conn.execute("SELECT count(*) FROM data_categories").fetchone()[0]
     conn.close()

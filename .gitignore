@@ -232,6 +232,11 @@ data/raw/
 data/warehouse/*.db
 data/catalog/*.db
 data/catalog/*.db.tmp
+data/catalog/ingest_log.jsonl
+data/models/
 
 # Eval run outputs
 evals/*/runs/
+
+# Ratings from the web page (no question or answer text)
+data/feedback/

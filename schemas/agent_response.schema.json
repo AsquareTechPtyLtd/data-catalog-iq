@@ -290,8 +290,8 @@
   "description": "Final response returned to users, the API, the UI and other agents.",
   "properties": {
     "schema_version": {
-      "const": "1.1",
-      "default": "1.1",
+      "const": "1.2",
+      "default": "1.2",
       "title": "Schema Version",
       "type": "string"
     },
@@ -365,6 +365,7 @@
       "type": "array"
     },
     "confidence": {
+      "description": "How well the catalog evidence supports this, computed by code (not the model's own certainty). Not a guarantee that it is correct; confidence_reasons says what it rests on.",
       "enum": [
         "high",
         "medium",
@@ -372,6 +373,14 @@
       ],
       "title": "Confidence",
       "type": "string"
+    },
+    "confidence_reasons": {
+      "description": "What the level rests on: first attempt or retry, ambiguity.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Confidence Reasons",
+      "type": "array"
     },
     "evidence": {
       "description": "Tool calls made, in order.",

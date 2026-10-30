@@ -390,9 +390,11 @@ def test_summarize(conn, key, vocab):
     assert s["derived"]["hallucination_rate"] == 0.5        # 1 of 2 claims unsupported
     assert s["derived"]["agreement_rate"] == 0.5            # D1 differed between runs
     assert s["derived"]["calibration_high"] == 0.5          # 2 high answers, 1 correct
-    assert s["derived"]["retry_rate"] == 0.25
-    assert s["derived"]["retry_success_rate"] == 0.0
-    assert s["derived"]["refusal_rate"] == 0.25
+    assert s["reliability"] == {"retry_rate": 0.25, "retry_success_rate": 0.0}
+    assert s["outcomes"] == {"answered": 0.5, "abstained": 0.25, "verification_refusal": 0.25,
+                             "budget_stop": 0.0, "error": 0.0}
+    assert s["refusals"] == {"false_refusal_rate": 0.0, "missed_refusal_rate": 0.0,
+                             "abstention_precision": 1.0, "abstention_recall": 1.0}
     assert s["derived"]["confidence_distribution"] == {"high": 0.5, "medium": 0.0, "low": 0.5}
     assert s["derived"]["guardrail_trigger_rate"] == {"output:no_evidence": 0.25}  # counted once per answer
     assert list(s["failures"]) == ["D1"]

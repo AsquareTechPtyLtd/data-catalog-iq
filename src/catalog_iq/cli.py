@@ -14,6 +14,7 @@ PHOENIX_COLLECTOR_ENDPOINT set, every question is a trace in Phoenix.
 """
 
 import argparse
+import json
 import sys
 
 from catalog_iq.agents.data_category_recommender import recommend_data_category
@@ -37,9 +38,14 @@ def check_question(question: str) -> str | None:
     return None
 
 
+def why(reasons: list[str]) -> list[str]:
+    """Evidence is how well the catalog supports an answer, not a guarantee it is right."""
+    return [f"  why: {'; '.join(reasons)}"] if reasons else []
+
+
 def render(run: AgentRun, verbose: bool = False) -> str:
     r = run.response
-    lines = [f"{r.answer}", "", f"status: {r.status} · confidence: {r.confidence}"]
+    lines = [f"{r.answer}", "", f"status: {r.status} · evidence: {r.confidence}", *why(r.confidence_reasons)]
     if r.clarification:
         lines += ["", r.clarification.question] + [f"  • {o}" for o in r.clarification.options]
     if r.tables:
@@ -71,7 +77,8 @@ def render(run: AgentRun, verbose: bool = False) -> str:
 
 def render_pi(run: AgentRun, verbose: bool = False) -> str:
     r = run.response
-    lines = [r.summary, "", f"status: {r.status} · {r.review_status.replace('_', ' ')}"]
+    lines = [r.summary, "", f"status: {r.status} · evidence: {r.confidence} · {r.review_status.replace('_', ' ')}",
+             *why(r.confidence_reasons)]
     if r.table:
         lines += [f"table: {r.table.fqn}  {r.table.url}"]
     if r.recommendations:
@@ -79,7 +86,7 @@ def render_pi(run: AgentRun, verbose: bool = False) -> str:
         for c in r.recommendations:
             what = f"PI: {c.pi_type} ({c.data_subject}), {c.sensitivity}" if c.recommendation == "pi" else \
                 "not PI" if c.recommendation == "not_pi" else "needs manual review"
-            lines += [f"  • {c.column}: {what} · {c.confidence} confidence (recorded: {c.recorded_status})",
+            lines += [f"  • {c.column}: {what} · evidence: {c.confidence} (recorded: {c.recorded_status})",
                       f"      {c.reason}"] + ([f"      note: {c.note}"] if c.note else [])
             if verbose:
                 lines += [f"      signal {s.signal} → {', '.join(s.suggests)}: {s.detail}" for s in c.signals]
@@ -98,7 +105,8 @@ def render_pi(run: AgentRun, verbose: bool = False) -> str:
 
 def render_data_category(run: AgentRun, verbose: bool = False) -> str:
     r = run.response
-    lines = [r.summary, "", f"status: {r.status} · confidence: {r.confidence} · {r.review_status.replace('_', ' ')}"]
+    lines = [r.summary, "", f"status: {r.status} · evidence: {r.confidence} · {r.review_status.replace('_', ' ')}",
+             *why(r.confidence_reasons)]
     if r.table:
         lines += [f"table: {r.table.fqn}  {r.table.url}"]
     if r.current:
@@ -133,7 +141,8 @@ def render_data_category(run: AgentRun, verbose: bool = False) -> str:
 
 
 def render_route(d) -> str:
-    lines = [f"status: {d.status} · routing confidence: {d.confidence} ({d.agreement} samples agree)"]
+    agree, n = d.agreement.split("/")
+    lines = [f"status: {d.status} · routing: {agree} of {n} samples agree ({d.confidence})"]
     for r in d.routes:
         lines += [f"  → {r.label}" + (f" · {r.table}" if r.table else "") + f"  ({r.reason})"]
         if r.agent == "catalog_lookup" and r.request != d.request:
@@ -173,6 +182,8 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
     data_category_cmd.add_argument("table")
     route_cmd = sub.add_parser("route", help="show which agent the router picks (no agent runs)")
     route_cmd.add_argument("request")
+    sub.add_parser("feedback", help="thumbs up / down metrics from the web page, as JSON")
+    sub.add_parser("mcp", help="serve the nine catalog tools to one MCP client over stdio (names become tokens)")
     serve_cmd = sub.add_parser("serve", help="run the API and the web page")
     serve_cmd.add_argument("--host", default="127.0.0.1")
     serve_cmd.add_argument("--port", type=int, default=8000)
@@ -180,6 +191,24 @@ def main(argv: list[str] | None = None, provider: Provider | None = None) -> int
         p.add_argument("--json", action="store_true", help="print the full AgentResponse as JSON")
         p.add_argument("--verbose", "-v", action="store_true", help="show tool calls, guardrails and tokens")
     args = parser.parse_args(argv)
+    if args.command == "feedback":
+        from catalog_iq.feedback import FeedbackStore
+        print(json.dumps(FeedbackStore().summary(), indent=2))
+        return 0
+    if args.command == "mcp":
+        from contextlib import redirect_stdout
+
+        from catalog_iq.mcp_server import serve_stdio
+        with redirect_stdout(sys.stderr):  # stdout carries the MCP messages only
+            load_env()
+            setup_tracing()
+        conn = connect()
+        try:
+            serve_stdio(conn)
+        finally:
+            conn.close()
+            shutdown_tracing()
+        return 0
     if args.command == "serve":
         import uvicorn  # optional extra: pip install -e ".[api]"
 

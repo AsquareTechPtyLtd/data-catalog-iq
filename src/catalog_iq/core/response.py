@@ -20,7 +20,9 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-SCHEMA_VERSION = "1.1"  # 1.1: Fact.relations (lineage)
+from catalog_iq.core.confidence import MEANING
+
+SCHEMA_VERSION = "1.2"  # 1.1: Fact.relations (lineage); 1.2: confidence_reasons
 SCHEMAS_DIR = Path(__file__).resolve().parents[3] / "schemas"
 
 Status = Literal["answered", "needs_clarification", "insufficient_context", "out_of_scope"]
@@ -131,7 +133,7 @@ class Guardrails(_Strict):
 class AgentResponse(_Strict):
     """Final response returned to users, the API, the UI and other agents."""
 
-    schema_version: Literal["1.1"] = SCHEMA_VERSION
+    schema_version: Literal["1.2"] = SCHEMA_VERSION
     agent: str = Field(description="Agent that produced the response, e.g. catalog_lookup.")
     question: str
     status: Status
@@ -142,7 +144,9 @@ class AgentResponse(_Strict):
         default=None, description="Who to contact when a table has no data contract or no owner.")
     clarification: Clarification | None = None
     citations: list[Citation] = Field(default_factory=list, description="Details for every cited id.")
-    confidence: Confidence
+    confidence: Confidence = Field(description=MEANING)
+    confidence_reasons: list[str] = Field(
+        default_factory=list, description="What the level rests on: first attempt or retry, ambiguity.")
     evidence: list[ToolCall] = Field(default_factory=list, description="Tool calls made, in order.")
     guardrails: Guardrails = Field(description="What the guardrails checked, blocked or retried.")
 

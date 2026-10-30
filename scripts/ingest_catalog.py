@@ -12,8 +12,9 @@ The warehouse is opened read-only. Its schema and row counts are read, and
 each column is profiled (null/distinct ratios, value-pattern match ratios):
 only aggregates are stored, never a value.
 
-Usage: python3 scripts/ingest_catalog.py [--force]
-Output: data/catalog/catalog.db
+Usage: python3 scripts/ingest_catalog.py [--force | --rollback]
+Output: data/catalog/catalog.db (previous one kept as catalog.prev.db), and one
+line per attempt in data/catalog/ingest_log.jsonl
 """
 
 import argparse
@@ -21,7 +22,9 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import sqlite3
+from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -850,43 +853,219 @@ def build(cfg: dict, db_path: Path, run_id: str, hashes: list) -> dict:
     prov += [("term", t, "collibra", t) for t in collibra["terms"]]
     prov += [("exposure", e["unique_id"], "dbt", e["unique_id"]) for e in exposures]
     conn.executemany("INSERT INTO provenance VALUES (?,?,?,?)", prov)
+    vectors = embed_data_categories(conn)
     conn.commit()
     conn.close()
     return {"tables": len(tables), "columns": sum(len(c) for c in columns.values()),
-            "edges": len(edges), "gaps": len(gaps)}
+            "edges": len(edges), "gaps": len(gaps), "data_category_vectors": vectors}
+
+
+def embed_data_categories(conn: sqlite3.Connection) -> int:
+    """Vectors for hybrid retrieval (RETRIEVER=hybrid) when the .[hybrid] extra is installed; else none."""
+    import importlib.util
+    if importlib.util.find_spec("fastembed") is None:
+        return 0
+    from catalog_iq.tools.retrieval import write_vectors
+    return write_vectors(conn)
+
+
+# --- Publish: gates, drift, run log, rollback -------------------------------------
+# A build goes to catalog.db.tmp and replaces catalog.db only if it passes the gates;
+# otherwise the old catalog keeps serving. Every attempt is a line in ingest_log.jsonl,
+# beside the catalog (a failed run can't write into a file it never touches).
+
+CORE_TABLES = ("tables", "columns", "people", "data_categories")
+
+
+class GateFailed(Exception):
+    """The build is not fit to publish; the message says why."""
+
+
+def prev_path(db_path: Path) -> Path:
+    return db_path.with_name(f"{db_path.stem}.prev.db")
+
+
+def log_path(db_path: Path) -> Path:
+    return db_path.with_name("ingest_log.jsonl")
+
+
+def append_log(path: Path, entry: dict) -> None:
+    with path.open("a") as f:
+        f.write(json.dumps(entry) + "\n")
+
+
+def manifest_fqns(cfg: dict) -> set[str]:
+    """Every dbt source and model: each must be a table in the catalog."""
+    fqns = set()
+    for p in cfg["dbt"]:
+        m = json.loads((ROOT / p["manifest"]).read_text())
+        fqns |= {s["relation_name"] for s in m["sources"].values()}
+        fqns |= {n["relation_name"] for n in m["nodes"].values() if n["resource_type"] == "model"}
+    return fqns
+
+
+def check_gates(build_path: Path, published: Path, expected_fqns: set[str], force: bool = False) -> None:
+    """Raises GateFailed if the build is unreadable, empty, missing dbt nodes, or has lost more
+    than INGEST_MAX_TABLE_DROP of the published catalog's tables (unless force)."""
+    max_drop = float(os.environ.get("INGEST_MAX_TABLE_DROP", "0.2"))
+    try:
+        with closing(sqlite3.connect(f"file:{build_path}?mode=ro", uri=True)) as conn:
+            check = conn.execute("PRAGMA integrity_check").fetchone()[0]
+            if check != "ok":
+                raise GateFailed(f"integrity check failed: {check}")
+            for table in CORE_TABLES:
+                if not conn.execute(f"SELECT count(*) FROM {table}").fetchone()[0]:
+                    raise GateFailed(f"{table} is empty")
+            fqns = {r[0] for r in conn.execute("SELECT fqn FROM tables")}
+            if conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'data_category_vectors'").fetchone():
+                vectors, categories = (conn.execute(f"SELECT count(*) FROM {t}").fetchone()[0]
+                                       for t in ("data_category_vectors", "data_categories"))
+                if vectors != categories:
+                    raise GateFailed(f"{vectors} data category vectors for {categories} data categories")
+    except sqlite3.Error as e:
+        raise GateFailed(f"not a readable catalog: {e}") from e
+    missing = sorted(expected_fqns - fqns)
+    if missing:
+        raise GateFailed(f"{len(missing)} dbt sources/models missing from the catalog: {', '.join(missing[:5])}")
+    if published.exists() and not force:
+        with closing(sqlite3.connect(f"file:{published}?mode=ro", uri=True)) as conn:
+            before = conn.execute("SELECT count(*) FROM tables").fetchone()[0]
+        if len(fqns) < before * (1 - max_drop):
+            raise GateFailed(f"tables dropped from {before} to {len(fqns)}, more than {max_drop:.0%} "
+                             "(rerun with --force if intended)")
+
+
+def drift(old: Path, new: Path) -> dict:
+    """What changed between the published catalog and the new build; only non-empty keys."""
+    if not old.exists():
+        return {}
+
+    def read(path):
+        with closing(sqlite3.connect(f"file:{path}?mode=ro", uri=True)) as conn:
+            tables = dict(conn.execute("SELECT fqn, data_category_id FROM tables"))
+            cols: dict[str, set] = {}
+            for fqn, name in conn.execute("SELECT table_fqn, name FROM columns"):
+                cols.setdefault(fqn, set()).add(name)
+        return tables, cols
+
+    try:
+        (t0, c0), (t1, c1) = read(old), read(new)
+    except sqlite3.Error as e:
+        return {"unreadable": str(e)}
+    both = t0.keys() & t1.keys()
+    changes = {
+        "tables_added": sorted(t1.keys() - t0.keys()),
+        "tables_removed": sorted(t0.keys() - t1.keys()),
+        "columns_added": {f: sorted(c1.get(f, set()) - c0.get(f, set())) for f in sorted(both)},
+        "columns_removed": {f: sorted(c0.get(f, set()) - c1.get(f, set())) for f in sorted(both)},
+        "data_category_changed": {f: [t0[f], t1[f]] for f in sorted(both) if t0[f] != t1[f]},
+    }
+    changes["columns_added"] = {f: c for f, c in changes["columns_added"].items() if c}
+    changes["columns_removed"] = {f: c for f, c in changes["columns_removed"].items() if c}
+    return {k: v for k, v in changes.items() if v}
+
+
+def publish(build_path: Path, db_path: Path) -> None:
+    """The current catalog is kept as catalog.prev.db; catalog.db is never missing, even briefly."""
+    if db_path.exists():
+        shutil.copy2(db_path, prev_path(db_path))
+    os.replace(build_path, db_path)
+
+
+def rollback(db_path: Path) -> None:
+    """Swap catalog.db and catalog.prev.db, so a second rollback rolls forward again."""
+    prev = prev_path(db_path)
+    if not prev.exists():
+        raise GateFailed(f"no previous catalog to roll back to ({prev.name} missing)")
+    hold = db_path.with_suffix(".db.tmp")
+    shutil.copy2(db_path, hold)
+    os.replace(prev, db_path)
+    os.replace(hold, prev)
+
+
+def published_run(db_path: Path) -> tuple[str | None, int | None, set]:
+    """run_id, schema version and (source, path, sha256) rows of the published catalog."""
+    if not db_path.exists():
+        return None, None, set()
+    try:
+        with closing(sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)) as conn:
+            row = conn.execute("SELECT run_id, max(schema_version) FROM ingest_runs").fetchone()
+            return row[0], row[1], set(conn.execute("SELECT source, path, sha256 FROM ingest_runs"))
+    except sqlite3.Error:
+        return None, None, set()
+
+
+def now_utc() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def ingest(cfg: dict, db_path: Path, force: bool = False) -> dict:
+    """One attempt: skip if unchanged, else build, gate, diff and publish. Returns the log entry.
+    A gate failure is logged and returned; any other error is logged and raised."""
+    hashes = [(s, p, sha256_file(p)) for s, p in source_files(cfg)]
+    sources = [{"source": s, "path": str(p.relative_to(ROOT)), "sha256": h} for s, p, h in hashes]
+    entry = {"started_at": now_utc(), "schema_version": SCHEMA_VERSION, "sources": sources}
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+
+    run_id, version, previous = published_run(db_path)
+    if not force and version == SCHEMA_VERSION and previous == {tuple(s.values()) for s in sources}:
+        entry.update(status="unchanged", run_id=run_id, finished_at=now_utc())
+        append_log(log_path(db_path), entry)
+        return entry
+
+    entry["run_id"] = hashlib.sha256("".join(h for _, _, h in hashes).encode()).hexdigest()[:12]
+    tmp_path = db_path.with_suffix(".db.tmp")
+    tmp_path.unlink(missing_ok=True)
+    try:
+        stats = build(cfg, tmp_path, entry["run_id"], hashes)
+        check_gates(tmp_path, db_path, manifest_fqns(cfg), force)
+        entry.update(counts=stats, drift=drift(db_path, tmp_path))
+        publish(tmp_path, db_path)
+        entry["status"] = "published"
+    except Exception as e:
+        tmp_path.unlink(missing_ok=True)
+        entry.update(status="failed", error=str(e) if isinstance(e, GateFailed) else f"{type(e).__name__}: {e}")
+        if not isinstance(e, GateFailed):
+            raise
+    finally:
+        entry["finished_at"] = now_utc()
+        append_log(log_path(db_path), entry)
+    return entry
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--force", action="store_true", help="rebuild even if no source changed")
+    parser.add_argument("--force", action="store_true",
+                        help="rebuild even if no source changed, and allow a large drop in tables")
+    parser.add_argument("--rollback", action="store_true", help="swap catalog.db with catalog.prev.db")
     args = parser.parse_args()
 
     cfg = yaml.safe_load(CONFIG_PATH.read_text())
     db_path = ROOT / cfg["catalog"]["path"]
-    hashes = [(s, p, sha256_file(p)) for s, p in source_files(cfg)]
+    name = db_path.relative_to(ROOT)
 
-    if db_path.exists() and not args.force:
-        conn = sqlite3.connect(db_path)
+    if args.rollback:
         try:
-            last = conn.execute("SELECT max(schema_version) FROM ingest_runs").fetchone()[0]
-            previous = set(conn.execute("SELECT source, path, sha256 FROM ingest_runs"))
-        except sqlite3.Error:
-            last, previous = None, set()
-        conn.close()
-        current = {(s, str(p.relative_to(ROOT)), h) for s, p, h in hashes}
-        if last == SCHEMA_VERSION and previous == current:
-            print(f"{db_path.relative_to(ROOT)} is up to date ({len(hashes)} source files unchanged)")
-            return
+            rollback(db_path)
+        except GateFailed as e:
+            raise SystemExit(str(e))
+        run_id, _, _ = published_run(db_path)
+        append_log(log_path(db_path), {"status": "rolled_back", "run_id": run_id,
+                                       "started_at": now_utc(), "finished_at": now_utc()})
+        print(f"rolled back {name} to run {run_id}")
+        return
 
-    db_path.parent.mkdir(parents=True, exist_ok=True)
-    tmp_path = db_path.with_suffix(".db.tmp")
-    tmp_path.unlink(missing_ok=True)
-    run_id = hashlib.sha256("".join(h for _, _, h in hashes).encode()).hexdigest()[:12]
-    stats = build(cfg, tmp_path, run_id, hashes)
-    os.replace(tmp_path, db_path)
-    print(f"wrote {db_path.relative_to(ROOT)} (run {run_id}): "
-          f"{stats['tables']} tables, {stats['columns']} columns, "
-          f"{stats['edges']} lineage edges, {stats['gaps']} governance gaps")
+    entry = ingest(cfg, db_path, args.force)
+    if entry["status"] == "unchanged":
+        print(f"{name} is up to date ({len(entry['sources'])} source files unchanged)")
+    elif entry["status"] == "failed":
+        raise SystemExit(f"not published, {name} unchanged: {entry['error']}")
+    else:
+        c = entry["counts"]
+        print(f"wrote {name} (run {entry['run_id']}): {c['tables']} tables, {c['columns']} columns, "
+              f"{c['edges']} lineage edges, {c['gaps']} governance gaps")
+        for key, value in entry["drift"].items():
+            print(f"  {key.replace('_', ' ')}: {value}")
 
 
 if __name__ == "__main__":

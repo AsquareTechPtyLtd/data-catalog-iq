@@ -14,6 +14,7 @@ from catalog_iq.catalog.db import connect, settings
 from catalog_iq.core.config import agent_config, load_env
 from catalog_iq.core.loop import AgentRun, run_agent
 from catalog_iq.core.providers import Provider, make_provider
+from catalog_iq.core.redaction import redaction_scope
 from catalog_iq.tools.filter import FILTER_TOOLS
 from catalog_iq.tools.lineage import LINEAGE_TOOLS
 from catalog_iq.tools.tables import TOOLS as TABLE_TOOLS
@@ -36,7 +37,8 @@ def ask(question: str, conn: sqlite3.Connection | None = None, provider: Provide
         if provider is None:
             load_env()
             provider = make_provider(agent_config(AGENT))
-        return run_agent(question, conn, provider, system_prompt(conn), AGENT, tools=TOOLS)
+        with redaction_scope(conn):
+            return run_agent(question, conn, provider, system_prompt(conn), AGENT, tools=TOOLS)
     finally:
         if own_conn:
             conn.close()

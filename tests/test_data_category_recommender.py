@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from catalog_iq.agents.data_category_recommender import AGENT, recommend_data_category, request
-from catalog_iq.agents.data_category_recommender.guard import DataCategoryGuard, confidence
+from catalog_iq.agents.data_category_recommender.guard import DataCategoryGuard, confidence, confidence_reasons
 from catalog_iq.agents.data_category_recommender.schema import DataCategoryDraft
 from catalog_iq.catalog.db import catalog_path, connect
 from catalog_iq.core.providers.base import LLMCall, Reply, ToolCallRequest
@@ -86,6 +86,16 @@ def sig(kind, data_category, strong=False):
 ])
 def test_confidence(outcome, data_category, signals, retried, level):
     assert confidence(outcome, data_category, signals, retried) == level
+
+
+def test_confidence_reasons():
+    definition = {"signal": "definition", "suggests": ["DC-005"], "strong": False, "detail": "matches DC-005's definition"}
+    neighbour = {"signal": "neighbour", "suggests": ["DC-008"], "strong": True, "detail": "fct_orders is DC-008"}
+    assert confidence_reasons("recommended", "DC-005", [definition, neighbour]) == [
+        "For: matches DC-005's definition", "Against: fct_orders is DC-008"]
+    assert confidence_reasons("no_fit", None, [definition, neighbour], retried=True) == [
+        "No existing data category fits the table", "Against: fct_orders is DC-008",
+        "Needed a second attempt, so at most medium"]
 
 
 # --- output guardrail -----------------------------------------------------------------

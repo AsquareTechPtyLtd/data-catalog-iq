@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="860" viewBox="0 0 1300 860" role="img" aria-label="The page asks FastAPI; the router picks one to three of three agents or asks a clarifying question; agents call read-only catalog tools through an MCP server, which other MCP clients can also call; input guardrails check the question, redact names and state the instruction hierarchy; output guardrails check each draft before the answer is shown. Only redacted text reaches the LLM and the Phoenix traces. Users rate answers thumbs up or down into feedback.db. Ingestion builds the catalog, and an offline evaluation pipeline runs the same agents and scores them with code; the dashboard shows eval metrics next to user feedback.">
+  <style>
+  svg { --bg: #ffffff; --fg: #1b2330; --muted: #5a6575; --line: #c3cad5; --panel: #ffffff;
+        --llm-fill: #f0ebfb; --llm-stroke: #7457c4; --code-fill: #e5f3ee; --code-stroke: #2b7a63;
+        --rag-fill: #fdf0d8; --rag-stroke: #b06f12;
+        --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+        --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        color: var(--muted); }
+  @media (prefers-color-scheme: dark) {
+    svg { --bg: #0d1117; --fg: #e2e7ee; --muted: #9ba6b5; --line: #3a4452; --panel: #161b22;
+          --llm-fill: #29213f; --llm-stroke: #a68ef0; --code-fill: #16302a; --code-stroke: #5cc2a3;
+          --rag-fill: #3a2b12; --rag-stroke: #e3a64a; }
+  }
+  .bg { fill: var(--bg); }
+
+  .box { fill: var(--panel); stroke: var(--line); stroke-width: 1.2; }
+  .llm { fill: var(--llm-fill); stroke: var(--llm-stroke); stroke-width: 1.4; }
+  .code { fill: var(--code-fill); stroke: var(--code-stroke); stroke-width: 1.4; }
+  .guard { fill: var(--code-fill); stroke: var(--code-stroke); stroke-width: 2.6; }
+  .rag { fill: var(--rag-fill); stroke: var(--rag-stroke); stroke-width: 1.4; }
+  .pill { font: 500 10.5px var(--sans); fill: var(--fg); }
+  .group { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 5 4; }
+  .boundary { stroke: var(--llm-stroke); stroke-width: 1.4; stroke-dasharray: 8 5; fill: none; }
+  .ln { stroke: currentColor; stroke-width: 1.4; fill: none; }
+  .dash { stroke-dasharray: 5 4; }
+  .t { fill: var(--fg); font: 500 14px var(--sans); }
+  .s { fill: var(--fg); font: 400 12px var(--sans); }
+  .m { fill: var(--muted); font: 400 11.5px var(--sans); }
+  .mono { fill: var(--fg); font: 400 11.5px var(--mono); }
+  .lab { fill: var(--muted); font: 400 11.5px var(--sans); }
+  .cap { fill: var(--muted); font: 500 11px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; }
+  .vio { fill: var(--llm-stroke); }
+
+  /* larger for a README column, where the figure shows at 65-75% */
+  .t { font-size: 15.5px; font-weight: 600; } .s { font-size: 13px; } .m, .lab, .mono { font-size: 12.5px; }
+  .cap { font-size: 12px; } .pill { font-size: 11.5px; } .mono.tl { font-size: 11.5px; }
+  </style>
+  <rect width="1300" height="860" rx="10" class="bg"/>
+          <defs><marker id="a1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
+          <rect x="16" y="14" width="16" height="12" rx="2" class="llm"/>
+          <text x="40" y="24" class="s">calls the LLM</text>
+          <rect x="16" y="36" width="16" height="12" rx="2" class="code"/>
+          <text x="40" y="46" class="s">code only</text>
+          <rect x="16" y="58" width="16" height="12" rx="2" class="guard"/>
+          <text x="40" y="68" class="s">security control</text>
+
+          <rect x="400" y="20" width="440" height="56" rx="6" class="llm"/>
+          <text x="620" y="44" text-anchor="middle" class="t">LLM provider</text>
+          <text x="620" y="64" text-anchor="middle" class="m">hosted LLM API</text>
+
+          <polyline points="870,92 870,48 936,48" class="ln" marker-end="url(#a1)"/>
+          <rect x="940" y="20" width="344" height="56" rx="6" class="box"/>
+          <text x="1112" y="44" text-anchor="middle" class="t">Phoenix traces</text>
+          <text x="1112" y="64" text-anchor="middle" class="m">OpenTelemetry · LLM, tool and guardrail spans</text>
+
+          <line x1="449" y1="80" x2="449" y2="216" class="ln" marker-start="url(#a1)" marker-end="url(#a1)"/>
+          <line x1="701" y1="80" x2="701" y2="124" class="ln" marker-start="url(#a1)" marker-end="url(#a1)"/>
+          <line x1="16" y1="108" x2="1284" y2="108" class="boundary"/>
+          <text x="16" y="100" class="cap vio">outside</text>
+          <text x="16" y="128" class="cap">inside</text>
+          <rect x="400" y="92" width="500" height="32" rx="6" class="guard"/>
+          <text x="650" y="113" text-anchor="middle" class="s"><tspan font-weight="600">Input guardrails</tspan>: question check · redaction · instruction hierarchy</text>
+
+          <rect x="16" y="230" width="110" height="60" rx="6" class="box"/>
+          <text x="71" y="265" text-anchor="middle" class="t">Web page</text>
+          <line x1="126" y1="260" x2="176" y2="260" class="ln" marker-end="url(#a1)"/>
+
+          <rect x="180" y="220" width="140" height="80" rx="6" class="code"/>
+          <text x="250" y="254" text-anchor="middle" class="t">FastAPI</text>
+          <text x="250" y="276" text-anchor="middle" class="m">streams answers</text>
+          <line x1="320" y1="260" x2="370" y2="260" class="ln" marker-end="url(#a1)"/>
+
+          <rect x="374" y="220" width="150" height="80" rx="6" class="llm"/>
+          <text x="449" y="254" text-anchor="middle" class="t">Router</text>
+          <text x="449" y="276" text-anchor="middle" class="m">3 samples must agree</text>
+
+          <line x1="449" y1="300" x2="449" y2="346" class="ln" marker-end="url(#a1)"/>
+          <text x="441" y="328" text-anchor="end" class="lab">table unclear</text>
+          <rect x="374" y="350" width="150" height="56" rx="6" class="box"/>
+          <text x="449" y="383" text-anchor="middle" class="t">Clarifying question</text>
+
+          <line x1="524" y1="260" x2="550" y2="260" class="ln"/>
+          <line x1="550" y1="170" x2="550" y2="350" class="ln"/>
+          <line x1="550" y1="170" x2="578" y2="170" class="ln" marker-end="url(#a1)"/>
+          <line x1="550" y1="260" x2="578" y2="260" class="ln" marker-end="url(#a1)"/>
+          <line x1="550" y1="350" x2="578" y2="350" class="ln" marker-end="url(#a1)"/>
+
+          <rect x="568" y="128" width="266" height="266" rx="8" class="group"/>
+
+          <rect x="582" y="139" width="240" height="62" rx="6" class="llm"/>
+          <text x="594" y="164" class="t">Catalog Lookup</text>
+          <text x="594" y="186" class="m">owners, lineage, certification</text>
+          <rect x="756" y="175" width="56" height="17" rx="8.5" class="code"/>
+          <text x="784" y="187" text-anchor="middle" class="pill">5 tools</text>
+
+          <rect x="582" y="229" width="240" height="62" rx="6" class="llm"/>
+          <text x="594" y="254" class="t">PI Classifier</text>
+          <text x="594" y="276" class="m">PI per column</text>
+          <rect x="760" y="265" width="52" height="17" rx="8.5" class="code"/>
+          <text x="786" y="277" text-anchor="middle" class="pill">1 tool</text>
+
+          <rect x="582" y="319" width="240" height="62" rx="6" class="llm"/>
+          <text x="594" y="344" class="t">Data Category Recommender</text>
+          <text x="594" y="366" class="m">category per table</text>
+          <rect x="756" y="355" width="56" height="17" rx="8.5" class="code"/>
+          <text x="784" y="367" text-anchor="middle" class="pill">3 tools</text>
+
+          <line x1="822" y1="170" x2="870" y2="170" class="ln" marker-end="url(#a1)"/>
+          <line x1="822" y1="260" x2="870" y2="260" class="ln" marker-end="url(#a1)"/>
+          <line x1="822" y1="350" x2="870" y2="350" class="ln" marker-end="url(#a1)"/>
+          <text x="846" y="162" text-anchor="middle" class="lab">draft</text>
+
+          <rect x="874" y="139" width="170" height="242" rx="6" class="guard"/>
+          <text x="959" y="163" text-anchor="middle" class="t">Output guardrails</text>
+          <text x="888" y="202" class="cap">every answer</text>
+          <text x="888" y="222" class="s">· citations are real</text>
+          <text x="888" y="240" class="s">· claims match sources</text>
+          <text x="888" y="258" class="s">· tables came from tools</text>
+          <text x="888" y="300" class="cap">on failure</text>
+          <text x="888" y="320" class="s">· retry once, then refuse</text>
+
+          <line x1="1044" y1="260" x2="1094" y2="260" class="ln" marker-end="url(#a1)"/>
+          <rect x="1098" y="222" width="186" height="76" rx="6" class="box"/>
+          <text x="1191" y="254" text-anchor="middle" class="t">Answer</text>
+          <text x="1191" y="276" text-anchor="middle" class="m">cited, with evidence level</text>
+
+          <line x1="1191" y1="298" x2="1191" y2="388" class="ln" marker-end="url(#a1)"/>
+          <text x="1183" y="340" text-anchor="end" class="lab">👍 / 👎 rating</text>
+          <text x="1183" y="356" text-anchor="end" class="lab">no text kept</text>
+          <path d="M1131,402 v40 a60,10 0 0 0 120,0 v-40" class="box"/>
+          <ellipse cx="1191" cy="402" rx="60" ry="10" class="box"/>
+          <text x="1191" y="434" text-anchor="middle" class="t">feedback.db</text>
+          <line x1="1191" y1="452" x2="1191" y2="754" class="ln" marker-end="url(#a1)"/>
+
+          <line x1="701" y1="394" x2="701" y2="420" class="ln" marker-end="url(#a1)"/>
+          <text x="709" y="412" class="lab">MCP tool calls</text>
+          <rect x="360" y="424" width="696" height="138" rx="6" class="guard"/>
+          <text x="374" y="447" class="t">MCP server</text>
+          <text x="474" y="447" class="m">9 read-only catalog tools, each callable on its own</text>
+          <text x="374" y="471" class="s" font-weight="600">Catalog Lookup</text>
+          <text x="490" y="471" class="mono tl">find_table · get_table · get_lineage · trace_path · filter_tables</text>
+          <text x="374" y="490" class="s" font-weight="600">PI Classifier</text>
+          <text x="490" y="490" class="mono tl">get_columns</text>
+          <text x="374" y="509" class="s" font-weight="600">Data Category</text>
+          <text x="490" y="509" class="mono tl">get_data_category_evidence · <tspan fill="var(--rag-stroke)" font-weight="500">search_data_categories</tspan> · get_data_category</text>
+          <text x="374" y="530" class="s"><tspan font-weight="600" fill="var(--rag-stroke)">Hybrid RAG + re-ranker</tspan> in search_data_categories: BM25 + embeddings, RRF merge, cross-encoder re-rank</text>
+          <text x="374" y="551" class="m">every call: allow-list · arguments · size<tspan dx="22">outside callers also: rate limit · entitlements · names → tokens</tspan></text>
+          <line x1="701" y1="562" x2="701" y2="604" class="ln" marker-end="url(#a1)"/>
+          <rect x="150" y="448" width="180" height="72" rx="6" class="box dash"/>
+          <text x="240" y="478" text-anchor="middle" class="t">Other MCP clients</text>
+          <text x="240" y="500" text-anchor="middle" class="m">desktop apps · IDEs</text>
+          <line x1="330" y1="484" x2="356" y2="484" class="ln" marker-end="url(#a1)"/>
+          <path d="M641,618 v44 a60,10 0 0 0 120,0 v-44" class="box"/>
+          <ellipse cx="701" cy="618" rx="60" ry="10" class="box"/>
+          <text x="701" y="650" text-anchor="middle" class="t">catalog.db</text>
+          <line x1="761" y1="644" x2="800" y2="644" class="ln dash" marker-end="url(#a1)"/>
+          <rect x="804" y="624" width="130" height="40" rx="6" class="box"/>
+          <text x="869" y="648" text-anchor="middle" class="m">rollback copy</text>
+
+          <rect x="180" y="614" width="170" height="60" rx="6" class="box"/>
+          <text x="265" y="640" text-anchor="middle" class="t">Sources</text>
+          <text x="265" y="660" text-anchor="middle" class="m">Collibra · ODCS · dbt</text>
+          <line x1="350" y1="644" x2="396" y2="644" class="ln" marker-end="url(#a1)"/>
+          <rect x="400" y="614" width="170" height="60" rx="6" class="code"/>
+          <text x="485" y="640" text-anchor="middle" class="t">Ingestion</text>
+          <text x="485" y="660" text-anchor="middle" class="m">checked before publish</text>
+          <line x1="570" y1="644" x2="637" y2="644" class="ln" marker-end="url(#a1)"/>
+
+          <polyline points="390,758 390,702 1070,702 1070,330 1048,330" class="ln dash" marker-end="url(#a1)"/>
+          <text x="730" y="694" text-anchor="middle" class="lab">runs the real agents and guardrails</text>
+          <rect x="16" y="726" width="1268" height="118" rx="8" class="group"/>
+          <text x="28" y="746" class="cap">evaluation pipeline</text>
+
+          <rect x="40" y="758" width="200" height="70" rx="6" class="box"/>
+          <text x="140" y="788" text-anchor="middle" class="t">Answer keys</text>
+          <text x="140" y="810" text-anchor="middle" class="m">dev + held-out sets</text>
+          <line x1="240" y1="793" x2="286" y2="793" class="ln" marker-end="url(#a1)"/>
+          <rect x="290" y="758" width="200" height="70" rx="6" class="code"/>
+          <text x="390" y="788" text-anchor="middle" class="t">Eval runner</text>
+          <text x="390" y="810" text-anchor="middle" class="m">3 runs per question</text>
+          <line x1="490" y1="793" x2="536" y2="793" class="ln" marker-end="url(#a1)"/>
+          <rect x="540" y="758" width="200" height="70" rx="6" class="code"/>
+          <text x="640" y="788" text-anchor="middle" class="t">Scorers</text>
+          <text x="640" y="810" text-anchor="middle" class="m">code, no LLM judge</text>
+          <line x1="740" y1="793" x2="776" y2="793" class="ln" marker-end="url(#a1)"/>
+          <rect x="780" y="758" width="350" height="70" rx="6" class="box"/>
+          <text x="955" y="788" text-anchor="middle" class="t">Metrics</text>
+          <text x="955" y="810" text-anchor="middle" class="m">quality · reliability</text>
+          <line x1="1130" y1="793" x2="1160" y2="793" class="ln" marker-end="url(#a1)"/>
+          <rect x="1164" y="758" width="110" height="70" rx="6" class="code"/>
+          <text x="1219" y="788" text-anchor="middle" class="t">Dashboard</text>
+          <text x="1219" y="810" text-anchor="middle" class="m">evals + users</text>
+        </svg>

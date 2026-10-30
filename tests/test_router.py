@@ -250,7 +250,7 @@ def test_cli_route_prints_the_decision(capsys):
                              item("pi_classifier", "fct_orders"))] * 3)
     assert main(["route", "Who owns fct_orders and does it hold personal data?"], provider=fake) == 0
     out = capsys.readouterr().out
-    assert "routing confidence: high (3/3" in out and "→ PI Classifier · fernwood_dw.marts.fct_orders" in out
+    assert "routing: 3 of 3 samples agree (high)" in out and "→ PI Classifier · fernwood_dw.marts.fct_orders" in out
     assert "asks: Who owns fct_orders?" in out
 
 

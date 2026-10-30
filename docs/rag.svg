@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="424" viewBox="0 0 1360 424" role="img" aria-label="The Data Category Recommender looks up facts about the table with a tool call, and retrieves ranked candidate categories with hybrid RAG: keyword search (BM25) and local embeddings merged by reciprocal rank fusion, then optionally re-ranked by a cross-encoder. Keyword search alone is the default. Both are added to its context. Guardrails check the chosen category came from the search.">
+  <style>
+  svg { --bg: #ffffff; --fg: #1b2330; --muted: #5a6575; --line: #c3cad5; --panel: #ffffff;
+        --llm-fill: #f0ebfb; --llm-stroke: #7457c4; --code-fill: #e5f3ee; --code-stroke: #2b7a63;
+        --rag-fill: #fdf0d8; --rag-stroke: #b06f12;
+        --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+        --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        color: var(--muted); }
+  @media (prefers-color-scheme: dark) {
+    svg { --bg: #0d1117; --fg: #e2e7ee; --muted: #9ba6b5; --line: #3a4452; --panel: #161b22;
+          --llm-fill: #29213f; --llm-stroke: #a68ef0; --code-fill: #16302a; --code-stroke: #5cc2a3;
+          --rag-fill: #3a2b12; --rag-stroke: #e3a64a; }
+  }
+  .bg { fill: var(--bg); }
+
+  .box { fill: var(--panel); stroke: var(--line); stroke-width: 1.2; }
+  .llm { fill: var(--llm-fill); stroke: var(--llm-stroke); stroke-width: 1.4; }
+  .code { fill: var(--code-fill); stroke: var(--code-stroke); stroke-width: 1.4; }
+  .guard { fill: var(--code-fill); stroke: var(--code-stroke); stroke-width: 2.6; }
+  .rag { fill: var(--rag-fill); stroke: var(--rag-stroke); stroke-width: 1.4; }
+  .pill { font: 500 10.5px var(--sans); fill: var(--fg); }
+  .group { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 5 4; }
+  .boundary { stroke: var(--llm-stroke); stroke-width: 1.4; stroke-dasharray: 8 5; fill: none; }
+  .ln { stroke: currentColor; stroke-width: 1.4; fill: none; }
+  .dash { stroke-dasharray: 5 4; }
+  .t { fill: var(--fg); font: 500 14px var(--sans); }
+  .s { fill: var(--fg); font: 400 12px var(--sans); }
+  .m { fill: var(--muted); font: 400 11.5px var(--sans); }
+  .mono { fill: var(--fg); font: 400 11.5px var(--mono); }
+  .lab { fill: var(--muted); font: 400 11.5px var(--sans); }
+  .cap { fill: var(--muted); font: 500 11px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; }
+  .vio { fill: var(--llm-stroke); }
+
+  /* larger for a README column, where the figure shows at 65-75% */
+  .t { font-size: 15.5px; font-weight: 600; } .s { font-size: 13px; } .m, .lab, .mono { font-size: 12.5px; }
+  .cap { font-size: 12px; } .pill { font-size: 11.5px; } .mono.tl { font-size: 11.5px; }
+  </style>
+  <rect width="1360" height="424" rx="10" class="bg"/>
+          <defs><marker id="a2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
+          <rect x="16" y="202" width="140" height="56" rx="6" class="box"/>
+          <text x="86" y="235" text-anchor="middle" class="mono">mart_web_sessions</text>
+          <line x1="156" y1="230" x2="196" y2="230" class="ln" marker-end="url(#a2)"/>
+
+          <rect x="200" y="60" width="160" height="350" rx="6" class="llm"/>
+          <text x="280" y="236" text-anchor="middle" class="t">Agent (LLM)</text>
+
+          <text x="420" y="54" class="cap">tool use</text>
+          <text x="420" y="194" class="cap">hybrid retrieval (RAG)</text>
+          <text x="420" y="346" class="cap">generation</text>
+
+          <line x1="360" y1="90" x2="416" y2="90" class="ln" marker-end="url(#a2)"/>
+          <rect x="420" y="62" width="240" height="56" rx="6" class="code"/>
+          <text x="432" y="85" class="t">Tool call</text>
+          <text x="432" y="105" class="mono">get_data_category_evidence</text>
+          <line x1="660" y1="90" x2="706" y2="90" class="ln" marker-end="url(#a2)"/>
+          <path d="M710,70 v40 a90,10 0 0 0 180,0 v-40" class="box"/>
+          <ellipse cx="800" cy="70" rx="90" ry="10" class="box"/>
+          <text x="800" y="100" text-anchor="middle" class="t">catalog.db</text>
+          <line x1="890" y1="90" x2="936" y2="90" class="ln" marker-end="url(#a2)"/>
+          <rect x="940" y="62" width="400" height="56" rx="6" class="box"/>
+          <text x="952" y="85" class="t">Table facts</text>
+          <text x="952" y="105" class="m">columns, PI, lineage</text>
+          <polyline points="1080,62 1080,36 280,36 280,56" class="ln" marker-end="url(#a2)"/>
+          <text x="680" y="30" text-anchor="middle" class="lab">added to context</text>
+
+          <line x1="360" y1="230" x2="416" y2="230" class="ln" marker-end="url(#a2)"/>
+          <rect x="420" y="202" width="240" height="56" rx="6" class="rag"/>
+          <text x="432" y="225" class="t">Hybrid RAG</text>
+          <text x="432" y="245" class="mono">search_data_categories</text>
+          <polyline points="660,230 688,230 688,194 712,194" class="ln" marker-end="url(#a2)"/>
+          <polyline points="688,230 688,270 712,270" class="ln dash" marker-end="url(#a2)"/>
+          <path d="M716,180 v28 a80,9 0 0 0 160,0 v-28" class="rag"/>
+          <ellipse cx="796" cy="180" rx="80" ry="9" class="rag"/>
+          <text x="796" y="204" text-anchor="middle" class="t">BM25 keywords</text>
+          <text x="796" y="164" text-anchor="middle" class="lab">default</text>
+          <path d="M716,256 v28 a80,9 0 0 0 160,0 v-28" class="rag dash"/>
+          <ellipse cx="796" cy="256" rx="80" ry="9" class="rag dash"/>
+          <text x="796" y="280" text-anchor="middle" class="t">Embeddings</text>
+          <text x="796" y="310" text-anchor="middle" class="lab">hybrid mode · local model</text>
+          <line x1="876" y1="196" x2="908" y2="220" class="ln" marker-end="url(#a2)"/>
+          <line x1="876" y1="268" x2="908" y2="242" class="ln dash" marker-end="url(#a2)"/>
+          <rect x="912" y="208" width="84" height="44" rx="6" class="code"/>
+          <text x="954" y="228" text-anchor="middle" class="t">Merge</text>
+          <text x="954" y="244" text-anchor="middle" class="m">RRF</text>
+          <line x1="996" y1="230" x2="1016" y2="230" class="ln dash" marker-end="url(#a2)"/>
+          <rect x="1020" y="202" width="110" height="56" rx="6" class="code dash"/>
+          <text x="1075" y="225" text-anchor="middle" class="t">Re-ranker</text>
+          <text x="1075" y="245" text-anchor="middle" class="m">cross-encoder</text>
+          <text x="1075" y="276" text-anchor="middle" class="lab">hybrid + re-rank mode</text>
+          <line x1="1130" y1="230" x2="1146" y2="230" class="ln dash" marker-end="url(#a2)"/>
+          <polyline points="954,208 954,186 1240,186 1240,198" class="ln" marker-end="url(#a2)"/>
+          <text x="1097" y="180" text-anchor="middle" class="lab">hybrid mode: no re-rank</text>
+          <rect x="1150" y="202" width="190" height="56" rx="6" class="rag"/>
+          <text x="1162" y="225" class="t">Ranked candidates</text>
+          <text x="1162" y="245" class="m">best first · top 20</text>
+          <polyline points="1290,258 1290,324 364,324" class="ln" marker-end="url(#a2)"/>
+          <text x="560" y="318" text-anchor="middle" class="lab">added to context · no fit → search again</text>
+
+          <line x1="360" y1="382" x2="416" y2="382" class="ln" marker-end="url(#a2)"/>
+          <rect x="420" y="354" width="240" height="56" rx="6" class="guard"/>
+          <text x="432" y="377" class="t">Output guardrails</text>
+          <text x="432" y="397" class="m">choice must come from the search</text>
+          <line x1="660" y1="382" x2="706" y2="382" class="ln" marker-end="url(#a2)"/>
+          <rect x="710" y="354" width="630" height="56" rx="6" class="box"/>
+          <text x="722" y="377" class="t">Recommendation</text>
+          <text x="722" y="397" class="m">waits for a data steward's review</text>
+        </svg>

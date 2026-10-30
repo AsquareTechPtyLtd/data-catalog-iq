@@ -9,7 +9,9 @@ One Guard per question. The agent loop uses it like this:
     elif guard.attempts < MAX_ATTEMPTS:  send guard.feedback(problems) to the LLM, get a new draft
     else:  response = guard.refuse()
 
-Tool guardrail: budget, allow-list, argument validation, result size. A
+Tool guardrail: this agent's call budget and its own subset of tools here; the
+rest (the tool exists, arguments match its schema, result size) in the MCP
+server the call goes through (mcp_server.py), which every caller shares. A
 blocked call returns an error to the LLM (so it can correct itself) instead of
 aborting the question.
 
@@ -27,65 +29,38 @@ recorded in AgentResponse.guardrails so it can be measured offline (eval) and
 online (trace).
 """
 
-import copy
-import json
 import sqlite3
 
 from catalog_iq.catalog.db import settings
+from catalog_iq.core.confidence import RETRIED
+from catalog_iq.core.progress import retry_reason
 from catalog_iq.core.faithfulness import Vocabulary, check_faithfulness, lineage_nodes
 from catalog_iq.core.response import (AgentDraft, AgentResponse, Citation, Escalation, GuardrailEvent,
                                       Guardrails, TableRef, ToolCall)
+from catalog_iq.mcp_server import MAX_RESULT_CHARS, CatalogClient, CatalogServer, validate_args  # noqa: F401
 from catalog_iq.tools.tables import TOOLS
 
 MAX_TOOL_CALLS = 6
-MAX_RESULT_CHARS = 20_000
 MAX_ATTEMPTS = 2       # first draft + one retry
 STRONG_MATCH = 0.7     # another find_table match this strong lowers confidence to medium
 
+REFUSED = "Refused: the answer could not be verified after two attempts"
 REFUSAL = ("I couldn't verify an answer to this from the data catalog, so I won't guess. "
            "Please contact the {team} team ({email}, {slack}).")
-
-_JSON_TYPES = {"string": str, "integer": int, "number": (int, float), "boolean": bool, "object": dict}
-
-
-def validate_args(args, schema: dict) -> list[str]:
-    """Check tool arguments against the tool's input_schema (the subset our tools use)."""
-    if not isinstance(args, dict):
-        return ["arguments must be an object"]
-    props = schema.get("properties", {})
-    problems = [f"missing required argument '{k}'" for k in schema.get("required", []) if k not in args]
-    for key, value in args.items():
-        spec = props.get(key)
-        if spec is None:
-            problems.append(f"unknown argument '{key}'")
-            continue
-        expected = _JSON_TYPES.get(spec.get("type"))
-        if expected and (not isinstance(value, expected) or (isinstance(value, bool) and expected is not bool)):
-            problems.append(f"'{key}' must be {spec['type']}")
-            continue
-        if "minimum" in spec and value < spec["minimum"]:
-            problems.append(f"'{key}' must be >= {spec['minimum']}")
-        if "maximum" in spec and value > spec["maximum"]:
-            problems.append(f"'{key}' must be <= {spec['maximum']}")
-        if spec.get("type") == "string" and not value.strip():
-            problems.append(f"'{key}' must not be empty")
-        if "enum" in spec and value not in spec["enum"]:
-            problems.append(f"'{key}' must be one of {', '.join(spec['enum'])}")
-    return problems
-
 
 class Guard:
     draft_model = AgentDraft  # what final_answer must match; agents with another output override it
 
     def __init__(self, conn: sqlite3.Connection, agent: str, question: str, tools: list[dict] = TOOLS,
                  max_tool_calls: int = MAX_TOOL_CALLS, max_result_chars: int = MAX_RESULT_CHARS,
-                 vocab: Vocabulary | None = None):
+                 vocab: Vocabulary | None = None, server: CatalogServer | None = None):
+        """`tools` are this agent's own; the server lists all nine, with these in place of the same names."""
         self.conn = conn
         self.agent = agent
         self.question = question
         self.tools = {t["name"]: t for t in tools}
         self.max_tool_calls = max_tool_calls
-        self.max_result_chars = max_result_chars
+        self.catalog = CatalogClient(server or CatalogServer(conn, tools=tools, max_result_chars=max_result_chars))
         self.vocab = vocab or Vocabulary(conn)
         self.settings = settings(conn)
         self.tool_results: list[dict] = []   # exactly what the LLM saw
@@ -105,11 +80,17 @@ class Guard:
         if tool is None:
             return self._block(name, args, "tool_unknown",
                                f"Unknown tool '{name}'. Available: {', '.join(self.tools)}.")
-        problems = validate_args(args, tool["input_schema"])
-        if problems:
-            return self._block(name, args, "bad_args", "; ".join(problems))
+        if not isinstance(args, dict):
+            return self._block(name, args, "bad_args", "arguments must be an object")
 
-        result = self._trim(name, tool["function"](self.conn, **args))
+        reply = self.catalog.call(name, args)
+        if reply.blocked:
+            return self._block(name, args, reply.blocked, reply.result["error"])
+        if reply.trimmed_from:
+            self.events.append(GuardrailEvent(part="tool", check="result_truncated",
+                                              detail=f"{name}: {reply.trimmed_from} > "
+                                                     f"{self.catalog.catalog.max_result_chars} characters"))
+        result = reply.result
         self.tool_results.append(result)
         self.evidence.append(ToolCall(tool=name, args=args, result_status=result.get("status", "")))
         return result
@@ -119,23 +100,6 @@ class Guard:
         self.evidence.append(ToolCall(tool=name, args=args if isinstance(args, dict) else {},
                                       result_status="blocked"))
         return {"status": "error", "error": detail}
-
-    def _trim(self, name: str, result: dict) -> dict:
-        size = len(json.dumps(result))
-        if size <= self.max_result_chars:
-            return result
-        result = copy.deepcopy(result)
-        while len(json.dumps(result)) > self.max_result_chars:
-            # halve the longest list; citations stay whole so cited ids remain checkable
-            lists = [k for k, v in result.items() if isinstance(v, list) and v and k != "citations"]
-            if not lists:
-                break
-            key = max(lists, key=lambda k: len(json.dumps(result[k])))
-            result[key] = result[key][: len(result[key]) // 2]
-        result["truncated"] = f"Result trimmed from {size} characters; some list items are omitted."
-        self.events.append(GuardrailEvent(part="tool", check="result_truncated",
-                                          detail=f"{name}: {size} > {self.max_result_chars} characters"))
-        return result
 
     # --- output guardrail -------------------------------------------------------------
 
@@ -241,7 +205,7 @@ class Guard:
                                    **details.get(cid, {"id": cid})})
                        for cid in cited],  # compact citations carry only id (+ url); some ids are only inline
             escalation=Escalation(team=esc["team"], email=esc["email"], slack=esc["slack"]) if esc else None,
-            confidence=self._confidence(draft),
+            **self._confidence(draft),
             outcome="passed" if self.attempts <= 1 else "passed_after_retry")
 
     def refuse(self) -> AgentResponse:
@@ -253,7 +217,7 @@ class Guard:
                                   slack=s["escalation_slack"]),
             escalation=Escalation(team=s["escalation_team"], email=s["escalation_email"],
                                   slack=s["escalation_slack"]),
-            confidence="low", outcome="refused")
+            confidence="low", confidence_reasons=[REFUSED], outcome="refused")
 
     def _response(self, outcome: str, **fields) -> AgentResponse:
         return AgentResponse(
@@ -264,16 +228,32 @@ class Guard:
     def _table_ref(self, fqn: str) -> TableRef:
         return TableRef(fqn=fqn, name=fqn.split(".")[-1], url=f"{self.settings['base_url']}/table/{fqn}")
 
-    def _confidence(self, draft: AgentDraft) -> str:
+    def _confidence(self, draft: AgentDraft) -> dict:
+        """Evidence coverage and ambiguity, with the reasons: not answered → low; a retry or a table
+        picked over another plausible match → medium; else high."""
         if draft.status != "answered":
-            return "low"
+            return {"confidence": "low", "confidence_reasons": [f"Not answered: {draft.status.replace('_', ' ')}"]}
+        level, reasons = "high", ["Every claim was found in the tool result it cites"]
         if self.attempts > 1:
-            return "medium"
+            first = [e.check for e in self.events if e.part == "output" and e.attempt == 1]
+            level = "medium"
+            reasons.insert(0, f"{RETRIED}: {retry_reason(first)}")
+        else:
+            reasons.insert(0, "Answered on the first attempt")
+        searched = False
         for r in self.tool_results:
             matches = [m for m in r.get("matches", []) if "fqn" in m]  # exposure matches have ids
-            if not any(m["fqn"] in draft.tables for m in matches):
+            picked = [m["fqn"] for m in matches if m["fqn"] in draft.tables]
+            if not picked:
                 continue
-            others = [m for m in matches if m["fqn"] not in draft.tables and m["score"] >= STRONG_MATCH]
-            if r.get("status") == "ambiguous" or others:
-                return "medium"  # the table was picked over other plausible matches
-        return "high"
+            searched = True
+            others = [m["fqn"] for m in matches if m["fqn"] not in draft.tables and m["score"] >= STRONG_MATCH]
+            if r.get("status") == "ambiguous" or others:  # the table was picked over other plausible matches
+                level = "medium"
+                rivals = ", ".join(f.split(".")[-1] for f in others) or "other tables"
+                reasons.append(f"Chose {', '.join(f.split('.')[-1] for f in picked)} over {rivals}, which also matched")
+                break
+        else:
+            if searched:
+                reasons.append("No other table matched closely")
+        return {"confidence": level, "confidence_reasons": reasons}

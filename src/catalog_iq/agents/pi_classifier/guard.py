@@ -26,14 +26,15 @@ needs_manual_review), citation details, counts.
 from collections import Counter
 
 from catalog_iq.agents.pi_classifier.schema import ColumnRecommendation, PIDraft, PIResponse, Signal
+from catalog_iq.core.confidence import CONFIDENCE_ORDER, for_against, signal_reasons
 from catalog_iq.core.faithfulness import check_faithfulness
 from catalog_iq.core.guardrails import Guard
 from catalog_iq.core.response import Citation, Fact, GuardrailEvent, Guardrails, TableRef
 from catalog_iq.tools.columns import SENSITIVITY
 
 FAITHFULNESS_CHECKS = {"invalid_citation", "unsupported_claim", "answer_entity_not_in_facts"}
-CONFIDENCE_ORDER = ["low", "medium", "high"]
 REFUSAL_REASON = "The recommendation could not be verified against the catalog; review this column manually."
+REFUSED = "Refused: the recommendation could not be verified after two attempts"
 
 
 def confidence(recommendation: str, pi_type: str | None, signals: list[dict], retried: bool = False) -> str:
@@ -47,8 +48,7 @@ def confidence(recommendation: str, pi_type: str | None, signals: list[dict], re
     if recommendation == "needs_manual_review":
         return "low"
     target = pi_type if recommendation == "pi" else "not_pi"
-    support = [s for s in signals if target in s["suggests"]]
-    contra = [s for s in signals if s["strong"] and target not in s["suggests"]]
+    support, contra = for_against(target, signals)
     if not contra:
         level = "high" if len(support) >= 2 or target == "not_pi" else "medium" if support else "low"
     else:
@@ -56,6 +56,16 @@ def confidence(recommendation: str, pi_type: str | None, signals: list[dict], re
     if retried and level == "high":
         level = "medium"
     return level
+
+
+def confidence_reasons(recommendation: str, pi_type: str | None, signals: list[dict], retried: bool = False) -> list[str]:
+    """The signals behind confidence(), in plain words."""
+    if recommendation == "needs_manual_review":
+        return ["The model found the evidence too weak or conflicting to recommend"]
+    target = pi_type if recommendation == "pi" else "not_pi"
+    support, contra = for_against(target, signals)
+    none_for = "Nothing points to PI" if target == "not_pi" else f"No signal suggests {target}"
+    return signal_reasons(support, contra, retried, none_for)
 
 
 class PIGuard(Guard):
@@ -123,6 +133,7 @@ class PIGuard(Guard):
         for r in draft.recommendations:
             col = columns[r.column]
             level = confidence(r.recommendation, r.pi_type, col["signals"], retried)
+            reasons = confidence_reasons(r.recommendation, r.pi_type, col["signals"], retried)
             rec, note = r.recommendation, None
             if level == "low" and rec != "needs_manual_review":
                 note = f"Recommended {rec}" + (f" ({r.pi_type})" if r.pi_type else "") + \
@@ -133,7 +144,7 @@ class PIGuard(Guard):
                 pi_type=r.pi_type if rec != "not_pi" else None,
                 data_subject=r.data_subject if rec != "not_pi" else None,
                 sensitivity=SENSITIVITY.get(r.pi_type) if rec == "pi" else None,
-                confidence=level, recorded_status=(col["recorded"] or {}).get("status"),
+                confidence=level, confidence_reasons=reasons, recorded_status=(col["recorded"] or {}).get("status"),
                 reason=r.reason, citations=r.citations,
                 signals=[Signal(**s) for s in col["signals"]], note=note))
         cited = list(dict.fromkeys(cid for r in recs for cid in r.citations))
@@ -144,6 +155,7 @@ class PIGuard(Guard):
         results = list(self._tables().values())
         result = results[-1] if results else None
         recs = [ColumnRecommendation(column=c["column"], recommendation="needs_manual_review", confidence="low",
+                                     confidence_reasons=[REFUSED],
                                      recorded_status=(c["recorded"] or {}).get("status"), reason=REFUSAL_REASON,
                                      citations=c["sources"], signals=[Signal(**s) for s in c["signals"]])
                 for c in (result or {}).get("open_columns", [])]
@@ -156,11 +168,21 @@ class PIGuard(Guard):
                      cited: list[str], outcome: str) -> PIResponse:
         fqn = result["table"]["fqn"] if result else None
         levels = [r.confidence for r in recs] or ["low" if result is None else "high"]
+        level = min(levels, key=CONFIDENCE_ORDER.index)
+        if outcome == "refused":
+            reasons = [REFUSED]
+        elif result is None:
+            reasons = ["The table was not found in the catalog"]
+        elif not recs:
+            reasons = ["No column needs a recommendation"]
+        else:
+            weakest = [r.column for r in recs if r.confidence == level]
+            reasons = [f"The lowest of its columns: {', '.join(weakest)}"]
         return PIResponse(
             question=self.question, status=self._status(result), summary=summary,
             table=TableRef(fqn=fqn, name=fqn.split(".")[-1], url=f"{self.settings['base_url']}/table/{fqn}")
             if fqn else None,
             recommendations=recs, counts=dict(Counter(r.recommendation for r in recs)),
             citations=[Citation(id=cid, source=cid.split(":", 1)[0], ref=cid.split(":", 1)[1]) for cid in cited],
-            confidence=min(levels, key=CONFIDENCE_ORDER.index), evidence=self.evidence,
+            confidence=level, confidence_reasons=reasons, evidence=self.evidence,
             guardrails=Guardrails(attempts=max(self.attempts, 1), events=self.events, outcome=outcome))

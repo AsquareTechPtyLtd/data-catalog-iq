@@ -15,9 +15,10 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from catalog_iq.core.confidence import MEANING
 from catalog_iq.core.response import Citation, Confidence, Guardrails, TableRef, ToolCall
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"  # 1.1: confidence_reasons
 
 Outcome = Literal["recommended", "no_fit", "needs_manual_review", "no_recommendation"]
 DataCategoryStatus = Literal["recommended", "no_fit", "needs_manual_review", "assigned", "not_applicable", "not_found"]
@@ -86,7 +87,7 @@ class CurrentDataCategory(_Strict):
 class DataCategoryResponse(_Strict):
     """Final response: one table's data category recommendation, pending steward review."""
 
-    schema_version: Literal["1.0"] = SCHEMA_VERSION
+    schema_version: Literal["1.1"] = SCHEMA_VERSION
     agent: str = "data_category_recommender"
     question: str
     status: DataCategoryStatus
@@ -99,7 +100,8 @@ class DataCategoryResponse(_Strict):
     note: str | None = Field(default=None, description="Why code changed the outcome (low confidence), or a referral.")
     current: CurrentDataCategory | None = Field(
         default=None, description="assigned / not_applicable: the data category it has today.")
-    confidence: Confidence
+    confidence: Confidence = Field(description=MEANING)
+    confidence_reasons: list[str] = Field(default_factory=list, description="The signals for and against.")
     signals: list[Signal] = Field(default_factory=list, description="Code-computed evidence behind the confidence.")
     citations: list[Citation] = Field(default_factory=list)
     evidence: list[ToolCall] = Field(default_factory=list)

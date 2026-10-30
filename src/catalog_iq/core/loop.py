@@ -7,7 +7,7 @@
                           passed            → guard.complete()   (done)
                           failed, can retry → feedback as the final_answer result
                           failed, no retry  → guard.refuse()     (done)
-    out of turns → guard.refuse()
+    out of turns, or the run's time/token budget used → guard.refuse()
 
 The LLM finishes by calling the `final_answer` tool, whose input schema is the
 guard's draft model (AgentDraft for Catalog Lookup): the same mechanism on
@@ -20,7 +20,9 @@ from dataclasses import dataclass, field
 
 from pydantic import BaseModel, ValidationError
 
+from catalog_iq.core.budget import Budget, BudgetExceeded, agent_budget
 from catalog_iq.core.guardrails import MAX_ATTEMPTS, Guard
+from catalog_iq.core.progress import describe_tool, progress, retry_reason
 from catalog_iq.core.providers.base import LLMCall, Provider, ToolResult
 from catalog_iq.core.response import AgentDraft, AgentResponse, GuardrailEvent
 from catalog_iq.core.tracing import llm_messages, span
@@ -38,6 +40,7 @@ class AgentRun:
     response: AgentResponse
     tool_results: list[dict]
     llm_calls: list[LLMCall] = field(default_factory=list)
+    budget: Budget | None = None
 
 
 def inline_refs(schema: dict) -> dict:
@@ -75,10 +78,13 @@ def tool_definitions(tools: list[dict] = TOOLS, draft_model: type[BaseModel] = A
 
 
 def run_agent(question: str, conn: sqlite3.Connection, provider: Provider, system: str, agent: str,
-              max_turns: int = MAX_TURNS, guard: Guard | None = None, tools: list[dict] = TOOLS) -> AgentRun:
+              max_turns: int = MAX_TURNS, guard: Guard | None = None, tools: list[dict] = TOOLS,
+              budget: Budget | None = None) -> AgentRun:
     with span(agent, "AGENT", agent=agent, llm__provider=provider.name, llm__model_name=provider.model) as s:
         s.input({"question": question})
-        run = _run(question, conn, provider, system, agent, max_turns, guard, tools)
+        budget = budget or agent_budget()
+        with budget.active():
+            run = _run(question, conn, provider, system, agent, max_turns, guard, tools, budget)
         r = run.response
         s.output(r)
         s.set(metadata={"status": r.status, "confidence": r.confidence, "outcome": r.guardrails.outcome,
@@ -86,17 +92,31 @@ def run_agent(question: str, conn: sqlite3.Connection, provider: Provider, syste
         return run
 
 
-def _run(question, conn, provider, system, agent, max_turns, guard, tools) -> AgentRun:
+def _run(question, conn, provider, system, agent, max_turns, guard, tools, budget) -> AgentRun:
     guard = guard or Guard(conn, agent=agent, question=question, tools=tools)
     tools = tool_definitions(tools, guard.draft_model)
     messages: list[dict] = [{"role": "user", "text": question}]
     llm_calls: list[LLMCall] = []
 
     def done(response: AgentResponse) -> AgentRun:
-        return AgentRun(response=response, tool_results=guard.tool_results, llm_calls=llm_calls)
+        return AgentRun(response=response, tool_results=guard.tool_results, llm_calls=llm_calls, budget=budget)
+
+    def over_budget(why: str) -> AgentRun:
+        progress("budget", f"Stopped: {why}")
+        guard.events.append(GuardrailEvent(part="output", check="budget", detail=budget.stop(why)))
+        refusal = guard.refuse()
+        text = "answer" if "answer" in type(refusal).model_fields else "summary"
+        return done(refusal.model_copy(update={text: f"{budget.user_note()} {getattr(refusal, text)}"}))
 
     for _ in range(max_turns):
-        reply = _chat(provider, system, messages, tools)
+        why = budget.exceeded()
+        if why:
+            return over_budget(why)
+        try:
+            reply = _chat(provider, system, messages, tools)
+        except BudgetExceeded as e:
+            return over_budget(str(e))
+        budget.spend(reply.usage)
         llm_calls.append(reply.usage)
         messages.append({"role": "assistant", "reply": reply})
         if not reply.tool_calls:
@@ -108,11 +128,14 @@ def _run(question, conn, provider, system, agent, max_turns, guard, tools) -> Ag
             if call.name != FINAL_ANSWER:
                 results.append(ToolResult(call, _tool(guard, call)))
                 continue
+            progress("check", "Checking the answer against its sources")
             draft, problems = _check(guard, call)
             if not problems:
                 return done(guard.complete(draft))
             if guard.attempts >= MAX_ATTEMPTS:
+                progress("refused", "The answer failed its checks again, so it won't be shown")
                 return done(guard.refuse())
+            progress("retry", f"Trying again: {retry_reason([e.check for e in problems])}")
             results.append(ToolResult(call, {"status": "rejected", "feedback": guard.feedback(problems)}))
         messages.append({"role": "tool", "results": results})
 
@@ -135,6 +158,7 @@ def _chat(provider: Provider, system: str, messages: list[dict], tools: list[dic
 
 
 def _tool(guard: Guard, call) -> dict:
+    progress("tool", describe_tool(call.name, call.args))
     with span(f"tool:{call.name}", "TOOL", tool__name=call.name) as s:
         s.input(call.args)
         events_before = len(guard.events)

@@ -94,7 +94,7 @@ def test_draft_parses_from_llm_json_text():
 
 def test_valid_response_defaults_schema_version():
     r = AgentResponse.model_validate(response())
-    assert r.schema_version == "1.1"
+    assert r.schema_version == "1.2"
     assert r.escalation is None
 
 

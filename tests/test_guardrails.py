@@ -171,6 +171,7 @@ def test_complete_high_confidence(guard):
     assert guard.check_output(d) == []
     r = guard.complete(d)
     assert r.confidence == "high" and r.escalation is None
+    assert r.confidence_reasons == ["Answered on the first attempt", "Every claim was found in the tool result it cites"]
     assert r.citations[0].id == DIM_CONTRACT and r.citations[0].source == "contract"
     assert r.tables[0].url == f"https://catalog.fernwood.example/table/{DIM}"
     assert (r.guardrails.attempts, r.guardrails.outcome, r.guardrails.events) == (1, "passed", [])
@@ -183,14 +184,17 @@ def test_single_clear_match_stays_high(guard):
               facts=[("Owner: Maya Okafor", ["contract:data/sources/contracts/marts.mart_loyalty_members.yaml"])],
               tables=["fernwood_dw.marts.mart_loyalty_members"])
     assert guard.check_output(d) == []
-    assert guard.complete(d).confidence == "high"
+    r = guard.complete(d)
+    assert r.confidence == "high" and r.confidence_reasons[-1] == "No other table matched closely"
 
 
 def test_picked_over_strong_match_is_medium(guard):
     guard.call("find_table", {"query": "customers"})  # raw_storefront.customers also matches strongly
     d = good_d1(guard)
     assert guard.check_output(d) == []
-    assert guard.complete(d).confidence == "medium"
+    r = guard.complete(d)
+    assert r.confidence == "medium"
+    assert r.confidence_reasons[-1] == "Chose dim_customers over customers, which also matched"
 
 
 def test_escalation_attached(guard):
@@ -209,6 +213,8 @@ def test_passed_after_retry_is_medium(guard):
     assert guard.check_output(fixed) == []
     r = guard.complete(fixed)
     assert r.confidence == "medium"
+    assert r.confidence_reasons[0] == ("Needed a second attempt, so at most medium: "
+                                       "a claim wasn't in its cited source")
     assert (r.guardrails.attempts, r.guardrails.outcome) == (2, "passed_after_retry")
     assert [e.attempt for e in r.guardrails.events] == [1]
 
@@ -220,6 +226,7 @@ def test_refuse_after_failed_retry(guard):
         assert guard.check_output(bad)
     r = guard.refuse()
     assert r.status == "insufficient_context" and r.confidence == "low"
+    assert r.confidence_reasons == ["Refused: the answer could not be verified after two attempts"]
     assert r.facts == [] and "won't guess" in r.answer and "Data Strategy" in r.answer
     assert r.escalation.team == "Data Strategy"
     assert (r.guardrails.attempts, r.guardrails.outcome) == (2, "refused")
@@ -232,6 +239,7 @@ def test_insufficient_context_is_low(guard):
     assert guard.check_output(d) == []
     r = guard.complete(d)
     assert r.confidence == "low" and r.escalation is None
+    assert r.confidence_reasons == ["Not answered: insufficient context"]
 
 
 @pytest.mark.parametrize("claim, expected", [

@@ -76,14 +76,30 @@
              vertical-align: -2px; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .empty { color: var(--muted); text-align: center; margin-top: 40px; }
+  .banner { padding: 8px 12px; border-radius: 8px; font-size: 13.5px; margin-bottom: 10px; }
+  .card .catalog { margin-top: 6px; }
+  details.why { display: inline-block; margin: 0; font-size: 12px; }
+  details.why > summary { list-style: none; cursor: pointer; }
+  details.why > summary::-webkit-details-marker { display: none; }
+  details.why[open] { display: block; flex-basis: 100%; }
+  details.why ul { margin: 4px 0 2px; color: var(--text); }
+  details.why p { margin: 2px 0 0; }
+  .feedback { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; padding-top: 8px;
+              border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .feedback button { padding: 2px 9px; font-size: 13px; }
+  .feedback button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .feedback .options { margin: 0; flex-basis: 100%; }
+  .feedback [hidden] { display: none; }
 </style>
 </head>
 <body>
 <header>
   <h1>Data Catalog IQ</h1>
-  <p>Ask Fernwood Outfitters' (fictional) data catalog. Every answer is cited; recommendations await steward review.</p>
+  <p>Ask Fernwood Outfitters' (fictional) data catalog. Every answer is cited; recommendations await steward review.
+    <a href="/dashboard">Metrics</a></p>
 </header>
 <main>
+  <div id="banner"></div>
   <div id="log"><p class="empty" id="empty">Ask about owners, lineage, PI or data categories, or ask for a PI or data category recommendation.</p></div>
 </main>
 <form id="form">
@@ -132,6 +148,16 @@ const link = (text, url) => url && /^https?:\/\//.test(url)
   ? el("a", { href: url, target: "_blank", rel: "noopener noreferrer" }, text) : text;
 const short = (fqn) => (fqn || "").split(".").pop();
 
+// Evidence, not truth: how well the catalog supports this, computed by code. Click for the reasons.
+const EVIDENCE_MEANS = "How well the catalog evidence supports this, computed by code from what the tools returned. "
+  + "Not a guarantee that it is correct.";
+function evidenceBadge(level, reasons) {
+  return el("details", { class: "why" }, el("summary", { title: "Why this level?" }, badge(`evidence: ${level}`, level)),
+    reasons && reasons.length ? el("ul", {}, reasons.map((r) => el("li", {}, r))) : null,
+    el("p", {}, EVIDENCE_MEANS));
+}
+const agreeing = (d) => { const [a, n] = d.agreement.split("/"); return `routing: ${a} of ${n} agree`; };
+
 function citationsBlock(citations) {
   if (!citations || !citations.length) return null;
   return el("div", { class: "sources" }, el("b", {}, "Sources"),
@@ -151,7 +177,7 @@ function evidenceBlock(resp, usage) {
 function renderLookup(r, question) {
   const ids = new Map((r.citations || []).map((c, i) => [c.id, i + 1]));
   const out = [el("div", { class: "answer" }, r.answer),
-    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), badge(`confidence: ${r.confidence}`, r.confidence))];
+    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), evidenceBadge(r.confidence, r.confidence_reasons))];
   if (r.facts && r.facts.length) {
     out.push(el("ol", {}, r.facts.map((f) => el("li", {}, f.claim, " ",
       f.citations.map((c) => el("sup", {}, `[${ids.get(c)}]`))))));
@@ -174,16 +200,16 @@ function renderLookup(r, question) {
 
 function renderPI(r) {
   const out = [el("div", { class: "answer" }, r.summary),
-    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), badge(`confidence: ${r.confidence}`, r.confidence),
+    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), evidenceBadge(r.confidence, r.confidence_reasons),
       badge("pending steward review", "medium"), r.table ? el("span", { class: "chip" }, link(r.table.name, r.table.url)) : null)];
   if (r.recommendations && r.recommendations.length) {
     out.push(el("div", { class: "scroll" }, el("table", {},
-      el("tr", {}, ["Column", "Recommendation", "Confidence", "Reason"].map((h) => el("th", {}, h))),
+      el("tr", {}, ["Column", "Recommendation", "Evidence", "Reason"].map((h) => el("th", {}, h))),
       r.recommendations.map((c) => el("tr", {},
         el("td", {}, el("code", {}, c.column)),
         el("td", {}, c.recommendation === "pi" ? `PI: ${c.pi_type} (${c.data_subject}), ${c.sensitivity || ""}`
           : c.recommendation === "not_pi" ? "not PI" : "needs manual review"),
-        el("td", {}, badge(c.confidence, c.confidence)),
+        el("td", {}, evidenceBadge(c.confidence, c.confidence_reasons)),
         el("td", {}, c.reason, c.note ? el("div", { class: "note" }, c.note) : null))))));
   }
   out.push(citationsBlock(r.citations));
@@ -192,7 +218,7 @@ function renderPI(r) {
 
 function renderDataCategory(r) {
   const out = [el("div", { class: "answer" }, r.summary),
-    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), badge(`confidence: ${r.confidence}`, r.confidence),
+    el("div", { class: "meta" }, badge(r.status.replaceAll("_", " ")), evidenceBadge(r.confidence, r.confidence_reasons),
       badge("pending steward review", "medium"), r.table ? el("span", { class: "chip" }, link(r.table.name, r.table.url)) : null)];
   if (r.current) {
     out.push(el("div", {}, r.current.data_category_id ? `Current data category: ${r.current.data_category_id} ${r.current.name || ""}`
@@ -217,18 +243,73 @@ function renderDataCategory(r) {
 
 function routeChip(route, decision) {
   const parts = [el("span", { class: "chip" }, `→ ${route.label}${route.table ? " · " + short(route.table) : ""}`)];
-  if (decision) parts.push(badge(`routing: ${decision.confidence} (${decision.agreement})`, decision.confidence));
+  if (decision) parts.push(badge(agreeing(decision), decision.confidence));
   if (route.agent === "catalog_lookup" && decision && route.request !== decision.request) {
     parts.push(el("span", {}, `asked as: “${route.request}”`));
   }
   return el("div", { class: "route", title: route.reason }, parts);
 }
 
-function renderAnswer(a, decision, question) {
+const day = (iso) => new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+// Stale or failed ingestion warns; answers are still given.
+function showCatalog(c) {
+  const banner = document.getElementById("banner");
+  banner.replaceChildren();
+  if (!c) return;
+  if (c.failed_ingest) {
+    banner.append(el("div", { class: "banner low" }, `The last catalog update failed (${day(c.failed_ingest.finished_at)}): `
+      + `${c.failed_ingest.error}. Answers come from the previous catalog, built ${day(c.built_at)}.`));
+  }
+  if (c.stale) {
+    const limit = c.max_age_hours % 24 ? plural(c.max_age_hours, "hour") : plural(c.max_age_hours / 24, "day");
+    banner.append(el("div", { class: "banner medium" }, `The catalog's sources are ${plural(Math.floor(c.age_days), "day")} old `
+      + `(as of ${day(c.as_of)}; the limit is ${limit}). Answers may be out of date.`));
+  }
+}
+
+function catalogLine(a, catalog) {
+  if (!catalog) return null;
+  return el("div", { class: "sources catalog" }, a.catalog_version !== catalog.version
+    ? `The catalog was updated while answering: this answer read build ${a.catalog_version}.`
+    : `Catalog as of ${day(catalog.as_of)}${catalog.stale ? " (out of date)" : ""}`);
+}
+
+// Thumbs up / down under each answer; a down vote asks why, from a fixed list (no free text is stored).
+const DOWN_REASONS = [["wrong", "Wrong"], ["incomplete", "Incomplete"],
+                      ["should_have_answered", "Should have answered"], ["not_helpful", "Not helpful"]];
+function feedbackBar(answerId) {
+  if (!answerId) return null;
+  const status = el("span", {});
+  const rate = async (rating, reason) => {
+    const res = await fetch("/feedback", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answer_id: answerId, rating, reason: reason || null }) }).catch(() => null);
+    status.textContent = res && res.ok ? "Thanks for the feedback." : "Feedback wasn't saved.";
+    return res && res.ok;
+  };
+  const choose = (button, others) => {
+    button.setAttribute("aria-pressed", "true");
+    for (const o of others) o.setAttribute("aria-pressed", "false");
+  };
+  const why = el("div", { class: "options", hidden: true });
+  const reasonButtons = DOWN_REASONS.map(([key, label]) => el("button", { type: "button", "aria-pressed": "false",
+    onclick: async (e) => { if (await rate("down", key)) choose(e.currentTarget, reasonButtons.filter((b) => b !== e.currentTarget)); } },
+    label));
+  why.append(...reasonButtons);
+  const up = el("button", { type: "button", "aria-pressed": "false", "aria-label": "Helpful", title: "Helpful",
+    onclick: async () => { if (await rate("up")) { choose(up, [down, ...reasonButtons]); why.hidden = true; } } }, "👍");
+  const down = el("button", { type: "button", "aria-pressed": "false", "aria-label": "Not helpful", title: "Not helpful",
+    onclick: async () => { if (await rate("down")) { choose(down, [up]); why.hidden = false; status.textContent = "What was wrong?"; } } }, "👎");
+  return el("div", { class: "feedback" }, "Was this helpful?", up, down, status, why);
+}
+
+function renderAnswer(a, decision, question, catalog) {
   const r = a.response;
   const body = a.route.agent === "pi_classifier" ? renderPI(r)
     : a.route.agent === "data_category_recommender" ? renderDataCategory(r) : renderLookup(r, question);
-  return el("div", { class: "card" }, routeChip(a.route, decision), body, evidenceBlock(r, a.usage));
+  return el("div", { class: "card" }, routeChip(a.route, decision), body, catalogLine(a, catalog), evidenceBlock(r, a.usage),
+    feedbackBar(a.answer_id));
 }
 
 function optionButtons(options) {
@@ -241,12 +322,12 @@ function renderDecision(data, question) {
   const box = el("div", {});
   if (d && d.status === "clarify") {
     box.append(el("div", { class: "card" },
-      el("div", { class: "route" }, badge(`routing: ${d.confidence} (${d.agreement})`, d.confidence)),
+      el("div", { class: "route" }, badge(agreeing(d), d.confidence)),
       el("div", {}, d.clarification.question),
       d.clarification.options.length ? optionButtons(d.clarification.options) : null));
     return box;
   }
-  for (const a of data.answers) box.append(renderAnswer(a, d, question));
+  for (const a of data.answers) box.append(renderAnswer(a, d, question, data.catalog));
   if (d && d.alternative) {
     box.append(el("div", { class: "sources" }, "Or did you mean: ", optionButtons([d.alternative])));
   }
@@ -261,18 +342,47 @@ function remember(question, data) {
   while (history.length > MAX_HISTORY) history.shift();
 }
 
-async function post(path, body) {
-  const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+async function failure(res) {
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const detail = typeof data.detail === "string" ? data.detail : (data.detail || []).map((d) => d.msg).join("; ");
-    throw new Error(detail || `HTTP ${res.status}`);
-  }
-  return data;
+  const detail = typeof data.detail === "string" ? data.detail : (data.detail || []).map((d) => d.msg).join("; ");
+  const error = new Error(detail || `HTTP ${res.status}`);
+  error.limit = res.status === 429 || res.status === 503;  // a limit, not a fault: show the message as is
+  return error;
 }
 
+async function post(path, body) {
+  const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok) throw await failure(res);
+  return res.json();
+}
+
+// POST /ask/stream: one JSON event per line, handed to onEvent as each arrives
+async function postStream(path, body, onEvent) {
+  const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok) throw await failure(res);
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let nl;
+    while ((nl = buffer.indexOf("\n")) >= 0) {
+      const line = buffer.slice(0, nl).trim();
+      buffer = buffer.slice(nl + 1);
+      if (line) onEvent(JSON.parse(line));
+    }
+  }
+}
+
+const waiting = (text) => el("div", { class: "card sources" }, el("span", { class: "spinner" }), text);
+const setWaiting = (node, text) => { node.lastChild.textContent = text; };
+const routeName = (r) => `${r.label}${r.table ? " · " + short(r.table) : ` (“${r.request}”)`}`;
+const errorCard = (message, limit) => el("div", { class: "card error" }, limit ? message : `Something went wrong: ${message}`);
+
 function pending(text) {
-  const node = el("div", { class: "card sources" }, el("span", { class: "spinner" }), text);
+  const node = waiting(text);
   log.append(node);
   node.scrollIntoView({ behavior: "smooth", block: "end" });
   return node;
@@ -285,16 +395,42 @@ async function ask(question) {
   if (!question) return;
   document.getElementById("empty")?.remove();
   log.append(el("div", { class: "user" }, question));
-  const wait = pending("Routing and answering… (about 5–10 s per agent)");
+  const status = pending("Working out which agent should answer…");
+  const box = el("div", {});
+  const slots = [];    // one card per route: a spinner with its latest step, then the answer
+  const answers = [];
+  let decision = null;
+  let catalog = null;
+  const show = (node) => (status.isConnected ? status.replaceWith(node) : box.append(node));
   busy(true);
   try {
-    const data = await post("/ask", { request: question, history });
-    const node = renderDecision(data, question);
-    wait.replaceWith(node);
-    node.scrollIntoView({ behavior: "smooth", block: "start" });
-    if (data.answers.length) remember(question, data);
+    await postStream("/ask/stream", { request: question, history }, (e) => {
+      const slot = slots[e.route_index];
+      if (e.event === "progress") {
+        if (slot) setWaiting(slot, `${routeName(decision.routes[e.route_index])}: ${e.text}`);
+        else if (status.isConnected) setWaiting(status, e.text);
+      } else if (e.event === "decision") {
+        decision = e.decision;
+        catalog = e.catalog;
+        showCatalog(catalog);
+        if (decision.status === "clarify") return show(renderDecision({ decision, answers: [] }, question));
+        for (const r of decision.routes) slots.push(box.appendChild(waiting(`${routeName(r)}: starting…`)));
+        if (decision.alternative) box.append(el("div", { class: "sources" }, "Or did you mean: ", optionButtons([decision.alternative])));
+        if (decision.note) box.append(el("div", { class: "note" }, decision.note));
+        show(box);
+        box.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (e.event === "answer") {
+        answers[e.route_index] = e;
+        slot.replaceWith(renderAnswer(e, decision, question, catalog));
+      } else if (e.event === "error") {
+        if (slot) slot.replaceWith(errorCard(e.detail));
+        else show(errorCard(e.detail));
+      }
+    });
+    const done = answers.filter(Boolean);
+    if (done.length) remember(question, { answers: done });
   } catch (e) {
-    wait.replaceWith(el("div", { class: "card error" }, `Something went wrong: ${e.message}`));
+    show(errorCard(e.message, e.limit));
   } finally {
     busy(false);
     input.focus();
@@ -307,22 +443,27 @@ async function runOption(option) {
   busy(true);
   try {
     const answers = [];
+    let catalog = null;
     for (const r of option.routes) {
       const body = r.agent === "catalog_lookup" ? { request: r.request } : { table: r.table };
       const data = await post(`/agents/${r.agent}`, body);
       answers.push(...data.answers.map((a) => ({ ...a, route: r })));
+      catalog = data.catalog;
     }
-    const data = { decision: null, answers };
+    showCatalog(catalog);
+    const data = { decision: null, answers, catalog };
     const node = renderDecision(data, option.label);
     wait.replaceWith(node);
     node.scrollIntoView({ behavior: "smooth", block: "start" });
     remember(option.label, data);
   } catch (e) {
-    wait.replaceWith(el("div", { class: "card error" }, `Something went wrong: ${e.message}`));
+    wait.replaceWith(errorCard(e.message, e.limit));
   } finally {
     busy(false);
   }
 }
+
+fetch("/catalog").then((r) => (r.ok ? r.json() : null)).then(showCatalog).catch(() => {});
 
 for (const q of EXAMPLES) {
   document.getElementById("examples").append(el("button", { type: "button", onclick: () => ask(q) }, q));

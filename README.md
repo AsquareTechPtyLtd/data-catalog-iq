@@ -8,6 +8,9 @@ data categories, always pending a data steward's review.
 
 All metadata is **synthetic**, for a fictional retailer, Fernwood Outfitters.
 
+The demo is **unauthenticated on purpose** and meant to run locally. Don't connect
+a real catalog without the production controls in [SECURITY.md](SECURITY.md).
+
 ![Demo: a multi-part question routed to two agents, a follow-up, a clarification and a data category recommendation](docs/demo.gif)
 
 ## What it does
@@ -21,23 +24,12 @@ All metadata is **synthetic**, for a fictional retailer, Fernwood Outfitters.
 
 ## Architecture
 
-```mermaid
-flowchart TB
-    UI["Web page (HTML, served by FastAPI)"] -->|"POST /ask {request, history}"| API[FastAPI]
-    API --> R["Router: 3 parallel LLM samples<br/>agreement = routing confidence"]
-    R -->|1-3 routes| CL[Catalog Lookup]
-    R --> PI[PI Classifier]
-    R --> DC[Data Category Recommender]
-    R -->|"no table / several match"| Q[Clarifying question with choices]
-    subgraph agent["Each agent: own loop behind a provider interface"]
-        CL & PI & DC --> T["Read-only tools<br/>tables · lineage · filters · columns · data category search (FTS5)"]
-        T --> DB[("catalog.db (SQLite)")]
-        CL & PI & DC --> G["Guardrails: tool checks, citation checks,<br/>one retry, then refuse"]
-    end
-    G -->|"cited answer + confidence"| API
-    S["Synthetic sources:<br/>Collibra-style export · ODCS contracts · dbt manifest"] -->|scripts/ingest_catalog.py| DB
-```
+![Architecture: the router sends each question to one or more agents; code guardrails check every tool call and answer; names are swapped for tokens before anything reaches the LLM or the traces; an evaluation pipeline scores the same agents with code](docs/architecture.svg)
 
+- **The catalog tools are an MCP server.** The agents call all nine tools
+  through it in-process, and any other MCP client (a desktop app, an IDE,
+  another team's agent) can call each one on its own. Every caller gets the
+  same checks; outside callers get tokens instead of people's names. See [below](#catalog-tools-over-mcp).
 - **The model never has the last word.** Each agent ends with a typed draft;
   code checks every cited id against what the tools returned, rejects claims
   that aren't in the cited source, retries once with the problems listed, then
@@ -48,33 +40,32 @@ flowchart TB
 - **Routing confidence is measured, not self-reported:** the router runs 3
   times in parallel. All agree → run; a majority → run and offer the other
   reading ("Or did you mean …?"); no majority → ask.
-- **No vector database.** Retrieval is metadata filters, lineage walks and
-  SQLite FTS5 keyword search over data categories. A scale test with 5,013
-  data categories kept recall@20 at 98.9% (the agent re-searches), so
-  embeddings weren't needed.
+- **People's names and emails never reach the LLM or the traces.** They are
+  swapped for per-request tokens (`PERSON_3f9a2c1b`) at the provider boundary and
+  swapped back in the answer, so tools and guardrails still see real values.
+  See [SECURITY.md](SECURITY.md).
+- **Every run has a budget.** Each agent run gets 60 s and 100k tokens, the
+  router 20 s and 30k; no LLM call starts past it and retries only wait if the
+  wait fits. The LLM endpoints allow 4 requests at once and 10 a minute per
+  client. See [SECURITY.md](SECURITY.md#limits).
+- **The page shows where a question is.** `/ask/stream` sends each step as it
+  happens ("Walking the lineage of fct_orders upstream", "Trying again: a claim
+  wasn't in its cited source"), runs a question's parts in parallel, and stops
+  calling the LLM when the client leaves. One process answers 4 questions at once,
+  about 30 a minute; [load test](SECURITY.md#capacity).
+- **Every answer says how old the catalog is.** Ingestion publishes only a build
+  that passes its checks, logs every attempt and can roll back; each response
+  carries the catalog's version and `as_of` date, and the page warns when it is
+  over 7 days old or the last update failed. See
+  [SECURITY.md](SECURITY.md#catalog-freshness).
+- **No vector database, and hybrid search only where it is measured to help.**
+  Retrieval is metadata filters, lineage walks and keyword search (SQLite FTS5,
+  BM25) over data categories. `RETRIEVER=hybrid` adds local embeddings fused
+  with BM25: on tables described in other words it lifts top-1 from 8% to 96%,
+  but on a 5,013-category catalog it ranks slightly worse, and a cross-encoder
+  re-ranker made both worse. The retrieval eval says which, without an LLM.
 
-## Results
-
-Haiku (`claude-haiku-5-5`) for every agent. Dev sets were used for tuning;
-held-out sets were run after tuning. Ground truth is never visible to the
-agents.
-
-| Eval | Dev | Held-out |
-|---|---|---|
-| Catalog Lookup (pass rate; refusals on unanswerable questions 100%) | 96.3% | 88.1% |
-| PI Classifier (precision / recall) | 100% / 100% | 100% / 100% |
-| Data Category Recommender (exact match; precision of recommendations) | 83.3%; 88.7% | 79.2%; 100% |
-| Data Category Recommender, scale catalog of 5,013 data categories (exact match, all 30 tables) | 82.2% | |
-| Router, 41 requests × 3 runs (route and table accuracy) | 100% | 100%* |
-
-The Data Category Recommender's held-out misses are manual reviews or "no fit",
-never a wrong data category. \*The router's held-out score was 91.7% until a
-fix: "the orders data" resolved to the table named `orders` instead of asking
-which of `orders` and `fct_orders` was meant. The fix (a plain-word name that
-another table also matches now asks) was tested on new dev requests, but the
-held-out set is no longer unseen.
-Details and caveats are in the eval run summaries (`evals/*/runs/`, not
-committed).
+![Tool use and hybrid retrieval: the Data Category Recommender fetches table facts with a tool call, and search_data_categories ranks category definitions with BM25 keywords, optionally merged with local embeddings by reciprocal rank fusion and re-ranked by a cross-encoder; output guardrails require the choice to come from the search](docs/rag.svg)
 
 ## Quick start
 
@@ -86,7 +77,7 @@ pip install -e ".[api,dev]"
 cp .env.example .env               # then set ANTHROPIC_API_KEY in .env
 
 python scripts/generate_warehouse.py   # synthetic warehouse (gitignored)
-python scripts/ingest_catalog.py       # builds data/catalog/catalog.db (gitignored)
+python scripts/ingest_catalog.py       # builds data/catalog/catalog.db (gitignored); --rollback undoes the last publish
 
 catalog-iq serve                       # http://127.0.0.1:8000
 ```
@@ -105,24 +96,50 @@ catalog-iq ask "..." --verbose                                          # tool c
 
 | Endpoint | Body | Returns |
 |---|---|---|
-| `POST /ask` | `{request, history?}` | `{decision, answers}`: the router's decision and one agent response per route |
+| `POST /ask` | `{request, history?}` | `{decision, answers, catalog}`: the router's decision, one agent response per route, and the catalog's version and age |
+| `POST /ask/stream` | `{request, history?}` | the same as newline-delimited JSON events: `progress`, `decision`, one `answer` per route (with `route_index`, as each finishes), then `done` or `error` |
 | `POST /agents/catalog_lookup` | `{request}` | one agent, no router |
 | `POST /agents/pi_classifier` | `{table}` | one agent, no router |
 | `POST /agents/data_category_recommender` | `{table}` | one agent, no router |
+| `POST /feedback` | `{answer_id, rating, reason?}` | rate one answer 👍 / 👎 (the page's buttons) |
+| `GET /feedback/summary` | | feedback rate, thumbs-up rate by agent, evidence level and outcome |
+| `GET /dashboard` | | metrics page: user feedback, and quality and reliability from the latest eval runs |
 | `GET /tables` | | source and mart tables |
-| `GET /health` | | catalog loaded, providers configured |
+| `GET /catalog` | | catalog version, `as_of`, age, `stale`, last failed ingestion |
+| `GET /health` | | catalog loaded and fresh, providers configured |
 
 Interactive docs at `/docs` while the server runs. The API is stateless: the
 client sends up to 3 earlier turns as `history`.
 
+## Catalog tools over MCP
+
+`catalog-iq mcp` serves the nine read-only tools to one MCP client over stdio:
+`find_table`, `get_table`, `get_lineage`, `trace_path`, `filter_tables`,
+`get_columns`, `get_data_category_evidence`, `search_data_categories` and
+`get_data_category`. Every result carries citation ids. For a client that starts MCP
+servers from a config file, add:
+
+```json
+{"mcpServers": {"catalog-iq": {"command": "/path/to/data-catalog-iq/.venv/bin/catalog-iq", "args": ["mcp"]}}}
+```
+
+The client's own LLM writes the answer, so it gets cited facts but not the
+agents' answer checks. People's names and emails come back as tokens
+(`PERSON_3f9a2c1b`) that stay the same within a session. See
+[SECURITY.md](SECURITY.md#catalog-tools-over-mcp).
+
 ## Evals and tests
 
 ```bash
-pytest                                   # 413 tests, no network
+pytest                                   # no network
 python -m catalog_iq.evals.run           # Catalog Lookup (dev + negative)
+python -m catalog_iq.evals.run --suite grounding --sets dev heldout   # false premises, planted text, counterfactuals
 python -m catalog_iq.evals.pi            # PI Classifier
 python -m catalog_iq.evals.data_category # Data Category Recommender (open + dev)
 python -m catalog_iq.evals.router        # Router (dev)
+python -m catalog_iq.evals.pi --suite injection --sets dev             # instructions planted in catalog text
+python -m catalog_iq.evals.data_category --suite injection --sets dev  # (descriptions, data category definitions)
+python -m catalog_iq.evals.retrieval     # data category search: BM25 vs hybrid, no LLM (needs .[hybrid])
 # add --sets heldout once tuning is finished
 ```
 
@@ -133,16 +150,28 @@ Optional tracing to Arize Phoenix: `pip install -e ".[trace]"`, run
 
 ```
 data/sources/        synthetic Collibra-style export, ODCS contracts, dbt manifest
-scripts/             warehouse generator, catalog ingestion, data category scale-test catalog
+scripts/             warehouse generator, catalog ingestion, data category scale-test catalog, API load test
 src/catalog_iq/
   core/              agent loop, providers (Anthropic, Gemini), guardrails, citation checks, tracing
   tools/             read-only catalog tools
+  mcp_server.py      the tools as one MCP server: checks for every caller, tokens for outside callers
   agents/            catalog_lookup, pi_classifier, data_category_recommender (prompt, schema, guard, route spec)
   router/            routing, route specs, sample agreement
   evals/             runners and scoring
   api.py, web/       FastAPI app and the web page
 evals/               questions and answer keys (run outputs are gitignored)
 ```
+
+## Dashboard
+
+`/dashboard` shows every metric on one page: live 👍 / 👎 feedback next to the
+newest complete run of each eval and set, split into quality and reliability.
+Every agent runs on the same small, fast model. Code scores each run against
+answer keys the agents never see, with no LLM judge; dev sets were used for
+tuning and held-out sets were run after it. What the evidence level means, and
+how often "high" was right, is in [SECURITY.md](SECURITY.md#what-the-evidence-level-means).
+
+![Dashboard: Catalog Lookup eval with how runs ended, quality metrics (pass rate, faithfulness, false and missed refusal, calibration) and reliability metrics](docs/dashboard.png)
 
 ## License
 

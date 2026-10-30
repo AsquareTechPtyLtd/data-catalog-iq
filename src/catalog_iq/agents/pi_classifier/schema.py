@@ -14,10 +14,11 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from catalog_iq.core.confidence import MEANING
 from catalog_iq.core.response import Citation, Confidence, Guardrails, TableRef, ToolCall
 from catalog_iq.tools.filter import DATA_SUBJECTS, PI_TYPES
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"  # 1.1: confidence_reasons
 
 Recommendation = Literal["pi", "not_pi", "needs_manual_review"]
 PIType = Literal[tuple(PI_TYPES)]
@@ -71,7 +72,8 @@ class ColumnRecommendation(_Strict):
     pi_type: PIType | None = None
     data_subject: Subject | None = None
     sensitivity: str | None = Field(default=None, description="Looked up from the pi_type (data-model §3.1).")
-    confidence: Confidence
+    confidence: Confidence = Field(description=MEANING)
+    confidence_reasons: list[str] = Field(default_factory=list, description="The signals for and against.")
     recorded_status: str | None = Field(default=None, description="pi_status in the catalog today.")
     reason: str
     citations: list[str]
@@ -82,7 +84,7 @@ class ColumnRecommendation(_Strict):
 class PIResponse(_Strict):
     """Final response: recommendations pending steward review."""
 
-    schema_version: Literal["1.0"] = SCHEMA_VERSION
+    schema_version: Literal["1.1"] = SCHEMA_VERSION
     agent: str = "pi_classifier"
     question: str
     status: PIStatus
@@ -92,6 +94,7 @@ class PIResponse(_Strict):
     recommendations: list[ColumnRecommendation] = Field(default_factory=list)
     counts: dict[str, int] = Field(default_factory=dict)
     citations: list[Citation] = Field(default_factory=list)
-    confidence: Confidence = Field(description="Lowest confidence among the recommendations.")
+    confidence: Confidence = Field(description="Lowest confidence among the recommendations. " + MEANING)
+    confidence_reasons: list[str] = Field(default_factory=list)
     evidence: list[ToolCall] = Field(default_factory=list)
     guardrails: Guardrails

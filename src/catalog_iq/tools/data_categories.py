@@ -7,7 +7,9 @@ blind evals cannot read an answer from them (filter_tables does that).
 
 search_data_categories is retrieve-then-judge stage 1 (Data Category Recommender,
 Scale): keyword search (SQLite FTS5, porter stemming, BM25) over each data
-category's name, definition and linked glossary terms with their synonyms. When
+category's name, definition and linked glossary terms with their synonyms; with
+RETRIEVER=hybrid also embedding similarity, fused, and optionally re-ranked
+(tools/retrieval.py). When
 the whole catalog fits in one result (at most `k` data categories) the ones that
 did not match are listed too, after the matches, so nothing is missed; at scale
 only the top `k` matches return.
@@ -21,6 +23,7 @@ import re
 import sqlite3
 
 from catalog_iq.catalog.db import settings
+from catalog_iq.tools import retrieval
 from catalog_iq.tools.filter import DOMAINS
 from catalog_iq.tools.tables import _Citations
 
@@ -60,18 +63,29 @@ def _summary(b: sqlite3.Row, cites: _Citations) -> dict:
 
 
 def search_data_categories(conn: sqlite3.Connection, query: str, domain: str | None = None,
-                           k: int = K_DEFAULT) -> dict:
-    """Data categories whose name, definition or glossary terms match any word of `query`, best first."""
+                           k: int = K_DEFAULT, data_category_id: str | None = None,
+                           retriever: str | None = None) -> dict:
+    """Data categories whose name, definition or glossary terms match any word of `query`, best first.
+
+    With `data_category_id`, only that one: whether its words match at all, at any rank
+    (always keyword search). `retriever` overrides RETRIEVER; code only, not a tool argument.
+    """
     k = max(1, min(int(k), K_MAX))
+    only = data_category_id.strip().upper() if data_category_id else None
     cites = _Citations(settings(conn)["base_url"])
     rows = {r["data_category_id"]: r for r in conn.execute("SELECT * FROM data_categories ORDER BY data_category_id")
-            if domain is None or _domain(r["domain"]) == domain}
+            if (domain is None or _domain(r["domain"]) == domain) and only in (None, r["data_category_id"])}
     q = fts_query(query)
     hits = [] if q is None else [r["data_category_id"] for r in conn.execute(
         f"SELECT data_category_id FROM data_category_search WHERE data_category_search MATCH ? "
         f"ORDER BY bm25(data_category_search, {', '.join(map(str, BM25_WEIGHTS))})",
         (q,)) if r["data_category_id"] in rows]
-    out = [{**_summary(rows[b], cites), "rank": i + 1, "matched": True} for i, b in enumerate(hits[:k])]
+    mode = "bm25" if only else (retriever or retrieval.retriever())
+    found_by = None
+    if mode != "bm25":
+        hits, found_by = retrieval.hybrid(conn, query, hits, rows, mode)
+    out = [{**_summary(rows[b], cites), "rank": i + 1, "matched": True,
+            **({"found_by": found_by[b]} if found_by else {})} for i, b in enumerate(hits[:k])]
     complete = len(rows) <= k
     if complete:
         out += [{**_summary(r, cites), "rank": None, "matched": False} for b, r in rows.items() if b not in hits]
@@ -113,6 +127,7 @@ SEARCH_SCHEMA = {
         "query": {"type": "string", "description": "Words describing the data, e.g. 'website page views sessions'"},
         "domain": {"type": "string", "enum": DOMAINS, "description": "Only data categories of this governance domain"},
         "k": {"type": "integer", "minimum": 1, "maximum": K_MAX, "default": K_DEFAULT},
+        "data_category_id": {"type": "string", "description": "Only this data category (e.g. DC-005): does it match?"},
     },
     "required": ["query"],
 }

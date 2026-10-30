@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="300" viewBox="0 0 1080 300" role="img" aria-label="The model calls read-only tools, then writes a draft. Code checks the draft: pass returns the answer, a first failure retries once, a second failure refuses.">
+  <style>
+  svg { --bg: #ffffff; --fg: #1b2330; --muted: #5a6575; --line: #c3cad5; --panel: #ffffff;
+        --llm-fill: #f0ebfb; --llm-stroke: #7457c4; --code-fill: #e5f3ee; --code-stroke: #2b7a63;
+        --rag-fill: #fdf0d8; --rag-stroke: #b06f12;
+        --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+        --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        color: var(--muted); }
+  @media (prefers-color-scheme: dark) {
+    svg { --bg: #0d1117; --fg: #e2e7ee; --muted: #9ba6b5; --line: #3a4452; --panel: #161b22;
+          --llm-fill: #29213f; --llm-stroke: #a68ef0; --code-fill: #16302a; --code-stroke: #5cc2a3;
+          --rag-fill: #3a2b12; --rag-stroke: #e3a64a; }
+  }
+  .bg { fill: var(--bg); }
+
+  .box { fill: var(--panel); stroke: var(--line); stroke-width: 1.2; }
+  .llm { fill: var(--llm-fill); stroke: var(--llm-stroke); stroke-width: 1.4; }
+  .code { fill: var(--code-fill); stroke: var(--code-stroke); stroke-width: 1.4; }
+  .guard { fill: var(--code-fill); stroke: var(--code-stroke); stroke-width: 2.6; }
+  .rag { fill: var(--rag-fill); stroke: var(--rag-stroke); stroke-width: 1.4; }
+  .pill { font: 500 10.5px var(--sans); fill: var(--fg); }
+  .group { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 5 4; }
+  .boundary { stroke: var(--llm-stroke); stroke-width: 1.4; stroke-dasharray: 8 5; fill: none; }
+  .ln { stroke: currentColor; stroke-width: 1.4; fill: none; }
+  .dash { stroke-dasharray: 5 4; }
+  .t { fill: var(--fg); font: 500 14px var(--sans); }
+  .s { fill: var(--fg); font: 400 12px var(--sans); }
+  .m { fill: var(--muted); font: 400 11.5px var(--sans); }
+  .mono { fill: var(--fg); font: 400 11.5px var(--mono); }
+  .lab { fill: var(--muted); font: 400 11.5px var(--sans); }
+  .cap { fill: var(--muted); font: 500 11px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; }
+  .vio { fill: var(--llm-stroke); }
+
+  /* larger for a README column, where the figure shows at 65-75% */
+  .t { font-size: 15.5px; font-weight: 600; } .s { font-size: 13px; } .m, .lab, .mono { font-size: 12.5px; }
+  .cap { font-size: 12px; } .pill { font-size: 11.5px; } .mono.tl { font-size: 11.5px; }
+  </style>
+  <rect width="1080" height="300" rx="10" class="bg"/>
+          <defs><marker id="a3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
+          <rect x="16" y="140" width="130" height="56" rx="6" class="box"/>
+          <text x="81" y="173" text-anchor="middle" class="t">Question</text>
+          <line x1="146" y1="168" x2="196" y2="168" class="ln" marker-end="url(#a3)"/>
+
+          <rect x="200" y="130" width="180" height="76" rx="6" class="llm"/>
+          <text x="290" y="162" text-anchor="middle" class="t">Model step</text>
+          <text x="290" y="184" text-anchor="middle" class="m">tool call or draft</text>
+
+          <polyline points="260,130 260,52 466,52" class="ln" marker-end="url(#a3)"/>
+          <text x="368" y="44" text-anchor="middle" class="lab">tool call</text>
+          <polyline points="470,76 320,76 320,126" class="ln" marker-end="url(#a3)"/>
+          <text x="395" y="70" text-anchor="middle" class="lab">result</text>
+          <rect x="470" y="24" width="200" height="64" rx="6" class="code"/>
+          <text x="570" y="52" text-anchor="middle" class="t">Read-only tool</text>
+          <text x="570" y="74" text-anchor="middle" class="m">at most 6 calls a run</text>
+
+          <line x1="380" y1="168" x2="466" y2="168" class="ln" marker-end="url(#a3)"/>
+          <text x="423" y="160" text-anchor="middle" class="lab">draft</text>
+          <rect x="470" y="130" width="200" height="76" rx="6" class="guard"/>
+          <text x="570" y="162" text-anchor="middle" class="t">Output guardrails</text>
+          <text x="570" y="184" text-anchor="middle" class="m">citations are real</text>
+
+          <line x1="670" y1="150" x2="756" y2="150" class="ln" marker-end="url(#a3)"/>
+          <text x="713" y="142" text-anchor="middle" class="lab">pass</text>
+          <rect x="760" y="118" width="300" height="60" rx="6" class="box"/>
+          <text x="772" y="144" class="t">Answer</text>
+          <text x="772" y="164" class="m">evidence level set by code</text>
+
+          <polyline points="570,206 570,270 290,270 290,210" class="ln dash" marker-end="url(#a3)"/>
+          <text x="430" y="262" text-anchor="middle" class="lab">fail: try once more</text>
+
+          <polyline points="670,190 715,190 715,256 756,256" class="ln" marker-end="url(#a3)"/>
+          <text x="707" y="236" text-anchor="end" class="lab">fail again</text>
+          <rect x="760" y="226" width="300" height="60" rx="6" class="box"/>
+          <text x="772" y="252" class="t">Refuse</text>
+          <text x="772" y="272" class="m">points to the Data Strategy team</text>
+        </svg>

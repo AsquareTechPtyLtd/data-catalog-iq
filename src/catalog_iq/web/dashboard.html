@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Catalog IQ Metrics</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #1d2430; --muted: #5f6b7a; --line: #dfe3e8;
+    --accent: #2457c5; --accent-soft: #e8eefb; --code: #f0f2f5;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12151b; --panel: #1a1f27; --text: #e4e8ee; --muted: #9aa5b4; --line: #2c333e;
+      --accent: #7ea6ff; --accent-soft: #1f2b45; --code: #232a34;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--panel);
+           display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; }
+  header h1 { margin: 0; font-size: 17px; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; flex: 1; min-width: 220px; }
+  nav a { color: var(--accent); font-size: 14px; margin-left: 12px; }
+  main { max-width: 1040px; margin: 0 auto; padding: 16px 16px 48px; }
+  h2 { font-size: 16px; margin: 26px 0 4px; }
+  .lede { color: var(--muted); font-size: 13.5px; margin: 0 0 12px; max-width: 760px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+          margin-bottom: 12px; }
+  .card h3 { margin: 0 0 2px; font-size: 15px; }
+  .card .sub { color: var(--muted); font-size: 12.5px; margin-bottom: 8px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+  .tile .k { color: var(--muted); font-size: 12.5px; }
+  .tile .v { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .tile .n { color: var(--muted); font-size: 12px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td .note { display: block; color: var(--muted); font-size: 12px; }
+  .missing { color: var(--muted); }
+  .group { color: var(--muted); font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+           padding-top: 12px; }
+  .mix { margin: 4px 0 10px; }
+  .mix-row { display: grid; grid-template-columns: 150px 1fr; gap: 10px; align-items: center; font-size: 12.5px;
+             margin: 4px 0; }
+  .mix-row .name { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar { display: flex; gap: 2px; height: 14px; }
+  .seg { height: 100%; min-width: 3px; }
+  .seg:first-child { border-radius: 4px 0 0 4px; }
+  .seg:last-child { border-radius: 0 4px 4px 0; }
+  .seg:only-child { border-radius: 4px; }
+  .seg:hover { outline: 2px solid var(--text); outline-offset: 1px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+                         margin-right: 5px; vertical-align: -1px; background: var(--c); }
+  .empty { color: var(--muted); font-size: 13.5px; }
+  .caveat { font-size: 13px; background: var(--code); border-radius: 6px; padding: 6px 10px; margin-bottom: 8px; }
+  @media (max-width: 560px) { .mix-row { grid-template-columns: 1fr; gap: 2px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Data Catalog IQ · Metrics</h1>
+  <p>What users say about live answers, and what the evals measured.</p>
+  <nav><a href="/">Ask</a></nav>
+</header>
+<main>
+  <h2>User feedback</h2>
+  <p class="lede">From the 👍 / 👎 under each answer on the Ask page. Live; refreshes every 15 seconds.
+    Only what code knows about an answer is stored, never the question or the answer text.</p>
+  <div id="feedback"><p class="empty">Loading…</p></div>
+
+  <h2>Evals</h2>
+  <p class="lede">The newest complete run of each eval and set, scored by code against answer keys the agents never
+    see (no LLM judge). Dev sets were used for tuning; held-out sets were run after it. Each question runs several
+    times. A dash means the run didn't record that metric.</p>
+  <div id="evals"><p class="empty">Loading…</p></div>
+</main>
+<script>
+"use strict";
+function el(tag, attrs, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "class") node.className = v;
+    else if (k === "style") node.style.cssText = v;
+    else node.setAttribute(k, v);
+  }
+  for (const c of children.flat(Infinity)) {
+    if (c === null || c === undefined || c === false) continue;
+    node.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return node;
+}
+const pct = (v) => `${(v * 100).toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
+function fmt(v, kind) {
+  if (v === null || v === undefined) return null;
+  if (kind === "pct") return pct(v);
+  if (kind === "count") return Math.round(v).toLocaleString();
+  if (kind === "s") return `${v.toFixed(2)} s`;
+  if (kind === "ms") return `${v.toFixed(1)} ms`;
+  return v.toLocaleString(undefined, { maximumFractionDigits: 3 });
+}
+const cell = (v, kind) => {
+  const text = fmt(v, kind);
+  return text === null ? el("td", { class: "num missing", title: "not recorded in this run" }, "—")
+    : el("td", { class: "num" }, text);
+};
+const words = (s) => s.replaceAll("_", " ");
+const AGENTS = { catalog_lookup: "Catalog Lookup", pi_classifier: "PI Classifier",
+                 data_category_recommender: "Data Category Recommender" };
+const ORDER = ["high", "medium", "low", "answered", "abstained", "verification_refusal", "budget_stop"];
+const rank = (k) => (ORDER.includes(k) ? ORDER.indexOf(k) : ORDER.length);
+
+const OUTCOMES = [["answered", "Answered", "--s1"], ["abstained", "Abstained", "--s2"],
+                  ["verification_refusal", "Verification refusal", "--s3"], ["budget_stop", "Budget stop (timeout)", "--s4"],
+                  ["error", "Error", "--s5"]];
+
+// ---- user feedback ----
+function tile(k, v, n) { return el("div", { class: "tile" }, el("div", { class: "k" }, k), el("div", { class: "v" }, v), n ? el("div", { class: "n" }, n) : null); }
+
+function groupTable(title, groups, label) {
+  const keys = Object.keys(groups).sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  if (!keys.length) return null;
+  return el("div", { class: "card" }, el("h3", {}, title), el("div", { class: "scroll" }, el("table", {},
+    el("tr", {}, el("th", {}, label), el("th", { class: "num" }, "Answers"), el("th", { class: "num" }, "Rated"),
+      el("th", { class: "num" }, "Thumbs up")),
+    keys.map((k) => el("tr", {}, el("td", {}, AGENTS[k] || words(k)), cell(groups[k].answers, "count"), cell(groups[k].rated, "count"),
+      cell(groups[k].thumbs_up_rate, "pct"))))));
+}
+
+function renderFeedback(f) {
+  const box = document.getElementById("feedback");
+  const reasons = Object.entries(f.down_reasons || {});
+  box.replaceChildren(
+    el("div", { class: "tiles" },
+      tile("Answers given", f.answers.toLocaleString()),
+      tile("Feedback rate", f.feedback_rate === null ? "—" : pct(f.feedback_rate), `${f.rated} rated`),
+      tile("Thumbs-up rate", f.thumbs_up_rate === null ? "—" : pct(f.thumbs_up_rate), "of rated answers"),
+      tile("High evidence, rated down", f.high_evidence_thumbs_down.toLocaleString(), "users' version of high but wrong")),
+    f.answers ? el("div", { class: "grid2" },
+      groupTable("By evidence level", f.by_evidence, "Evidence"),
+      groupTable("By agent", f.by_agent, "Agent"),
+      groupTable("By outcome", f.by_outcome, "Outcome"),
+      el("div", { class: "card" }, el("h3", {}, "Why answers were rated down"),
+        reasons.length ? el("table", {}, reasons.map(([k, n]) => el("tr", {}, el("td", {}, words(k)), cell(n, "count"))))
+          : el("p", { class: "empty" }, "No down votes yet.")))
+      : el("p", { class: "empty" }, "No answers yet. Ask something on the Ask page, then rate it."));
+}
+
+// ---- evals ----
+function runName(r) {
+  const sets = r.sets.map((s) => (s === "heldout" ? "held-out" : s)).join(" + ");
+  const parts = [r.injection ? "injection" : null, sets, r.catalog,
+                 r.retriever && r.retriever !== "bm25" ? `${r.retriever} search` : null];
+  return parts.filter(Boolean).join(" · ");
+}
+
+function metricTable(runs, part, title) {
+  const labels = [];
+  for (const r of runs) for (const m of r[part]) if (!labels.includes(m.label)) labels.push(m.label);
+  const find = (r, label) => r[part].find((m) => m.label === label);
+  return [el("tr", {}, el("td", { class: "group", colspan: runs.length + 1 }, title)),
+    labels.map((label) => {
+      const note = runs.map((r) => find(r, label)?.note).find(Boolean);
+      return el("tr", {}, el("td", {}, label, note ? el("span", { class: "note" }, note) : null),
+        runs.map((r) => { const m = find(r, label); return cell(m ? m.value : null, m ? m.kind : null); }));
+    })];
+}
+
+function outcomeMix(runs) {
+  const withMix = runs.filter((r) => r.outcomes);
+  if (!withMix.length) return null;
+  return el("div", { class: "mix", role: "img",
+    "aria-label": "How each run ended: " + withMix.map((r) => `${runName(r)}: ` + OUTCOMES.map(([k, l]) => `${l} ${pct(r.outcomes[k] || 0)}`).join(", ")).join("; ") },
+    el("div", { class: "group" }, "How runs ended"),
+    withMix.map((r) => el("div", { class: "mix-row" }, el("span", { class: "name", title: runName(r) }, runName(r)),
+      el("div", { class: "bar" }, OUTCOMES.filter(([k]) => r.outcomes[k] > 0).map(([k, l, c]) =>
+        el("div", { class: "seg", style: `flex: ${r.outcomes[k]} 0 0; background: var(${c})`, title: `${l}: ${pct(r.outcomes[k])}` }))))),
+    el("div", { class: "legend" }, OUTCOMES.map(([, l, c]) => el("span", { style: `--c: var(${c})` }, l))));
+}
+
+function renderEvals(evals) {
+  const box = document.getElementById("evals");
+  if (!evals.length) {
+    box.replaceChildren(el("p", { class: "empty" }, "No eval runs saved yet (they are not committed). Run the evals, e.g. ",
+      el("code", {}, "python -m catalog_iq.evals.run"), ", then reload."));
+    return;
+  }
+  const byEval = new Map();
+  for (const r of evals) byEval.set(r.eval, [...(byEval.get(r.eval) || []), r]);
+  box.replaceChildren(...[...byEval].map(([name, runs]) => {
+    const model = [...new Set(runs.map((r) => r.model))].join(", ");
+    const size = runs.map((r) => `${runName(r)}: ${r.size} × ${r.runs_each} runs (${r.run})`).join(" · ");
+    const caveat = runs.map((r) => r.caveat).find(Boolean);
+    return el("div", { class: "card" }, el("h3", {}, name), el("div", { class: "sub" }, `${model} · ${size}`),
+      caveat ? el("div", { class: "caveat" }, caveat) : null,
+      outcomeMix(runs),
+      el("div", { class: "scroll" }, el("table", {},
+        el("tr", {}, el("th", {}, "Metric"), runs.map((r) => el("th", { class: "num" }, runName(r)))),
+        metricTable(runs, "quality", "Quality"), metricTable(runs, "reliability", "Reliability"))));
+  }));
+}
+
+async function load(path) {
+  const res = await fetch(path);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+const failed = (id) => () => document.getElementById(id).replaceChildren(el("p", { class: "empty" }, "Couldn't load these numbers."));
+
+load("/dashboard/evals").then(renderEvals).catch(failed("evals"));
+const refresh = () => load("/feedback/summary").then(renderFeedback).catch(failed("feedback"));
+refresh();
+setInterval(refresh, 15000);
+</script>
+</body>
+</html>
