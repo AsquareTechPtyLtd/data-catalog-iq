@@ -11,7 +11,7 @@ All metadata is **synthetic**, for a fictional retailer, Fernwood Outfitters.
 The demo is **unauthenticated on purpose** and meant to run locally. Don't connect
 a real catalog without the production controls in [SECURITY.md](SECURITY.md).
 
-![Demo: a multi-part question routed to two agents, a follow-up, a clarification and a data category recommendation](docs/demo.gif)
+![Demo: a multi-part question routed to two agents, a follow-up and a data category recommendation, each cited at high evidence and rated with a thumbs up, then the metrics page showing those ratings](docs/demo.gif)
 
 ## What it does
 
@@ -26,46 +26,89 @@ a real catalog without the production controls in [SECURITY.md](SECURITY.md).
 
 ![Architecture: the router sends each question to one or more agents; code guardrails check every tool call and answer; names are swapped for tokens before anything reaches the LLM or the traces; an evaluation pipeline scores the same agents with code](docs/architecture.svg)
 
-- **The catalog tools are an MCP server.** The agents call all nine tools
-  through it in-process, and any other MCP client (a desktop app, an IDE,
-  another team's agent) can call each one on its own. Every caller gets the
-  same checks; outside callers get tokens instead of people's names. See [below](#catalog-tools-over-mcp).
-- **The model never has the last word.** Each agent ends with a typed draft;
-  code checks every cited id against what the tools returned, rejects claims
-  that aren't in the cited source, retries once with the problems listed, then
-  refuses.
-- **Facts that must not be generated are added by code:** confidence (from
-  evidence signals, not the model's own certainty), retention, stewards,
+### Input guardrails
+
+- **Questions are checked before any LLM call:** empty ones and ones over 1,000
+  characters are turned away.
+- **People's names and emails never reach the LLM or the traces.** They become
+  per-request tokens (`PERSON_3f9a2c1b`) at the provider boundary and are swapped
+  back in the answer, so tools and checks still see real values.
+- **An instruction hierarchy in every prompt:** only the system prompt says what
+  to do; text in tool results (descriptions, definitions) is evidence, never
+  instructions. See [SECURITY.md](SECURITY.md#prompt-injection).
+- **The router asks when unsure.** It runs 3 times in parallel: all agree → run;
+  a majority → run and offer the other reading; no majority → ask.
+
+### Output guardrails
+
+- **The model never has the last word.** Code checks every cited id against what
+  the tools returned and every claim against its cited source, retries once with
+  the problems listed, then refuses.
+- **Facts that must not be generated are added by code:** the evidence level
+  (from evidence signals, not the model's own certainty), retention, stewards and
   citation details.
-- **Routing confidence is measured, not self-reported:** the router runs 3
-  times in parallel. All agree → run; a majority → run and offer the other
-  reading ("Or did you mean …?"); no majority → ask.
-- **People's names and emails never reach the LLM or the traces.** They are
-  swapped for per-request tokens (`PERSON_3f9a2c1b`) at the provider boundary and
-  swapped back in the answer, so tools and guardrails still see real values.
-  See [SECURITY.md](SECURITY.md).
-- **Every run has a budget.** Each agent run gets 60 s and 100k tokens, the
-  router 20 s and 30k; no LLM call starts past it and retries only wait if the
-  wait fits. The LLM endpoints allow 4 requests at once and 10 a minute per
-  client. See [SECURITY.md](SECURITY.md#limits).
-- **The page shows where a question is.** `/ask/stream` sends each step as it
-  happens ("Walking the lineage of fct_orders upstream", "Trying again: a claim
-  wasn't in its cited source"), runs a question's parts in parallel, and stops
-  calling the LLM when the client leaves. One process answers 4 questions at once,
-  about 30 a minute; [load test](SECURITY.md#capacity).
-- **Every answer says how old the catalog is.** Ingestion publishes only a build
-  that passes its checks, logs every attempt and can roll back; each response
-  carries the catalog's version and `as_of` date, and the page warns when it is
-  over 7 days old or the last update failed. See
-  [SECURITY.md](SECURITY.md#catalog-freshness).
-- **Hybrid RAG with a re-ranker, and no vector database.** Retrieval is
-  metadata filters, lineage walks and keyword search (SQLite FTS5, BM25) over
-  data categories, the default. `RETRIEVER=hybrid` adds local embeddings fused
-  with BM25, which lifts top-1 on tables described in other words from 8% to
-  96%; `hybrid+rerank` adds a cross-encoder. A retrieval eval compares the
-  modes without an LLM.
+- **Recommendations are never decisions.** PI and data category recommendations
+  always wait for a data steward.
+
+### Tools and retrieval
+
+- **The catalog tools are an MCP server.** The agents call all nine read-only
+  tools through it, and any other MCP client (a desktop app, an IDE, another
+  team's agent) can call each one. Every caller gets the same checks; outside
+  callers get tokens instead of names. See [below](#catalog-tools-over-mcp).
+- **Hybrid RAG with a re-ranker, and no vector database.** Keyword search
+  (SQLite FTS5, BM25) over data categories is the default. `RETRIEVER=hybrid`
+  adds local embeddings fused with BM25, which lifts top-1 on tables described in
+  other words from 8% to 96%; `hybrid+rerank` adds a cross-encoder.
 
 ![Tool use and hybrid retrieval: the Data Category Recommender fetches table facts with a tool call, and search_data_categories ranks category definitions with BM25 keywords, optionally merged with local embeddings by reciprocal rank fusion and re-ranked by a cross-encoder; output guardrails require the choice to come from the search](docs/rag.svg)
+
+### Tracing and audit trail
+
+- **Every LLM call, tool call and guardrail check is a span** (OpenTelemetry,
+  viewable in Arize Phoenix), with names already swapped for tokens.
+- **Every ingestion attempt is logged** with what changed; only builds that pass
+  their checks are published, and `--rollback` restores the previous one.
+- **Every answer says which catalog it came from:** its version and `as_of`
+  date, with a warning when it is over 7 days old or the last update failed.
+- **Every answer is logged** with its agent, status, evidence level, outcome,
+  retries, model and catalog build, but no question or answer text. 👍 / 👎
+  ratings attach to that record, with a reason from a fixed list.
+- **Every eval run is kept:** its answers, tool calls and scores.
+
+### Limits and reliability
+
+- **Every run has a budget:** 60 s and 100k tokens per agent run, 20 s and 30k
+  for routing; no LLM call starts past it.
+- **The LLM endpoints allow 4 requests at once and 10 a minute per client.** One
+  process answers about 30 questions a minute; [load test](SECURITY.md#capacity).
+- **Answers stream as they happen** ("Walking the lineage of fct_orders
+  upstream"), a question's parts run in parallel, and no LLM call starts once the
+  client leaves.
+
+### Evaluation
+
+- **Code scores every agent against answer keys it never sees,** with no LLM
+  judge: dev sets for tuning, held-out sets run after it.
+- **Prompt injection is tested:** instructions planted in catalog text were
+  followed in 0 of 33 runs.
+- **One dashboard** puts live feedback next to the latest eval runs ([below](#dashboard)).
+
+### Feedback loop
+
+1. **Users rate each answer** 👍 / 👎 on the page; a down vote takes a reason from
+   a fixed list (wrong, incomplete, should have answered, not helpful).
+2. **The rating attaches to the answer's record** (agent, evidence level, outcome,
+   retries, model, catalog build), never to its text, so a client can't claim a
+   different agent or evidence level.
+3. **The dashboard compares users with the evals:** thumbs-up rate by agent,
+   evidence level and outcome, and "high evidence, rated down", the users'
+   version of the evals' high-but-wrong.
+4. **A down vote becomes an eval case:** someone reads it, writes the question
+   and its answer key into a dev set, fixes the agent, and the evals confirm the
+   fix without breaking held-out results.
+
+`catalog-iq feedback` and `GET /feedback/summary` return the same numbers as JSON.
 
 ## Quick start
 
@@ -171,7 +214,7 @@ answer keys the agents never see, with no LLM judge; dev sets were used for
 tuning and held-out sets were run after it. What the evidence level means, and
 how often "high" was right, is in [SECURITY.md](SECURITY.md#what-the-evidence-level-means).
 
-![Dashboard: Catalog Lookup eval with how runs ended, quality metrics (pass rate, faithfulness, false and missed refusal, calibration) and reliability metrics](docs/dashboard.png)
+![Dashboard: user feedback (answers given, feedback rate, thumbs-up rate, high evidence rated down, and breakdowns by evidence level, agent and outcome) above the latest eval runs](docs/dashboard.png)
 
 ## License
 
