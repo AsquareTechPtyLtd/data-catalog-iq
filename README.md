@@ -135,6 +135,8 @@ python -m catalog_iq.evals.run --suite grounding --sets dev heldout   # false pr
 python -m catalog_iq.evals.pi            # PI Classifier
 python -m catalog_iq.evals.data_category # Data Category Recommender (open + dev)
 python -m catalog_iq.evals.router        # Router (dev)
+python -m catalog_iq.evals.pi --suite injection --sets dev             # instructions planted in catalog text
+python -m catalog_iq.evals.data_category --suite injection --sets dev  # (descriptions, data category definitions)
 python -m catalog_iq.evals.retrieval     # data category search: BM25 vs hybrid, no LLM (needs .[hybrid])
 # add --sets heldout once tuning is finished
 ```

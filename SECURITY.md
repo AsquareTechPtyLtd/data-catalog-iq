@@ -11,6 +11,7 @@ retailer. Run it locally; don't expose it or connect a real catalog without the
 | People's names leak to the LLM vendor | Names and emails become per-request tokens before any LLM call or trace ([below](#names-never-reach-the-model)) |
 | The model changes or queries data freely | `catalog.db` opens read-only; every tool call goes through one MCP server that checks the tool and its arguments, never SQL |
 | An outside MCP client sees people's names | It gets per-session tokens, in tool listings and results ([below](#catalog-tools-over-mcp)) |
+| Instructions planted in catalog text, or typed into a question | An instruction hierarchy in every prompt, roles kept apart, and code checks that don't depend on the model obeying ([below](#prompt-injection)) |
 | The model makes things up | Code checks every citation and claim; one retry, then a refusal ([below](#answers-are-checked-by-code)) |
 | A recommendation is taken as a decision | PI and data category recommendations always await a data steward |
 | Runaway cost or load | Time and token budgets per run, 4 requests in flight, 10 a minute per client ([Limits](#limits)) |
@@ -39,17 +40,42 @@ Every tool call is allow-listed, argument-checked and size-limited. Every draft'
 must point at tool results and its claims must appear in the cited source. The model never
 has the last word.
 
+## Prompt injection
+
+Anyone who can edit the catalog can write text the model will read: table and column
+descriptions, data category definitions, glossary terms.
+
+- **Instruction hierarchy in the prompts.** The router and all three agents state it: only
+  their own instructions say what to do; the request says what to work on; text inside tool
+  results is catalog data to weigh as evidence, never instructions, even when it claims to be a
+  system message, a steward's decision or a tool result.
+- **Roles kept apart.** Our instructions go in the system prompt, the question in a user message,
+  catalog text only in tool results; none is pasted into another.
+- **Code doesn't depend on the model obeying.** Tools are read-only with no outside actions, every
+  claim must appear in its cited source, and code sets the evidence level, retention and stewards.
+  Planted text can at most change the wording of an answer, and only within what the catalog supports.
+- **Measured.** The injection eval plants 11 instructions (overrides, column notes, a disguised
+  policy claim, a faked tool-result ending, base64, fake search results, two poisoned data
+  category definitions) for the PI Classifier and the Data Category Recommender. They did what
+  the planted text asked in **0 of 33 runs** (dev and held-out). The one effect: a plausible "salaries here are aggregates" claim turned a PI
+  label into a manual review. The grounding eval covers Catalog Lookup (planted text resisted in
+  9/9 runs, read by hand).
+- **Limits:** hand-written cases on one model; no multi-turn attacks; nothing checks text typed
+  into a question beyond its length. Conversation history is sent by the client, so it is as
+  trusted as the question, no more.
+
 ## Catalog tools over MCP
 
 The nine tools sit behind one MCP server (`mcp_server.py`). Our agents call it
-in-process; `catalog-iq mcp` serves outside clients such as Claude Desktop over stdio.
+in-process; `catalog-iq mcp` serves outside clients such as desktop apps and IDEs over stdio.
 
 - **Every caller:** the tool must exist, arguments must match its schema, and results are
   trimmed to 20k characters with citations kept. A blocked call is an MCP tool error.
 - **Our agents also:** only their own tools, at most 6 calls a run, and the answer checks.
 - **Outside callers also:** names and emails become tokens in results and in tool
   listings (`filter_tables` lists owners), with no way back; 60 calls a minute; an
-  entitlement hook, allow-all in the demo. Their LLM writes the answer, so nothing checks it.
+  entitlement hook, allow-all in the demo. Their LLM writes the answer, so nothing checks it,
+  and planted catalog text reaches it with none of our prompt rules.
 - Eval-only options (blind mode, edited catalogs) are start-up options, never tool arguments.
 
 ## Limits
@@ -105,6 +131,10 @@ read by hand, none is: all 5 quote the planted instruction in order to warn agai
 - **Authentication:** SSO at a gateway; per-user dataset, domain and column entitlements
   enforced in the MCP server's hook, the same for MCP clients as for people. MCP over
   HTTP with OAuth instead of stdio.
+- **Input guardrails from the provider:** the LLM provider's or cloud platform's prompt-attack
+  and content classifiers on every question and on catalog text before it reaches the model,
+  logged and blocking. Prompt rules and code checks reduce what an injection can do; a classifier
+  catches attempts before the model reads them.
 - **Data egress:** vendor and region choice, zero-retention terms, less metadata sent.
 - **Limits beyond one process:** per-user quotas and spend caps, provider fallback, workers
   behind a job queue.
