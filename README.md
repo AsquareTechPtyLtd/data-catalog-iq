@@ -58,12 +58,12 @@ a real catalog without the production controls in [SECURITY.md](SECURITY.md).
   carries the catalog's version and `as_of` date, and the page warns when it is
   over 7 days old or the last update failed. See
   [SECURITY.md](SECURITY.md#catalog-freshness).
-- **No vector database, and hybrid search only where it is measured to help.**
-  Retrieval is metadata filters, lineage walks and keyword search (SQLite FTS5,
-  BM25) over data categories. `RETRIEVER=hybrid` adds local embeddings fused
-  with BM25: on tables described in other words it lifts top-1 from 8% to 96%,
-  but on a 5,013-category catalog it ranks slightly worse, and a cross-encoder
-  re-ranker made both worse. The retrieval eval says which, without an LLM.
+- **Hybrid RAG with a re-ranker, and no vector database.** Retrieval is
+  metadata filters, lineage walks and keyword search (SQLite FTS5, BM25) over
+  data categories, the default. `RETRIEVER=hybrid` adds local embeddings fused
+  with BM25, which lifts top-1 on tables described in other words from 8% to
+  96%; `hybrid+rerank` adds a cross-encoder. A retrieval eval compares the
+  modes without an LLM.
 
 ![Tool use and hybrid retrieval: the Data Category Recommender fetches table facts with a tool call, and search_data_categories ranks category definitions with BM25 keywords, optionally merged with local embeddings by reciprocal rank fusion and re-ranked by a cross-encoder; output guardrails require the choice to come from the search](docs/rag.svg)
 
