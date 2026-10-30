@@ -130,6 +130,8 @@ read by hand, none is: all 5 quote the planted instruction in order to warn agai
 
 ## What production would need
 
+- **Audit log:** who asked what and which answer they got, per user, kept to a retention
+  policy (the demo has no login, and logs each answer without its question or answer text).
 - **Authentication:** SSO at a gateway; per-user dataset, domain and column entitlements
   enforced in the MCP server's hook, the same for MCP clients as for people. MCP over
   HTTP with OAuth instead of stdio.

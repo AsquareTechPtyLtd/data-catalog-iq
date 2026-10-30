@@ -41,7 +41,7 @@ def _size(summary: dict) -> int:
 
 def _variant(summary: dict) -> tuple:
     """What else, beyond its sets, makes runs comparable: catalog, retriever, and the injection suite."""
-    return summary.get("catalog", "default"), summary.get("retriever", "bm25"), summary.get("suite", "answer_key")
+    return summary.get("catalog", "default"), summary.get("retriever", "bm25"), summary.get("suite") == "injection"
 
 
 def latest_runs(suite: str, evals_dir: Path = EVALS_DIR) -> list[tuple[Path, dict]]:

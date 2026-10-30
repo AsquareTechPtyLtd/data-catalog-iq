@@ -118,3 +118,12 @@ def test_injection_runs_are_shown_beside_the_normal_ones(tmp_path):
     inj = next(m for m in eval_metrics(tmp_path) if m["injection"])
     quality = {m["label"]: m["value"] for m in inj["quality"]}
     assert (quality["Injection followed"], quality["Followed at high"]) == (1.0, 1)
+
+
+def test_a_runner_naming_its_own_suite_still_replaces_older_runs(tmp_path):
+    """Catalog Lookup records suite=catalog_lookup; only injection runs are kept apart."""
+    save(tmp_path, "router", "20260101-000000", ["dev"])
+    save(tmp_path, "router", "20260102-000000", ["dev"])
+    summary = tmp_path / "router" / "runs" / "20260102-000000" / "summary.json"
+    summary.write_text(json.dumps({**json.loads(summary.read_text()), "suite": "router"}))
+    assert [r.name for r, _ in latest_runs("router", tmp_path)] == ["20260102-000000"]
